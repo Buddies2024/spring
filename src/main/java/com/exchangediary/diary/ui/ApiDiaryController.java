@@ -3,6 +3,7 @@ package com.exchangediary.diary.ui;
 import com.exchangediary.diary.service.DiaryCommandService;
 import com.exchangediary.diary.service.DiaryQueryService;
 import com.exchangediary.diary.ui.dto.request.DiaryRequest;
+import com.exchangediary.diary.ui.dto.response.DiaryWritableStatusResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryIdResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryMonthlyResponse;
 import jakarta.validation.Valid;
@@ -18,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,5 +64,16 @@ public class ApiDiaryController {
         return ResponseEntity
                 .ok()
                 .body(diaryMonthlyResponse);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<DiaryWritableStatusResponse> getDiaryWritableStatus(
+            @PathVariable Long groupId,
+            @RequestAttribute Long memberId
+    ) {
+        DiaryWritableStatusResponse response = diaryQueryService.getDiaryWritableStatus(groupId, memberId);
+        return ResponseEntity
+                .ok()
+                .body(response);
     }
 }
