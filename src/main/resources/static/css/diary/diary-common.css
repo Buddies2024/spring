@@ -118,6 +118,8 @@ a {
     width: 215px;
     height: 215px;
     flex-shrink: 0;
+
+    position: relative;
 }
 
 .no-image {

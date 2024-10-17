@@ -16,6 +16,27 @@
     background: radial-gradient(50% 50% at 50% 50%, rgba(255, 255, 255, 0.00) 0%, #FFF 100%);
 }
 
+.photo-btn .photo-icon {
+    content: url("/images/diary/write-page/photo_icon.svg")
+}
+
+.cancel-btn {
+    float: left;
+    position: absolute;
+    top: 10px;
+    left: 185px;
+
+    border-radius: 50%;
+    background: #FFFFFF;
+}
+
+.cancel-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+
 .bar-write {
     width: 38px; 
     height: 38px;
