@@ -10,6 +10,7 @@ import com.exchangediary.group.ui.dto.request.GroupCreateRequest;
 import com.exchangediary.group.ui.dto.request.GroupNicknameRequest;
 import com.exchangediary.group.ui.dto.response.GroupCreateResponse;
 import com.exchangediary.group.ui.dto.response.GroupIdResponse;
+import com.exchangediary.group.ui.dto.response.GroupMembersResponse;
 import com.exchangediary.group.ui.dto.response.GroupNicknameVerifyResponse;
 import com.exchangediary.group.ui.dto.response.GroupProfileResponse;
 import jakarta.validation.Valid;
@@ -91,5 +92,16 @@ public class ApiGroupController {
         return ResponseEntity
                 .ok()
                 .build();
+    }
+
+    @GetMapping("/{groupId}/members")
+    public ResponseEntity<GroupMembersResponse> findGroupMembersBySelfOrder(
+            @PathVariable Long groupId,
+            @RequestAttribute Long memberId
+    ) {
+        GroupMembersResponse response = groupQueryService.listGroupMembersByOrder(memberId, groupId);
+        return ResponseEntity
+                .ok()
+                .body(response);
     }
 }
