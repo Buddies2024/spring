@@ -44,17 +44,16 @@ public class GroupQueryService {
 
     public GroupMembersResponse listGroupMembersByOrder(Long memberId, Long groupId) {
         Group group = findGroup(groupId);
-        List<Member> members = group.getMembers();
-        Member self = findSelf(members, memberId);
-        return GroupMembersResponse.of(members, self.getOrderInGroup() - 1);
+        Member self = findSelfInGroup(group, memberId);
+        return GroupMembersResponse.of(group.getMembers(), self.getOrderInGroup() - 1);
     }
 
-    private Member findSelf(List<Member> members, Long memberId) {
-        return members.stream()
+    public Member findSelfInGroup(Group group, Long memberId) {
+        return group.getMembers().stream()
                 .filter(member -> memberId.equals(member.getId()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(
-                        ErrorCode.GROUP_NOT_FOUND,
+                        ErrorCode.MEMBER_NOT_FOUND,
                         "",
                         String.valueOf(memberId)
                 ));

@@ -57,4 +57,8 @@ public class Member extends BaseEntity {
         this.groupRole = groupRole;
         this.group = group;
     }
+
+    public void changeGroupRole(GroupRole groupRole) {
+        this.groupRole = groupRole;
+    }
 }
