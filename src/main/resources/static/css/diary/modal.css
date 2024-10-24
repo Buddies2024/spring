@@ -40,10 +40,6 @@ td {
     letter-spacing: 0.2px;
 }
 
-.emojies {
-    display: none;
-}
-
 .modal .modal-title {
     position: relative; 
     top: 5px;
@@ -57,6 +53,15 @@ td {
 .emoji {
     width: 26px; 
     height: 26px; 
+    flex-shrink: 0;
+}
+
+.emoji-icon {
+    display: flex;
+    width: 24px;
+    height: 24px;
+    justify-content: center;
+    align-items: center;
     flex-shrink: 0;
 }
 

@@ -84,6 +84,7 @@ a {
     border: none;
     outline: none;
     white-space: pre-line;
+    text-align: center;
 
     color: var(--kakao-logo, #000);
     font-variant-numeric: lining-nums proportional-nums;
@@ -95,35 +96,12 @@ a {
     line-height: 16.65px; /* 100% */
 }
 
-.mood {
-    width: 27px;
-    height: 28px;
-    flex-shrink: 0;
-
-    position: absolute;
-    top: 5px;
-    left: 137px;
-}
-
-.page-bar {
-    width: calc(100vw * 0.624);
-    height: calc(100vh * 0.067);
-    flex-shrink: 0;
-    position: relative;
-    top: -9px;
-    margin-bottom: 17px;
-}
-
 .image {
     width: 215px;
     height: 215px;
     flex-shrink: 0;
 
     position: relative;
-}
-
-.no-image {
-    display: none;
 }
 
 .diary-content-area {

@@ -1,0 +1,32 @@
+@charset "utf-8";
+
+.page-bar {
+    width: calc(100vw * 0.624);
+    height: calc(100vh * 0.067);
+    flex-shrink: 0;
+    position: relative;
+    top: -9px;
+    margin-bottom: 17px;
+}
+
+.mood {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+
+    float: right;
+    position: relative;
+    top: 7px;
+    right: 20px;
+}
+
+.mood-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+
+.no-image {
+    display: none;
+}
