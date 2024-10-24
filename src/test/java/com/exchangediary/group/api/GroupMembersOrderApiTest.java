@@ -32,7 +32,7 @@ public class GroupMembersOrderApiTest extends ApiBaseTest {
     @Test
     void 그룹원_순서_조회_내순서_1번일때() {
         Group group = createGroup();
-        this.member.updateMemberGroupInfo("self", PROFILE_IMAGES.get(0), 1, GroupRole.GROUP_LEADER, group);
+        this.member.joinGroup("self", PROFILE_IMAGES.get(0), 1, GroupRole.GROUP_LEADER, group);
         memberRepository.save(member);
         for (int idx = 6; idx > 0; idx--) {
             createMember(group, idx + 1, PROFILE_IMAGES.get(7 - idx));
@@ -64,7 +64,7 @@ public class GroupMembersOrderApiTest extends ApiBaseTest {
     @Test
     void 그룹원_순서_조회_내순서_4번일때() {
         Group group = createGroup();
-        this.member.updateMemberGroupInfo("self", PROFILE_IMAGES.get(0), 4, GroupRole.GROUP_LEADER, group);
+        this.member.joinGroup("self", PROFILE_IMAGES.get(0), 4, GroupRole.GROUP_LEADER, group);
         memberRepository.save(member);
         for (int idx = 3; idx > 0; idx--) {
             createMember(group, idx, PROFILE_IMAGES.get(7 - idx));
@@ -99,7 +99,7 @@ public class GroupMembersOrderApiTest extends ApiBaseTest {
     @Test
     void 그룹원_순서_조회_내순서_7번일때() {
         Group group = createGroup();
-        this.member.updateMemberGroupInfo("self", PROFILE_IMAGES.get(0), 7, GroupRole.GROUP_LEADER, group);
+        this.member.joinGroup("self", PROFILE_IMAGES.get(0), 7, GroupRole.GROUP_LEADER, group);
         memberRepository.save(member);
         for (int idx = 6; idx > 0; idx--) {
             createMember(group, idx, PROFILE_IMAGES.get(7 - idx));
@@ -132,7 +132,7 @@ public class GroupMembersOrderApiTest extends ApiBaseTest {
     @DisplayName("current writer이 오늘 일기 작성자 반환")
     void 그룹원_순서_조회_오늘_일기_작성() {
         Group group = createGroup();
-        this.member.updateMemberGroupInfo("self", PROFILE_IMAGES.get(0), 1, GroupRole.GROUP_LEADER, group);
+        this.member.joinGroup("self", PROFILE_IMAGES.get(0), 1, GroupRole.GROUP_LEADER, group);
         memberRepository.save(member);
         for (int idx = 6; idx > 0; idx--) {
             createMember(group, idx + 1, PROFILE_IMAGES.get(7 - idx));

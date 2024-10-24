@@ -29,7 +29,7 @@ public class GroupJoinService {
         groupValidationService.checkProfileDuplicate(members, request.profileImage());
         groupValidationService.checkNumberOfMembers(members.size());
 
-        member.updateMemberGroupInfo(
+        member.joinGroup(
                 request.nickname(),
                 request.profileImage(),
                 members.size() + 1,

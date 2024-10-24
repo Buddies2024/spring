@@ -14,5 +14,9 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Optional<Long> findIdByGroupAndDate(Long groupId, int year, int month, int day);
     @Query("SELECT d FROM Diary d WHERE d.group.id = :groupId AND YEAR(d.createdAt) = :year AND MONTH(d.createdAt) = :month AND DAY(d.createdAt) = :day")
     Optional<Diary> findByGroupAndDate(Long groupId, int year, int month, int day);
+    @Query("SELECT CASE WHEN m.lastViewableDiaryDate >= CAST(d.createdAt AS DATE) THEN true ELSE false END " +
+            "FROM Member m JOIN Diary d " +
+            "ON m.id = :memberId AND d.id = :diaryId")
+    Boolean isViewableDiary(Long memberId,  Long diaryId);
     void deleteByMemberId(Long memberId);
 }

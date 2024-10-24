@@ -19,6 +19,7 @@ public enum ErrorCode {
     JWT_TOKEN_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "jwt 토큰 인증에 실패했습니다."),
 
     DIARY_WRITE_FORBIDDEN(HttpStatus.FORBIDDEN, "일기 작성 권한이 없습니다."),
+    DIARY_VIEW_FORBIDDEN(HttpStatus.FORBIDDEN, "일기 조회 권한이 없습니다."),
 
     DIARY_NOT_FOUND(HttpStatus.NOT_FOUND, "일기를 찾을 수 없습니다."),
     UPLOAD_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "일기 업로드 이미지를 찾을 수 없습니다."),

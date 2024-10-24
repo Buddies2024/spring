@@ -2,6 +2,8 @@ package com.exchangediary.diary.domain;
 
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.diary.domain.entity.UploadImage;
+import com.exchangediary.member.domain.MemberRepository;
+import com.exchangediary.member.domain.entity.Member;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,6 +25,8 @@ public class DiaryRepositoryUnitTest {
     private DiaryRepository diaryRepository;
     @Autowired
     private UploadImageRepository uploadImageRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     private byte[] getBinaryImage() {
         try {
@@ -67,5 +72,41 @@ public class DiaryRepositoryUnitTest {
 
         boolean exist = uploadImageRepository.findById(uploadImage.getId()).isPresent();
         assertThat(exist).isFalse();
+    }
+
+    @Test
+    void 일기_조회_가능() {
+        Diary diary = Diary.builder()
+                .content("하이하이")
+                .moodLocation("/images/write-page/emoji/sleepy.svg")
+                .build();
+        diaryRepository.save(diary);
+        Member member = Member.builder()
+                .kakaoId(1234L)
+                .lastViewableDiaryDate(LocalDate.now())
+                .build();
+        memberRepository.save(member);
+
+        boolean result = diaryRepository.isViewableDiary(member.getId(), diary.getId());
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void 일기_조회_불가능() {
+        Diary diary = Diary.builder()
+                .content("하이하이")
+                .moodLocation("/images/write-page/emoji/sleepy.svg")
+                .build();
+        diaryRepository.save(diary);
+        Member member = Member.builder()
+                .kakaoId(1234L)
+                .lastViewableDiaryDate(LocalDate.now().minusMonths(1))
+                .build();
+        memberRepository.save(member);
+
+        boolean result = diaryRepository.isViewableDiary(member.getId(), diary.getId());
+
+        assertThat(result).isFalse();
     }
 }

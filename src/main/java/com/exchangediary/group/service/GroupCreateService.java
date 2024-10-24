@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -36,7 +34,7 @@ public class GroupCreateService {
 
     private void updateMember(Long memberId, GroupCreateRequest request, Group group) {
         Member member = memberQueryService.findMember(memberId);
-        member.updateMemberGroupInfo(request.nickname(), request.profileImage(), 1, GroupRole.GROUP_LEADER, group);
+        member.joinGroup(request.nickname(), request.profileImage(), 1, GroupRole.GROUP_LEADER, group);
         memberRepository.save(member);
     }
 }

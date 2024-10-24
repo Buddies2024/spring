@@ -28,7 +28,7 @@ public class GroupLeaveService {
         int orderInGroup = member.getOrderInGroup();
 
         diaryRepository.deleteByMemberId(memberId);
-        member.updateMemberGroupInfo(null, null, 0, null, null);
+        member.joinGroup(null, null, 0, null, null);
         updateGroupMembersOrder(group, orderInGroup);
         updateGroupCurrentOrder(group, orderInGroup);
         memberRepository.save(member);

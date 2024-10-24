@@ -32,7 +32,7 @@ public class DiaryWritableStatusApiTest extends ApiBaseTest {
     void 내_순서_오늘_일기_작성_완료() {
         Group group = createGroup(1);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
         Member groupMember = createMemberInGroup(group);
         memberRepository.saveAll(Arrays.asList(member, groupMember));
         Diary diary = createDiary(group, groupMember);
@@ -57,7 +57,7 @@ public class DiaryWritableStatusApiTest extends ApiBaseTest {
     void 나의_오늘_일기_작성_완료_순서넘어감() {
         Group group = createGroup(1);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 2, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 2, GroupRole.GROUP_MEMBER, group);
         memberRepository.save(member);
         Diary diary = createDiary(group, member);
         diaryRepository.save(diary);
@@ -80,7 +80,7 @@ public class DiaryWritableStatusApiTest extends ApiBaseTest {
     void 내_순서_오늘_일기_작성_미완료() {
         Group group = createGroup(1);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
         memberRepository.save(member);
 
         DiaryWritableStatusResponse response = RestAssured
@@ -101,7 +101,7 @@ public class DiaryWritableStatusApiTest extends ApiBaseTest {
     void 친구_순서_오늘_일기_작성_완료() {
         Group group = createGroup(2);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
         Member groupMember = createMemberInGroup(group);
         memberRepository.saveAll(Arrays.asList(member, groupMember));
         Diary diary = createDiary(group, groupMember);
@@ -125,7 +125,7 @@ public class DiaryWritableStatusApiTest extends ApiBaseTest {
     void 친구_순서_오늘_일기_작성_미완료() {
         Group group = createGroup(2);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
         Member groupMember = createMemberInGroup(group);
         memberRepository.saveAll(Arrays.asList(member, groupMember));
 

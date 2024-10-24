@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDate;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupLeaderHandOverApiTest extends ApiBaseTest {
@@ -64,7 +62,7 @@ public class GroupLeaderHandOverApiTest extends ApiBaseTest {
     }
 
     private void updateSelf(Group group, int order, GroupRole role) {
-        this.member.updateMemberGroupInfo(
+        this.member.joinGroup(
                 "me",
                 "red",
                 order,

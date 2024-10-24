@@ -10,6 +10,7 @@ import com.exchangediary.global.exception.serviceexception.FailedImageUploadExce
 import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.service.GroupQueryService;
+import com.exchangediary.member.domain.MemberRepository;
 import com.exchangediary.member.domain.entity.Member;
 import com.exchangediary.member.service.MemberQueryService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class DiaryWriteService {
     private final DiaryValidationService diaryValidationService;
     private final DiaryRepository diaryRepository;
     private final GroupRepository groupRepository;
+    private final MemberRepository memberRepository;
     private final UploadImageRepository uploadImageRepository;
 
     public Long writeDiary(DiaryRequest diaryRequest, MultipartFile file, Long groupId, Long memberId) {
@@ -37,8 +41,12 @@ public class DiaryWriteService {
 
         try {
             Diary diary = Diary.from(diaryRequest, member, group);
+
             uploadImage(file, diary);
-            changeCurrentOrderOfGroup(group);
+            updateGroupCurrentOrder(group);
+            updateViewableDiaryDate(member, group);
+            member.updateLastViewableDiaryDate(LocalDate.now());
+
             Diary savedDiary = diaryRepository.save(diary);
             return savedDiary.getId();
         } catch (IOException e) {
@@ -61,9 +69,20 @@ public class DiaryWriteService {
         return file == null || file.isEmpty();
     }
 
-    private void changeCurrentOrderOfGroup(Group group) {
+    private void updateGroupCurrentOrder(Group group) {
         int currentOrder = group.getCurrentOrder() + 1;
         group.updateCurrentOrder(currentOrder, group.getMembers().size());
         groupRepository.save(group);
+    }
+
+    private void updateViewableDiaryDate(Member currentWriter, Group group) {
+        Member nextWriter = group.getMembers().stream()
+                        .filter(member -> group.getCurrentOrder().equals(member.getOrderInGroup()))
+                        .findFirst()
+                        .get();
+
+        nextWriter.updateLastViewableDiaryDate(LocalDate.now());
+        currentWriter.updateLastViewableDiaryDate(LocalDate.now());
+        memberRepository.saveAll(Arrays.asList(currentWriter, nextWriter));
     }
 }

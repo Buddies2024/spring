@@ -34,7 +34,7 @@ public class GroupLeaveApiTest extends ApiBaseTest {
         groupRepository.save(group);
         Member groupMember = createMemberInGroup(group,1);
         Member groupMember2 = createMemberInGroup(group,2);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 3, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 3, GroupRole.GROUP_MEMBER, group);
         memberRepository.saveAll(Arrays.asList(member, groupMember, groupMember2));
 
         RestAssured
@@ -63,7 +63,7 @@ public class GroupLeaveApiTest extends ApiBaseTest {
         groupRepository.save(group);
         Member groupMember = createMemberInGroup(group,1);
         Member groupMember2 = createMemberInGroup(group,2);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 3, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 3, GroupRole.GROUP_MEMBER, group);
         memberRepository.saveAll(Arrays.asList(member, groupMember, groupMember2));
 
         RestAssured
@@ -90,7 +90,7 @@ public class GroupLeaveApiTest extends ApiBaseTest {
     public void 그룹_나가기_중간_사람() {
         Group group = createGroup(1);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
         Member groupMember = createMemberInGroup(group,2);
         Member groupMember2 = createMemberInGroup(group,3);
         memberRepository.saveAll(Arrays.asList(member, groupMember, groupMember2));
@@ -123,7 +123,7 @@ public class GroupLeaveApiTest extends ApiBaseTest {
     public void 그룹_나가기_중간_사람_현재순서변경() {
         Group group = createGroup(3);
         groupRepository.save(group);
-        member.updateMemberGroupInfo("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
+        member.joinGroup("api요청멤버", "orange", 1, GroupRole.GROUP_MEMBER, group);
         Member groupMember = createMemberInGroup(group,2);
         Member groupMember2 = createMemberInGroup(group,3);
         memberRepository.saveAll(Arrays.asList(member, groupMember, groupMember2));

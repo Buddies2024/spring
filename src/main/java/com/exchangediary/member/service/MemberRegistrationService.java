@@ -19,7 +19,7 @@ public class MemberRegistrationService {
         Member member = memberRepository.findBykakaoId(kakaoId)
                 .orElseGet(() -> signUp(kakaoId));
         RefreshToken refreshToken = issueRefreshToken(member);
-        member.updateRefreshToken(refreshToken);
+        member.issueRefreshToken(refreshToken);
         return MemberIdResponse.from(member.getId());
     }
 

@@ -70,7 +70,7 @@ public class GroupLeaderSkipOrderApiTest extends ApiBaseTest {
     }
 
     private void updateSelf(Group group, int order, GroupRole role) {
-        this.member.updateMemberGroupInfo(
+        this.member.joinGroup(
                 "me",
                 "red",
                 order,
