@@ -1,6 +1,7 @@
 package com.exchangediary.group.ui;
 
 import com.exchangediary.group.service.GroupLeaderService;
+import com.exchangediary.group.ui.dto.request.GroupKickOutRequest;
 import com.exchangediary.group.ui.dto.request.GroupLeaderHandOverRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,16 @@ public class ApiGroupLeaderController {
     @PatchMapping("/skip-order")
     public ResponseEntity<Void> skipDiaryOrder(@PathVariable Long groupId) {
         groupLeaderService.skipDiaryOrder(groupId);
+        return ResponseEntity
+                .ok()
+                .build();
+    }
+    @PatchMapping("/leave")
+    public ResponseEntity<Void> kickOutMember(
+            @PathVariable Long groupId,
+            @RequestBody GroupKickOutRequest request
+    ) {
+        groupLeaderService.kickOutMember(groupId, request);
         return ResponseEntity
                 .ok()
                 .build();
