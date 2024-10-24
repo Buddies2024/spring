@@ -8,7 +8,7 @@ const notification_images = [
 ];
 
 var notification_timeout = null;
-var redirect_url = null;
+var afterMethod = null;
 
 preLoadImgage(notification_images);
 
@@ -17,11 +17,11 @@ notification_modal.addEventListener("click", () => {
     closeNotificationModal();
 });
 
-function openNotificationModal(type, messages, time, url=null) {
+function openNotificationModal(type, messages, time, method=null) {
     notification_modal_icon.children[0].classList = type;
     notification_modal_content.innerHTML = makeNotificationMessage(messages);
     notification_modal.style.display = "block";
-    redirect_url = url;
+    afterMethod = method;
 
     if (notification_timeout != null) {
         clearTimeout(notification_timeout);
@@ -44,7 +44,7 @@ function closeNotificationModal() {
     notification_modal.style.display = "none";
     notification_timeout = null;
 
-    if (redirect_url != null) {
-        window.location.replace(redirect_url);
+    if (afterMethod != null) {
+        afterMethod();
     }
 }

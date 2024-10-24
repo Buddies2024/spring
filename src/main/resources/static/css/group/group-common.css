@@ -57,7 +57,7 @@ a {
 .note {
     position: relative;
     top: 23px;
-    width:375px;
+    width: 375px;
     height: 514px;
 
     background-image: url('/images/group/note.svg');

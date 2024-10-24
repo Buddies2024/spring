@@ -50,7 +50,7 @@ function writeDiary() {
             return response.headers.get("content-location");
         })
         .then(contentLocation => {
-            openNotificationModal("success", ["일기가 작성되었어요!"], 2000, contentLocation);
+            openNotificationModal("success", ["일기가 작성되었어요!"], 2000, () => redirect(contentLocation));
         })
         .catch(async response => {
             if (response.status === 400 || response.status === 500) {

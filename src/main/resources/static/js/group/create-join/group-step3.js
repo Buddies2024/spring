@@ -79,20 +79,23 @@ function selectIcon(event) {
     selectedIcon.classList.add("selected");
 }
 
-function viewSelectableCharacter() {
+async function viewSelectableCharacter() {
     const groupId = groupData.groupId;
 
-    fetch(`/api/groups/${groupId}/profile-image`)
+    const selectedImages = await fetch(`/api/groups/${groupId}/profile-image`)
         .then(response => response.json())
-        .then(data => data.selectedImages)
-        .then(selectedImages => {
-            selectedImages.forEach(image => {
-                const profileImage = document.querySelector(`.${image.profileImage}`);
+        .then(data => data.selectedImages);
 
-                profileImage.parentElement.classList.add("gray");
-                profileImage.classList.add("gray");
-            });
-        });
+    selectedImages.forEach(image => {
+        const profileImage = document.querySelector(`.${image.profileImage}`);
+
+        profileImage.parentElement.classList.add("gray");
+        profileImage.classList.add("gray");
+    });
+
+    if (selectedImages.length === 7) {
+        openNotificationModal("error", ["그룹원이 꽉 차", "해당 그룹에 들어갈 수 없습니다."], 2000, prevStep);
+    }
 }
 
 function confirmStep3() {

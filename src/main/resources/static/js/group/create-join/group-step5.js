@@ -23,6 +23,7 @@ function drawStep5(html, direction) {
     step_content.innerHTML = html;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);
+    removeBackBtn();
 }
 
 function drawStep5Create(direction) {

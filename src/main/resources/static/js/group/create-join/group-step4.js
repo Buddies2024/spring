@@ -7,9 +7,7 @@ const STEP4_HTML = `
                         </div>
                         <div class="input-box">
                             <div class="input-textarea">
-                                <label>
-                                    <textarea class="nickname input-value" placeholder="이름" maxlength="11" spellcheck="false"></textarea>
-                                </label>
+                                <input class="nickname input-value" type="text" placeholder="이름" maxlength="6" spellcheck="false">
                             </div>
                         </div>
                         <div class="error-message" style="width: 283px; height: 34px; float: left; position: relative; left: 46px; top: 24px;">
@@ -38,6 +36,10 @@ function initStep4() {
 
 async function confirmStep4() {
     if (error.innerText !== "") {
+        return false;
+    }
+    if (nickname.value === "") {
+        openNotificationModal("error", ["이름을 입력해주세요."], 2000);
         return false;
     }
     if (isCreateInStep4()) {
@@ -77,8 +79,8 @@ async function verifyNickname() {
     if (whiteSpace.test(nickname.value)) {
         return "공백을 포함할 수 없습니다.";
     }
-    if (nickname.value.length > 10) {
-        return "최대 10자까지 입력 가능합니다.";
+    if (nickname.value.length > 5) {
+        return "최대 5자까지 입력 가능합니다.";
     }
     return await isDuplicateNickname();
 }
@@ -156,7 +158,7 @@ async function joinGroup() {
         })
         .catch(data => {
             const messages = data.message.split("\n");
-            openNotificationModal("error", messages, 2000);
+            openNotificationModal("error", messages, 2000, prevStep);
             return false;
         });
 }

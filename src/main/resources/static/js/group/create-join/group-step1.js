@@ -30,6 +30,7 @@ function drawStep1(direction) {
     step_content.innerHTML = STEP1_HTML;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);
+    removeBackBtn();
     initStep1();
 }
 

@@ -76,3 +76,28 @@ async function confirmStep() {
         nextStep();
     }
 }
+
+function removeBackBtn() {
+    if (existBackBtn()) {
+        const backBtn = document.querySelector(".bar-back");
+
+        backBtn.remove();
+    }
+}
+
+function addBackBtn() {
+    if (!existBackBtn()) {
+        const topBar = document.querySelector(".top-bar");
+        const backBtn = document.createElement("div");
+
+        backBtn.classList.add("bar-back");
+        backBtn.innerHTML = `<a href="#" class="back-btn"><img class="back-icon" src="/images/common/back_icon.svg"/></a>`;
+        topBar.appendChild(backBtn);
+
+        backBtn.addEventListener("click", () => prevStep());
+    }
+}
+
+function existBackBtn() {
+    return document.querySelector(".top-bar .back-btn");
+}
