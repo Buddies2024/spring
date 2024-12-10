@@ -131,3 +131,8 @@ textarea.diary-content {
 .page-circle.current {
     background-color: #5A402A;
 }
+
+.tooltip {
+    position: relative;
+    top: 30px;
+}
