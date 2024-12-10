@@ -51,7 +51,7 @@ const STEP3_HTML = `<div style="width: 100%; height: 34px;">
 
 function drawStep3(direction) {
     const step_content = document.createElement("div");
-    step_content.classList.add("step-content", direction);
+    step_content.classList.add("step-content", direction, "step3");
     step_content.innerHTML = STEP3_HTML;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);

@@ -26,7 +26,7 @@ const STEP1_HTML = `
 
 function drawStep1(direction) {
     const step_content = document.createElement("div");
-    step_content.classList.add("step-content", direction);
+    step_content.classList.add("step-content", direction, "step1");
     step_content.innerHTML = STEP1_HTML;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);
