@@ -4,7 +4,7 @@ const STEP1_HTML = `
                     </div>
                     <div class="group">
                         <div class="join-btn">
-                            <a href="#" class="join circle">
+                            <a href="javascript:void(0);" class="join circle">
                                 <div style="width: 64px; height: 90px;">
                                     <img class="group-icon">
                                     <span class="text group-text">그룹 가입</span>
@@ -12,7 +12,7 @@ const STEP1_HTML = `
                             </a>
                         </div>
                         <div class="create-btn">
-                            <a href="#" class="create circle">
+                            <a href="javascript:void(0);" class="create circle">
                                 <div style="width: 64px; height: 90px;">
                                     <img class="group-icon">
                                     <span class="text group-text">그룹 생성</span>
@@ -26,7 +26,7 @@ const STEP1_HTML = `
 
 function drawStep1(direction) {
     const step_content = document.createElement("div");
-    step_content.classList.add("step-content", direction);
+    step_content.classList.add("step-content", direction, "step1");
     step_content.innerHTML = STEP1_HTML;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);

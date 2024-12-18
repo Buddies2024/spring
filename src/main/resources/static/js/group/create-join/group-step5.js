@@ -13,13 +13,13 @@ const STEP5_HTML_CREATE = `
                         <div style="width: 375px; height: 106px; position: relative; top: 56px;">
                             <img src="/images/group/create-join-page/heart.svg" style="width: 144.2px; height: 70px;">
                             <div style="width: 200px; height: 34px;">
-                                <a href="#" class="copy-code">눌러서 코드 복사하기</a>
+                                <a href="javascript:void(0);" class="copy-code">눌러서 코드 복사하기</a>
                             </div>
                         </div>`;
 
-function drawStep5(html, direction) {
+function drawStep5(html, direction, stepType) {
     const step_content = document.createElement("div");
-    step_content.classList.add("step-content", direction);
+    step_content.classList.add("step-content", direction, stepType);
     step_content.innerHTML = html;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);
@@ -27,12 +27,12 @@ function drawStep5(html, direction) {
 }
 
 function drawStep5Create(direction) {
-    drawStep5(STEP5_HTML_CREATE, direction);
+    drawStep5(STEP5_HTML_CREATE, direction, "step5-create");
     initStep5();
 }
 
 function drawStep5Join(direction) {
-    drawStep5(STEP5_HTML_JOIN, direction);
+    drawStep5(STEP5_HTML_JOIN, direction, "step5-join");
 }
 
 function initStep5() {

@@ -21,9 +21,9 @@ const STEP2_HTML_JOIN = `
                             </div>
                         </div>`
 
-function drawStep2(html, direction) {
+function drawStep2(html, direction, stepType) {
     const step_content = document.createElement("div");
-    step_content.classList.add("step-content", direction);
+    step_content.classList.add("step-content", direction, stepType);
     step_content.innerHTML = html;
     note_body.appendChild(step_content);
     setTimeout(() => step_content.style.transform = "translateX(0)", 10);
@@ -32,11 +32,11 @@ function drawStep2(html, direction) {
 }
 
 function drawCreateGroup(direction) {
-    drawStep2(STEP2_HTML_CREATE, direction);
+    drawStep2(STEP2_HTML_CREATE, direction, "step2-create");
 }
 
 function drawJoinGroup(direction) {
-    drawStep2(STEP2_HTML_JOIN, direction);
+    drawStep2(STEP2_HTML_JOIN, direction, "step2-join");
 }
 
 function initStep2() {
