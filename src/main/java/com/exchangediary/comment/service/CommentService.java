@@ -31,6 +31,6 @@ public class CommentService {
         commentAuthorizationService.checkCommentWritable(member, diary);
         Comment comment = Comment.of(request, member, diary);
         commentRepository.save(comment);
-        return CommentCreateResponse.from(comment);
+        return CommentCreateResponse.of(comment, member.getProfileImage());
     }
 }

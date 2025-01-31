@@ -5,11 +5,19 @@ import lombok.Builder;
 
 @Builder
 public record CommentCreateResponse(
-        Long commentId
+        Long id,
+        Integer page,
+        String profileImage,
+        Double xCoordinate,
+        Double yCoordinate
 ) {
-    public static CommentCreateResponse from(Comment comment) {
+    public static CommentCreateResponse of(Comment comment, String profileImage) {
         return CommentCreateResponse.builder()
-                .commentId(comment.getId())
+                .id(comment.getId())
+                .page(comment.getPage())
+                .profileImage(profileImage)
+                .xCoordinate(comment.getXCoordinate())
+                .yCoordinate(comment.getYCoordinate())
                 .build();
     }
 }
