@@ -7,6 +7,8 @@ import com.exchangediary.member.service.MemberRegistrationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,15 +24,19 @@ public class KakaoLoginController {
     private final CookieService cookieService;
 
     @GetMapping("/callback")
-    public String callback(
+    public ResponseEntity<String> callback(
             @RequestParam String code,
             HttpServletResponse response
     ) {
         Long kakaoId = kakaoService.loginKakao(code);
         Long memberId = memberRegistrationService.getOrCreateMember(kakaoId).memberId();
         String token = jwtService.generateAccessToken(memberId);
+
         Cookie cookie = cookieService.createCookie("token", token);
         response.addCookie(cookie);
-        return "redirect:/groups";
+        return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .header("Location", "/")
+                .build();
     }
 }
