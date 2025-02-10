@@ -29,8 +29,8 @@ public class KakaoLoginController {
         Long kakaoId = kakaoService.loginKakao(code);
         Long memberId = memberRegistrationService.getOrCreateMember(kakaoId).memberId();
         String token = jwtService.generateAccessToken(memberId);
-        Cookie cookie = cookieService.createCookie("token", token);
-        response.addCookie(cookie);
+
+        cookieService.addCookie("token", token, response);
         return "redirect:/groups";
     }
 }

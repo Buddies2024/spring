@@ -29,7 +29,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     ) throws IOException {
         try {
             String token = getJwtTokenFromCookies(request);
-            verifyAndReissueAccessToken(token, response);
+            String newToken = jwtService.verifyAccessToken(token);
+
+            if (newToken != null) {
+                cookieService.addCookie(COOKIE_NAME, newToken, response);
+            }
+
             Long memberId = jwtService.extractMemberId(token);
             checkMemberExists(memberId);
             request.setAttribute("memberId", memberId);
@@ -76,15 +81,6 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
                     "",
                     COOKIE_NAME
             );
-        }
-    }
-
-    private void verifyAndReissueAccessToken(String token, HttpServletResponse response) {
-        String newToken = jwtService.verifyAccessToken(token);
-
-        if (newToken != null) {
-            Cookie cookie = cookieService.createCookie(COOKIE_NAME, newToken);
-            response.addCookie(cookie);
         }
     }
 
