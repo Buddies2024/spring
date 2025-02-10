@@ -25,7 +25,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${file.resources.location}")
     private String location;
 
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/upload/**")
@@ -35,10 +34,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new JwtAuthenticationInterceptor(jwtService, cookieService, memberQueryService))
-                .addPathPatterns("/login", "/groups", "/diaries/**", "/groups/**", "/api/**")
+                .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/kakao/callback");
         registry.addInterceptor(new GroupAuthorizationInterceptor(memberQueryService))
-                .addPathPatterns("/groups/**", "/api/groups/*/**")
+                .addPathPatterns("/api/groups/*/**")
                 .excludePathPatterns(
                         "/api/groups/*/profile-image",
                         "/api/groups/*/nickname/verify",
