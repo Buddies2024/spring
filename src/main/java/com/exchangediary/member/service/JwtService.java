@@ -5,7 +5,6 @@ import com.exchangediary.global.exception.serviceexception.UnauthorizedException
 import com.exchangediary.member.domain.entity.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -30,48 +29,56 @@ public class JwtService {
     private final RefreshTokenService refreshTokenService;
 
     public String generateAccessToken(Long memberId) {
-        return buildToken(memberId);
+        Date now = new Date(System.currentTimeMillis());
+        Date expiration = new Date(now.getTime() + accessTokenExpirationTime);
+
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .setSubject(String.valueOf(memberId))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String generateRefreshToken() {
-        return buildToken(null);
+        Date now = new Date(System.currentTimeMillis());
+        Date expiration = new Date(now.getTime() + refreshTokenExpirationTime);
+
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    public void verifyAccessToken(String token) {
-        verifyToken(token);
-    }
-
-    public void verifyRefreshToken(Long memberId) {
-        RefreshToken refreshToken = refreshTokenService.findRefreshTokenByMemberId(memberId);
-
+    public String verifyAccessToken(String token) {
         try {
-            verifyToken(refreshToken.getToken());
+            verifyToken(token);
         } catch (ExpiredJwtException exception) {
-            refreshTokenService.expireRefreshToken(refreshToken);
+            Long memberId = Long.valueOf(exception.getClaims().getSubject());
+            verifyRefreshToken(memberId);
+            return generateAccessToken(memberId);
         }
+        return null;
     }
 
     public Long extractMemberId(String token) {
         return Long.valueOf(extractAllClaims(token).getSubject());
     }
 
-    private String buildToken(Long memberId) {
-        Date now = new Date(System.currentTimeMillis());
-        long expirationTime = refreshTokenExpirationTime;
-        if (memberId != null) {
-            expirationTime = accessTokenExpirationTime;
-        }
-        Date expiration = new Date(now.getTime() + expirationTime);
+    private void verifyRefreshToken(Long memberId) {
+        RefreshToken refreshToken = refreshTokenService.findRefreshTokenByMemberId(memberId);
 
-        JwtBuilder jwtBuilder = Jwts.builder()
-                .setIssuedAt(now)
-                .setExpiration(expiration)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256);
-
-        if (memberId != null) {
-            jwtBuilder.setSubject(String.valueOf(memberId));
+        try {
+            verifyToken(refreshToken.getToken());
+        } catch (ExpiredJwtException exception) {
+            refreshTokenService.expireRefreshToken(refreshToken);
+            throw new UnauthorizedException(
+                    ErrorCode.EXPIRED_TOKEN,
+                    "",
+                    refreshToken.getToken()
+            );
         }
-        return jwtBuilder.compact();
     }
 
     private void verifyToken(String token) {

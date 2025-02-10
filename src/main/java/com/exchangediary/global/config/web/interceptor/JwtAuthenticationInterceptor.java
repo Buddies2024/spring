@@ -5,7 +5,6 @@ import com.exchangediary.global.exception.serviceexception.UnauthorizedException
 import com.exchangediary.member.service.CookieService;
 import com.exchangediary.member.service.JwtService;
 import com.exchangediary.member.service.MemberQueryService;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,8 +21,6 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     private final CookieService cookieService;
     private final MemberQueryService memberQueryService;
 
-    private String token;
-
     @Override
     public boolean preHandle(
             HttpServletRequest request,
@@ -31,8 +28,8 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             Object handler
     ) throws IOException {
         try {
-            token = getJwtTokenFromCookies(request);
-            verifyAndReissueAccessToken(response);
+            String token = getJwtTokenFromCookies(request);
+            verifyAndReissueAccessToken(token, response);
             Long memberId = jwtService.extractMemberId(token);
             checkMemberExists(memberId);
             request.setAttribute("memberId", memberId);
@@ -82,15 +79,11 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         }
     }
 
-    private void verifyAndReissueAccessToken(HttpServletResponse response) {
-        try {
-            jwtService.verifyAccessToken(token);
-        } catch (ExpiredJwtException exception) {
-            Long memberId = Long.valueOf(exception.getClaims().getSubject());
+    private void verifyAndReissueAccessToken(String token, HttpServletResponse response) {
+        String newToken = jwtService.verifyAccessToken(token);
 
-            jwtService.verifyRefreshToken(memberId);
-            token = jwtService.generateAccessToken(memberId);
-            Cookie cookie = cookieService.createCookie(COOKIE_NAME, token);
+        if (newToken != null) {
+            Cookie cookie = cookieService.createCookie(COOKIE_NAME, newToken);
             response.addCookie(cookie);
         }
     }
