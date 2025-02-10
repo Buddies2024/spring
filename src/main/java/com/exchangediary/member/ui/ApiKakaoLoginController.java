@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/kakao")
-public class KakaoLoginController {
+public class ApiKakaoLoginController {
     private final KakaoService kakaoService;
     private final MemberRegistrationService memberRegistrationService;
     private final JwtService jwtService;
