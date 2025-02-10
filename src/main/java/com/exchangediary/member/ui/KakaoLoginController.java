@@ -30,7 +30,7 @@ public class KakaoLoginController {
         Long memberId = memberRegistrationService.getOrCreateMember(kakaoId).memberId();
         String token = jwtService.generateAccessToken(memberId);
 
-        cookieService.addCookie("token", token, response);
+        cookieService.addCookie(jwtService.COOKIE_NAME, token, response);
         return "redirect:/groups";
     }
 }

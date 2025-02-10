@@ -15,8 +15,6 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
-    private static final String COOKIE_NAME = "token";
-
     private final JwtService jwtService;
     private final CookieService cookieService;
     private final MemberQueryService memberQueryService;
@@ -32,7 +30,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             String newToken = jwtService.verifyAccessToken(token);
 
             if (newToken != null) {
-                cookieService.addCookie(COOKIE_NAME, newToken, response);
+                cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
             }
 
             Long memberId = jwtService.extractMemberId(token);
@@ -74,12 +72,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         try {
             Cookie[] cookies = request.getCookies();
 
-            return cookieService.getValueFromCookies(cookies, COOKIE_NAME);
+            return cookieService.getValueFromCookies(cookies, jwtService.COOKIE_NAME);
         } catch (RuntimeException exception) {
             throw new UnauthorizedException(
                     ErrorCode.NEED_TO_REQUEST_TOKEN,
                     "",
-                    COOKIE_NAME
+                    jwtService.COOKIE_NAME
             );
         }
     }

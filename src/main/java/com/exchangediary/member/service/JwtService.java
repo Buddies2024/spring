@@ -20,6 +20,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
+    public final String COOKIE_NAME = "token";
     @Value("${security.jwt.secret-key}")
     private String secretKey;
     @Value("${security.jwt.access-token.expiration-time}")
