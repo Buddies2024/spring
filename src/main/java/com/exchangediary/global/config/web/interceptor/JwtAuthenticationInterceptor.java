@@ -28,6 +28,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
         if (newToken != null) {
             cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
+            token = newToken;
         }
 
         Long memberId = jwtService.extractMemberId(token);
