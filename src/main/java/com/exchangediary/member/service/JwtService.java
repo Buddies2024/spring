@@ -64,7 +64,8 @@ public class JwtService {
     }
 
     public Long extractMemberId(String token) {
-        return Long.valueOf(extractAllClaims(token).getSubject());
+        String sub = extractAllClaims(token).getSubject();
+        return Long.valueOf(sub);
     }
 
     private void verifyRefreshToken(Long memberId) {

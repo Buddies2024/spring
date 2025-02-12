@@ -19,7 +19,7 @@ public class AnonymousService {
 
         if (!shouldLogin) {
             Long memberId = jwtService.extractMemberId(token);
-            groupId = memberQueryService.findGroupBelongTo(memberId).orElse(null);
+            groupId = memberQueryService.findGroupIdBelongTo(memberId).orElse(null);
         }
         return AnonymousInfoResponse.of(shouldLogin, groupId);
     }

@@ -11,8 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     private final JwtService jwtService;
@@ -24,47 +22,17 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler
-    ) throws IOException {
-        try {
-            String token = getJwtTokenFromCookies(request);
-            String newToken = jwtService.verifyAccessToken(token);
+    ) {
+        String token = getJwtTokenFromCookies(request);
+        String newToken = jwtService.verifyAccessToken(token);
 
-            if (newToken != null) {
-                cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
-            }
+        if (newToken != null) {
+            cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
+        }
 
-            Long memberId = jwtService.extractMemberId(token);
-            checkMemberExists(memberId);
-            request.setAttribute("memberId", memberId);
-        } catch (UnauthorizedException exception) {
-            return processAuthorizationFail(request, response, exception);
-        }
-        return processAuthorizationSuccess(request, response);
-    }
-
-    private boolean processAuthorizationFail(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            UnauthorizedException exception
-    ) throws IOException {
-        if (request.getRequestURI().equals("/login")) {
-            return true;
-        }
-        if (request.getRequestURI().contains("/api")) {
-            throw exception;
-        }
-        response.sendRedirect(request.getContextPath()+ "/");
-        return false;
-    }
-
-    private boolean processAuthorizationSuccess(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        if (request.getRequestURI().equals("/login")) {
-            response.sendRedirect(request.getContextPath()+ "/groups");
-            return false;
-        }
+        Long memberId = jwtService.extractMemberId(token);
+        checkMemberExists(memberId);
+        request.setAttribute("memberId", memberId);
         return true;
     }
 
