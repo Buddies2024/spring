@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     private static final String COOKIE_NAME = "token";
@@ -29,42 +27,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler
-    ) throws IOException {
-        try {
-            token = getJwtTokenFromCookies(request);
-            verifyAndReissueAccessToken(response);
-            Long memberId = jwtService.extractMemberId(token);
-            checkMemberExists(memberId);
-            request.setAttribute("memberId", memberId);
-        } catch (UnauthorizedException exception) {
-            return processAuthorizationFail(request, response, exception);
-        }
-        return processAuthorizationSuccess(request, response);
-    }
-
-    private boolean processAuthorizationFail(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            UnauthorizedException exception
-    ) throws IOException {
-        if (request.getRequestURI().equals("/login")) {
-            return true;
-        }
-        if (request.getRequestURI().contains("/api")) {
-            throw exception;
-        }
-        response.sendRedirect(request.getContextPath()+ "/");
-        return false;
-    }
-
-    private boolean processAuthorizationSuccess(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        if (request.getRequestURI().equals("/login")) {
-            response.sendRedirect(request.getContextPath()+ "/groups");
-            return false;
-        }
+    ) {
+        token = getJwtTokenFromCookies(request);
+        verifyAndReissueAccessToken(response);
+        Long memberId = jwtService.extractMemberId(token);
+        checkMemberExists(memberId);
+        request.setAttribute("memberId", memberId);
         return true;
     }
 
