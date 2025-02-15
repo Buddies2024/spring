@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record AnonymousInfoResponse(
-        boolean shouldLogin,
+        Boolean shouldLogin,
         String groupId
 ) {
     public static AnonymousInfoResponse of(boolean shouldLogin, String groupId) {
