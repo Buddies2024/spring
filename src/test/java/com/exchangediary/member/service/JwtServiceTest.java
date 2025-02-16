@@ -29,6 +29,8 @@ public class JwtServiceTest {
         Long memberId = 1L;
         String token = jwtService.generateAccessToken(memberId);
 
-        jwtService.verifyAccessToken(token);
+        String newToken = jwtService.verifyAccessToken(token);
+
+        assertThat(newToken).isNull();
     }
 }
