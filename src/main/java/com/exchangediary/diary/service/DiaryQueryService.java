@@ -3,7 +3,6 @@ package com.exchangediary.diary.service;
 import com.exchangediary.diary.domain.dto.DiaryDay;
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.diary.domain.DiaryRepository;
-import com.exchangediary.diary.ui.dto.response.DiaryTopResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryWritableStatusResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryMonthlyResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryResponse;
@@ -48,15 +47,6 @@ public class DiaryQueryService {
         diaryAuthorizationService.checkDiaryViewable(member, diary);
 
         return DiaryResponse.of(diary);
-    }
-
-    public DiaryTopResponse viewDiaryTop(Long memberId, Long diaryId) {
-        Member member = memberQueryService.findMember(memberId);
-        Diary diary = findDiary(diaryId);
-
-        diaryAuthorizationService.checkDiaryViewable(member, diary);
-
-        return DiaryTopResponse.from(diary);
     }
 
     public DiaryMonthlyResponse viewMonthlyDiary(int year, int month, String groupId, Long memberId) {
