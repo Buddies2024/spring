@@ -40,7 +40,7 @@ public class Group extends BaseEntity {
     @NotNull
     private LocalDate lastSkipOrderDate;
     @OneToMany(mappedBy = "group")
-    @OrderBy("order_in_group ASC")
+    @OrderBy(" ASC")
     private List<Member> members;
 
     public static Group from(String groupName) {

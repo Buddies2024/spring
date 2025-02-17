@@ -25,7 +25,7 @@ public class MemberRegistrationService {
     }
 
     private Member signUp(Long kakaoId) {
-        Member newMember = Member.of(kakaoId);
+        Member newMember = Member.from(kakaoId);
         return memberRepository.save(newMember);
     }
 

@@ -1,7 +1,7 @@
 package com.exchangediary.comment.domain.entity;
 
 import com.exchangediary.global.domain.entity.BaseEntity;
-import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.group.domain.entity.GroupMember;
 import com.exchangediary.comment.ui.dto.request.ReplyCreateRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,18 +37,18 @@ public class Reply extends BaseEntity {
     @NotNull
     private final String content;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "reply_member_id_fkey"))
+    @JoinColumn(name = "group_member_id", foreignKey = @ForeignKey(name = "reply_group_member_id_fkey"))
     @NotNull
-    private final Member member;
+    private final GroupMember groupMember;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "reply_comment_id_fkey"))
     @NotNull
     private final Comment comment;
 
-    public static Reply of(ReplyCreateRequest request, Member member, Comment comment) {
+    public static Reply of(ReplyCreateRequest request, GroupMember groupMember, Comment comment) {
         return Reply.builder()
                 .content(request.content())
-                .member(member)
+                .groupMember(groupMember)
                 .comment(comment)
                 .build();
     }
