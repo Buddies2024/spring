@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +59,9 @@ public class DiaryViewApiTest extends ApiBaseTest {
         assertThat(diaryContents.get(0).content()).isEqualTo("hi");
         assertThat(diaryContents.get(1).content()).isEqualTo("hi");
         assertThat(diaryContents.get(2).content()).isEqualTo("hi");
+        assertThat(response.createdAt()).isEqualTo(
+                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        assertThat(response.todayMood()).isEqualTo(diary.getTodayMood());
         assertThat(response.imageFileName()).isEqualTo("20241101.jpeg");
         assertThat(response.nickname()).isEqualTo("하니");
         assertThat(response.profileImage()).isEqualTo("orange");
@@ -91,6 +95,9 @@ public class DiaryViewApiTest extends ApiBaseTest {
         assertThat(diaryContents.get(0).content()).isEqualTo("hi");
         assertThat(diaryContents.get(1).content()).isEqualTo("hi");
         assertThat(diaryContents.get(2).content()).isEqualTo("hi");
+        assertThat(response.createdAt()).isEqualTo(
+                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        assertThat(response.todayMood()).isEqualTo(diary.getTodayMood());
         assertThat(response.imageFileName()).isEqualTo("20241101.jpeg");
         assertThat(response.nickname()).isEqualTo("하니");
         assertThat(response.profileImage()).isEqualTo("orange");
@@ -124,6 +131,9 @@ public class DiaryViewApiTest extends ApiBaseTest {
         assertThat(diaryContents.get(0).content()).isEqualTo("hi");
         assertThat(diaryContents.get(1).content()).isEqualTo("hi");
         assertThat(diaryContents.get(2).content()).isEqualTo("hi");
+        assertThat(response.createdAt()).isEqualTo(
+                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        assertThat(response.todayMood()).isEqualTo(diary.getTodayMood());
         assertThat(response.imageFileName()).isEqualTo("20241101.jpeg");
         assertThat(response.nickname()).isEqualTo("하니");
         assertThat(response.profileImage()).isEqualTo("orange");
