@@ -1,6 +1,8 @@
 package com.exchangediary.global.config.interceptor;
 
 import com.exchangediary.ApiBaseTest;
+import com.exchangediary.group.domain.GroupRepository;
+import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.member.domain.RefreshTokenRepository;
 import com.exchangediary.member.domain.entity.RefreshToken;
 import com.exchangediary.member.service.JwtService;
@@ -9,6 +11,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,50 +27,33 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
+    private final String URI = "/api/groups/%s/profile-image";
     @Value("${security.jwt.secret-key}")
     private String secretKey;
     @Autowired
     private JwtService jwtService;
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
+    @Autowired
+    private GroupRepository groupRepository;
+    private String groupId;
 
-    @Test
-    void 토큰_발급받은_사용자가_로그인_페이지_접근() {
-        String location = RestAssured
-                .given().log().all()
-                .cookie("token", token)
-                .redirects().follow(false)
-                .when().get("/login")
-                .then()
-                .log().status()
-                .log().headers()
-                .statusCode(HttpStatus.FOUND.value())
-                .extract()
-                .header("location");
-
-        assertThat(location.substring(location.indexOf("/groups"))).isEqualTo("/groups");
-    }
-
-    @Test
-    void 토큰_발급받지않은_사용자가_로그인_페이지_접근() {
-        RestAssured
-                .given().log().all()
-                .cookie("token", token)
-                .when().get("/login")
-                .then().log().all()
-                .statusCode(HttpStatus.OK.value());
+    @BeforeEach
+    void createGroup() {
+        Group group = Group.from("버니즈");
+        groupRepository.save(group);
+        this.groupId = group.getId();
     }
 
     @Test
     void 인증_실패_쿠키에_토큰없음() {
         RestAssured
                 .given().log().all()
-                .redirects().follow(false)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then()
                 .log().status()
                 .log().headers()
-                .statusCode(HttpStatus.FOUND.value());
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @ParameterizedTest
@@ -76,12 +62,11 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .redirects().follow(false)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then()
                 .log().status()
                 .log().headers()
-                .statusCode(HttpStatus.FOUND.value());
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -90,14 +75,14 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         RestAssured
                 .given().log().all()
                 .cookie("token", this.token)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
     }
 
     @Test
     @DisplayName("Expired access token, and valid refresh token, so re-issue access token. Then success authentication.")
-    void 인증_성공_액세스_토큰_재발급() {
+    void 액세스_토큰_재발급() {
         this.token = buildExpiredAccessToken();
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), this.member);
         refreshTokenRepository.save(refreshToken);
@@ -105,7 +90,7 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         String token = RestAssured
                 .given().log().all()
                 .cookie("token", this.token)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -123,12 +108,11 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         RestAssured
                 .given().log().all()
                 .cookie("token", this.token)
-                .redirects().follow(false)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then()
                 .log().status()
                 .log().headers()
-                .statusCode(HttpStatus.FOUND.value());
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -141,12 +125,11 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         RestAssured
                 .given().log().all()
                 .cookie("token", this.token)
-                .redirects().follow(false)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then()
                 .log().status()
                 .log().headers()
-                .statusCode(HttpStatus.FOUND.value());
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
 
         Optional<RefreshToken> result = refreshTokenRepository.findByMemberId(member.getId());
         assertThat(result.isEmpty()).isTrue();
@@ -159,23 +142,10 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         RestAssured
                 .given().log().all()
                 .cookie("token", this.token)
-                .redirects().follow(false)
-                .when().get("/groups")
+                .when().get(String.format(URI, groupId))
                 .then()
                 .log().status()
                 .log().headers()
-                .statusCode(HttpStatus.FOUND.value());
-    }
-
-    @Test
-    void API_요청_인증_실패시_401_응답() {
-        this.token = buildExpiredAccessToken();
-
-        RestAssured
-                .given().log().all()
-                .cookie("token", this.token)
-                .when().post("/api/groups")
-                .then().log().all()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
@@ -199,7 +169,7 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         return Jwts
                 .builder()
                 .setIssuedAt(now)
-                .setExpiration(expiration )
+                .setExpiration(expiration)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

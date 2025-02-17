@@ -5,7 +5,7 @@ import com.exchangediary.member.domain.MemberRepository;
 import com.exchangediary.member.domain.RefreshTokenRepository;
 import com.exchangediary.member.domain.entity.Member;
 import com.exchangediary.member.domain.entity.RefreshToken;
-import io.jsonwebtoken.ExpiredJwtException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,30 +30,31 @@ public class ExpiredJwtTest {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
+    @DisplayName("expire access token and non-existnet refresh token")
     @Test
-    void 만료된_액세스_토큰_검증() throws InterruptedException {
-        Long memberId = 1L;
-        String token = jwtService.generateAccessToken(memberId);
+    void 리프레쉬_토큰_없음() throws InterruptedException {
+        Member member = Member.of(1L);
+        memberRepository.save(member);
+        String token = jwtService.generateAccessToken(member.getId());
 
         Thread.sleep(1000);
-        assertThrows(ExpiredJwtException.class, () ->
+        assertThrows(UnauthorizedException.class, () ->
                 jwtService.verifyAccessToken(token)
         );
     }
 
+    @DisplayName("expire access token and refresh token")
     @Test
     void 만료된_리프레쉬_토큰_검증() throws InterruptedException {
         Member member = Member.of(1L);
         memberRepository.save(member);
-        RefreshToken refreshToken = RefreshToken.of(
-                jwtService.generateRefreshToken(),
-                member
-        );
+        String token = jwtService.generateAccessToken(member.getId());
+        RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), member);
         refreshTokenRepository.save(refreshToken);
 
         Thread.sleep(1000);
         assertThrows(UnauthorizedException.class, () ->
-                jwtService.verifyRefreshToken(member.getId())
+                jwtService.verifyAccessToken(token)
         );
 
         Optional<RefreshToken> result = refreshTokenRepository.findByMemberId(member.getId());

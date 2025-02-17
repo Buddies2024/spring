@@ -30,14 +30,16 @@ public class MemberRegistrationService {
     }
 
     private void issueRefreshToken(Member member) {
+        String token = jwtService.generateRefreshToken();
+
         refreshTokenRepository.findByMemberId(member.getId())
                 .ifPresentOrElse(
                         refreshToken -> {
-                            refreshToken.reissueToken(jwtService.generateRefreshToken());
+                            refreshToken.reissueToken(token);
                             refreshTokenRepository.save(refreshToken);
                         },
                         () -> {
-                            RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), member);
+                            RefreshToken refreshToken = RefreshToken.of(token, member);
                             refreshTokenRepository.save(refreshToken);
                         }
                 );
