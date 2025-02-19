@@ -20,7 +20,7 @@ public class NotificationTokenService {
     private final MemberQueryService memberQueryService;
 
     @Transactional(readOnly = true)
-    public List<String> findTokensByMemberId(Long memberId) {
+    public List<String> findTokensByMember(Long memberId) {
         List<Notification> notifications = notificationRepository.findByMemberId(memberId);
 
         if (notifications.isEmpty()) {
@@ -32,25 +32,26 @@ public class NotificationTokenService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> findTokensByCurrentOrder(String groupId) {
-        return notificationRepository.findByGroupIdAndCurrentOrder(groupId);
+    public List<String> findTokensByCurrentOrderInGroup(String groupId) {
+        return notificationRepository.findTokensByGroupIdAndCurrentOrder(groupId);
     }
 
     @Transactional(readOnly = true)
-    public List<String> findTokensByGroupExceptMember(String groupId, Long memberId) {
-        return notificationRepository.findTokensByGroupIdExceptMemberId(groupId, memberId);
+    public List<String> findTokensByGroupAndExcludeMember(String groupId, Long memberId) {
+        return notificationRepository.findTokensByGroupIdAndExcludeMemberId(groupId, memberId);
     }
 
     @Transactional(readOnly = true)
-    public List<String> findTokensByGroupExceptMemberAndLeader(String groupId, Long memberId) {
-        return notificationRepository.findTokensByGroupIdExceptMemberIdAndLeader(groupId, memberId);
+    public List<String> findTokensByGroupAndExcludeMemberAndLeader(String groupId, Long memberId) {
+        return notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(groupId, memberId);
     }
 
     @Transactional(readOnly = true)
-    public List<String> findTokensByCurrentOrderInAllGroup() {
-        return notificationRepository.findTokensNoDiaryToday();
+    public List<String> findTokensWithoutDiaryToday() {
+        return notificationRepository.findTokensByMembersWithoutDiaryToday();
     }
 
+    @Transactional
     public void saveNotificationToken(NotificationTokenRequest notificationTokenRequest, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
         Notification notification = Notification.builder()
