@@ -52,7 +52,7 @@ public class CommentCreateApiTest extends ApiBaseTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .extract().as(CommentCreateResponse.class);
 
-        Comment comment = commentRepository.findById(response.commentId()).get();
+        Comment comment = commentRepository.findById(response.id()).get();
         assertThat(comment.getXCoordinate()).isEqualTo(xCoordinate);
         assertThat(comment.getYCoordinate()).isEqualTo(yCoordinate);
         assertThat(comment.getPage()).isEqualTo(page);

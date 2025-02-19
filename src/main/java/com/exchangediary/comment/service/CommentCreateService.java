@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CommentService {
+public class CommentCreateService {
     private final MemberQueryService memberQueryService;
     private final DiaryQueryService diaryQueryService;
     private final DiaryAuthorizationService diaryAuthorizationService;
@@ -31,6 +31,6 @@ public class CommentService {
         commentAuthorizationService.checkCommentWritable(member, diary);
         Comment comment = Comment.of(request, member, diary);
         commentRepository.save(comment);
-        return CommentCreateResponse.from(comment);
+        return CommentCreateResponse.of(comment, member.getProfileImage());
     }
 }

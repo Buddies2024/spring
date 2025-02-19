@@ -35,6 +35,7 @@ async function drawDateOfCalendar() {
     }
     changeGrayProfile(writtenDiaryDays);
     addBorderToday();
+    removeClickToday();
 }
 
 function clearDate() {
@@ -79,6 +80,7 @@ function isToday(date) {
 function changeGrayProfile(days) {
     days.forEach(day => {
        if (!day.canView) {
+           console.log(day);
            const dayBtn = document.querySelector(`.day${day.day}`);
 
            dayBtn.classList.add("cannot-view");
@@ -94,6 +96,14 @@ function addBorderToday() {
         const column = Math.floor((todayDate + firstDay) / 7);
         const row = (todayDate + firstDay) % 7;
         trs[column].children[row].querySelector("a").classList.add("today");
+    }
+}
+
+function removeClickToday() {
+    const today = document.querySelector(".today");
+
+    if (today && !canWrite) {
+        today.classList.add("cannot-view");
     }
 }
 

@@ -1,3 +1,5 @@
+let canWrite = true;
+
 function drawBottom() {
     const calendarBottom = document.querySelector(".calendar-bottom")
 
@@ -6,9 +8,9 @@ function drawBottom() {
         .then(data => {
             calendarBottom.innerHTML = getCalendarBottomHtml(data);
 
-            if (!data.isMyOrder && data.viewableDiaryId == null) {
-                const today = document.querySelector(".today");
-                today.classList.add("cannot-view");
+            canWrite = (data.isMyOrder && data.viewableDiaryId == null);
+            if (!canWrite) {
+                removeClickToday();
             }
         });
 }

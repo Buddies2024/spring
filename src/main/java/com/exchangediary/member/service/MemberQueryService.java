@@ -31,7 +31,7 @@ public class MemberQueryService {
         return memberRepository.existsById(memberId);
     }
 
-    public Optional<String> findGroupBelongTo(Long memberId) {
+    public Optional<String> findGroupIdBelongTo(Long memberId) {
         return memberRepository.findGroupIdById(memberId)
                 .map(GroupId::groupId);
     }
