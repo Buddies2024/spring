@@ -48,6 +48,10 @@ public class JwtService {
             verifyToken(refreshToken.getToken());
         } catch (ExpiredJwtException exception) {
             refreshTokenService.expireRefreshToken(refreshToken);
+            throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN,
+                    "",
+                    refreshToken.getToken()
+            );
         }
     }
 
