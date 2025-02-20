@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +57,11 @@ public class DiaryViewApiTest extends ApiBaseTest {
         var diaryComments = response.comments();
 
         assertThat(diaryContents).hasSize(3);
-        assertThat(diaryContents.get(0).content()).isEqualTo("hi");
-        assertThat(diaryContents.get(1).content()).isEqualTo("hi");
-        assertThat(diaryContents.get(2).content()).isEqualTo("hi");
-        assertThat(response.createdAt()).isEqualTo(
-                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
-        assertThat(response.todayMood()).isEqualTo(diary.getTodayMood());
+        assertThat(diaryContents.get(0).content()).isEqualTo("0");
+        assertThat(diaryContents.get(1).content()).isEqualTo("1");
+        assertThat(diaryContents.get(2).content()).isEqualTo("2");
+        assertThat(response.createdAt()).isEqualTo(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        assertThat(response.todayMood()).isEqualTo("sleepy");
         assertThat(response.imageFileName()).isEqualTo("20241101.jpeg");
         assertThat(response.nickname()).isEqualTo("하니");
         assertThat(response.profileImage()).isEqualTo("orange");
@@ -92,12 +92,11 @@ public class DiaryViewApiTest extends ApiBaseTest {
         var diaryComments = response.comments();
 
         assertThat(diaryContents).hasSize(3);
-        assertThat(diaryContents.get(0).content()).isEqualTo("hi");
-        assertThat(diaryContents.get(1).content()).isEqualTo("hi");
-        assertThat(diaryContents.get(2).content()).isEqualTo("hi");
-        assertThat(response.createdAt()).isEqualTo(
-                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
-        assertThat(response.todayMood()).isEqualTo(diary.getTodayMood());
+        assertThat(diaryContents.get(0).content()).isEqualTo("0");
+        assertThat(diaryContents.get(1).content()).isEqualTo("1");
+        assertThat(diaryContents.get(2).content()).isEqualTo("2");
+        assertThat(response.createdAt()).isEqualTo(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        assertThat(response.todayMood()).isEqualTo("sleepy");
         assertThat(response.imageFileName()).isEqualTo("20241101.jpeg");
         assertThat(response.nickname()).isEqualTo("하니");
         assertThat(response.profileImage()).isEqualTo("orange");
@@ -128,12 +127,12 @@ public class DiaryViewApiTest extends ApiBaseTest {
         var diaryComments = response.comments();
 
         assertThat(diaryContents).hasSize(3);
-        assertThat(diaryContents.get(0).content()).isEqualTo("hi");
-        assertThat(diaryContents.get(1).content()).isEqualTo("hi");
-        assertThat(diaryContents.get(2).content()).isEqualTo("hi");
+        assertThat(diaryContents.get(0).content()).isEqualTo("0");
+        assertThat(diaryContents.get(1).content()).isEqualTo("1");
+        assertThat(diaryContents.get(2).content()).isEqualTo("2");
         assertThat(response.createdAt()).isEqualTo(
-                diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
-        assertThat(response.todayMood()).isEqualTo(diary.getTodayMood());
+                LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+        assertThat(response.todayMood()).isEqualTo("sleepy");
         assertThat(response.imageFileName()).isEqualTo("20241101.jpeg");
         assertThat(response.nickname()).isEqualTo("하니");
         assertThat(response.profileImage()).isEqualTo("orange");
@@ -188,7 +187,7 @@ public class DiaryViewApiTest extends ApiBaseTest {
 
     private Diary createDiary(Member member, Group group) {
         Diary diary = Diary.builder()
-                .todayMood("sleepy.svg")
+                .todayMood("sleepy")
                 .imageFileName("20241101.jpeg")
                 .group(group)
                 .member(member)
@@ -215,7 +214,7 @@ public class DiaryViewApiTest extends ApiBaseTest {
         int index = 0;
 
         while (index < 3) {
-            diaryContents.add(DiaryContent.of(index + 1, "hi", diary));
+            diaryContents.add(DiaryContent.of(index + 1, String.valueOf(index), diary));
             index++;
         }
         diaryContentRepository.saveAll(diaryContents);
