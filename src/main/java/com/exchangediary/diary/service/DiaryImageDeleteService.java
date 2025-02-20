@@ -11,14 +11,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class DiaryDeleteService {
+public class DiaryImageDeleteService {
     private final ImageService imageService;
     private final DiaryRepository diaryRepository;
 
-    public void deleteDiary(String groupId, Long memberId) {
+    public void deleteImage(Long memberId, String groupId) {
         List<Diary> diaries = diaryRepository.findByMemberId(memberId);
-
-        diaryRepository.deleteByMemberId(memberId);
 
         diaries.forEach(diary -> {
             if (diary.getImageFileName() != null) {

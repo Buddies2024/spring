@@ -1,5 +1,6 @@
 package com.exchangediary.group.service;
 
+import com.exchangediary.diary.service.DiaryImageDeleteService;
 import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.ForbiddenException;
 import com.exchangediary.group.domain.GroupMemberRepository;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class GroupLeaveService {
+    private final DiaryImageDeleteService diaryImageDeleteService;
     private final GroupQueryService groupQueryService;
     private final GroupMemberQueryService groupMemberQueryService;
     private final GroupRepository groupRepository;
@@ -27,6 +29,8 @@ public class GroupLeaveService {
         GroupMember groupMember = groupMemberQueryService.findGroupMemberByMemberId(memberId);
 
         forbidGroupLeaderLeave(groupMember, group.getGroupMembers().size());
+        diaryImageDeleteService.deleteImage(memberId, groupId);
+
         int leaveMemberOrder = groupMember.getOrderInGroup();
         groupMemberRepository.delete(groupMember);
         updateGroupAfterMemberLeave(group, leaveMemberOrder);
