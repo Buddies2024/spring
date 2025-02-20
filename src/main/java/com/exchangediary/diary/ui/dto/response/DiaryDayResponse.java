@@ -1,6 +1,6 @@
 package com.exchangediary.diary.ui.dto.response;
 
-import com.exchangediary.diary.domain.dto.DiaryDay;
+import com.exchangediary.diary.domain.dto.DiaryInMonthly;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -8,11 +8,11 @@ import java.time.LocalDate;
 @Builder
 public record DiaryDayResponse(
         Long id,
-        int day,
+        Integer day,
         String profileImage,
-        boolean canView
+        Boolean canView
 ) {
-    public static DiaryDayResponse of(DiaryDay diary, LocalDate lastViewableDiaryDate) {
+    public static DiaryDayResponse of(DiaryInMonthly diary, LocalDate lastViewableDiaryDate) {
         return DiaryDayResponse.builder()
                 .id(diary.id())
                 .day(diary.createdAt().getDayOfMonth())

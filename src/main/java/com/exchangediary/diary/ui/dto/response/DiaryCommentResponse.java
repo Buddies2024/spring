@@ -23,7 +23,7 @@ public record DiaryCommentResponse(
         return DiaryCommentResponse.builder()
                 .id(comment.getId())
                 .page(comment.getPage())
-                .profileImage(comment.getMember().getProfileImage())
+                .profileImage(comment.getGroupMember().getProfileImage())
                 .xCoordinate(comment.getXCoordinate())
                 .yCoordinate(comment.getYCoordinate())
                 .build();
