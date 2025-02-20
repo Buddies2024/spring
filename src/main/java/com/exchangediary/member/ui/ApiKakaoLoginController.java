@@ -32,8 +32,7 @@ public class ApiKakaoLoginController {
         Long memberId = memberRegistrationService.getOrCreateMember(kakaoId).memberId();
         String token = jwtService.generateAccessToken(memberId);
 
-        Cookie cookie = cookieService.createCookie("token", token);
-        response.addCookie(cookie);
+        cookieService.addCookie(jwtService.COOKIE_NAME, token, response);
         return ResponseEntity
                 .status(HttpStatus.FOUND)
                 .header("Location", "/")

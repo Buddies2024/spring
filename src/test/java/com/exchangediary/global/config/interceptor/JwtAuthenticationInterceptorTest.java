@@ -82,7 +82,7 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
 
     @Test
     @DisplayName("Expired access token, and valid refresh token, so re-issue access token. Then success authentication.")
-    void 인증_성공_액세스_토큰_재발급() {
+    void 액세스_토큰_재발급() {
         this.token = buildExpiredAccessToken();
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), this.member);
         refreshTokenRepository.save(refreshToken);

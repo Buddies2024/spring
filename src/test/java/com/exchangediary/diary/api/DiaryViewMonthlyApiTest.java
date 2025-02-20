@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-class DiaryViewMonthlyTest extends ApiBaseTest {
+class DiaryViewMonthlyApiTest extends ApiBaseTest {
     private static final String API_PATH = "/api/groups/%s/diaries/monthly";
     @Autowired
     private GroupRepository groupRepository;

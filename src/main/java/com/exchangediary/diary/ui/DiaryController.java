@@ -2,7 +2,6 @@ package com.exchangediary.diary.ui;
 
 import com.exchangediary.diary.service.DiaryAuthorizationService;
 import com.exchangediary.diary.service.DiaryQueryService;
-import com.exchangediary.diary.ui.dto.response.DiaryTopResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,16 +28,4 @@ public class DiaryController {
         return "diary/write-page";
     }
 
-    @GetMapping("/{diaryId}")
-    public String viewDiary(
-            Model model,
-            @PathVariable String groupId,
-            @PathVariable Long diaryId,
-            @RequestAttribute Long memberId
-    ) {
-        DiaryTopResponse diary = diaryQueryService.viewDiaryTop(memberId, diaryId);
-        model.addAttribute("groupId", groupId);
-        model.addAttribute("diary", diary);
-        return "diary/view-page";
-    }
 }
