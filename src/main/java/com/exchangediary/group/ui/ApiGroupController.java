@@ -1,9 +1,9 @@
 package com.exchangediary.group.ui;
 
-import com.exchangediary.group.service.GroupJoinService;
 import com.exchangediary.group.service.GroupLeaveService;
+import com.exchangediary.group.service.GroupMemberQueryService;
 import com.exchangediary.group.service.GroupQueryService;
-import com.exchangediary.group.service.GroupCreateService;
+import com.exchangediary.group.service.GroupCreateJoinService;
 import com.exchangediary.group.ui.dto.request.GroupCodeRequest;
 import com.exchangediary.group.ui.dto.request.GroupJoinRequest;
 import com.exchangediary.group.ui.dto.request.GroupCreateRequest;
@@ -32,10 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/groups")
 public class ApiGroupController {
-    private final GroupCreateService groupCreateService;
-    private final GroupJoinService groupJoinService;
+    private final GroupCreateJoinService groupCreateJoinService;
     private final GroupQueryService groupQueryService;
     private final GroupLeaveService groupLeaveService;
+    private final GroupMemberQueryService groupMemberQueryService;
     private final NotificationService notificationService;
 
     @PostMapping
@@ -43,7 +43,7 @@ public class ApiGroupController {
             @RequestBody @Valid GroupCreateRequest request,
             @RequestAttribute Long memberId
     ) {
-        GroupCreateResponse response = groupCreateService.createGroup(request, memberId);
+        GroupCreateResponse response = groupCreateJoinService.createGroup(request, memberId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
@@ -85,10 +85,10 @@ public class ApiGroupController {
     @PatchMapping("/{groupId}/join")
     public ResponseEntity<Void> joinGroup(
             @PathVariable String groupId,
-            @RequestBody @Valid GroupJoinRequest request,
-            @RequestAttribute Long memberId
-    ) {
-        groupJoinService.joinGroup(groupId, request, memberId);
+            @RequestAttribute Long memberId,
+            @RequestBody @Valid GroupJoinRequest request
+            ) {
+        groupCreateJoinService.joinGroup(groupId, memberId, request);
         notificationService.pushToAllGroupMembersExceptMember(groupId, memberId, "새로운 친구가 들어왔어요!");
         return ResponseEntity
                 .ok()
@@ -96,11 +96,11 @@ public class ApiGroupController {
     }
 
     @GetMapping("/{groupId}/members")
-    public ResponseEntity<GroupMembersResponse> listGroupMembersInformation(
+    public ResponseEntity<GroupMembersResponse> listGroupMembersInfo(
             @PathVariable String groupId,
             @RequestAttribute Long memberId
     ) {
-        GroupMembersResponse response = groupQueryService.listGroupMembersInformation(memberId, groupId);
+        GroupMembersResponse response = groupMemberQueryService.listGroupMembersInfo(memberId, groupId);
         return ResponseEntity
                 .ok()
                 .body(response);

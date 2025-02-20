@@ -2,7 +2,7 @@ package com.exchangediary.group.domain.entity;
 
 import com.exchangediary.global.domain.entity.BaseEntity;
 import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
+import com.exchangediary.group.domain.enums.GroupRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -53,28 +53,32 @@ public class GroupMember extends BaseEntity {
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "group_member_member_id_fkey"))
     private Member member;
 
-    public void joinGroup(
+    public static GroupMember of(
             String nickname,
             String profileImage,
             int orderInGroup,
             GroupRole groupRole,
-            Group group
+            Group group,
+            Member member
     ) {
-        this.nickname = nickname;
-        this.profileImage = profileImage;
-        this.orderInGroup = orderInGroup;
-        this.lastViewableDiaryDate = group.getCreatedAt().toLocalDate().minusDays(1);
-        this.groupRole = groupRole;
-        this.group = group;
+        return GroupMember.builder()
+                .nickname(nickname)
+                .profileImage(profileImage)
+                .orderInGroup(orderInGroup)
+                .lastViewableDiaryDate(group.getCreatedAt().toLocalDate().minusDays(1))
+                .groupRole(groupRole)
+                .group(group)
+                .member(member)
+                .build();
     }
 
     public void changeGroupRole(GroupRole groupRole) {
         this.groupRole = groupRole;
     }
 
+    public void changeOrderInGroup(Integer orderInGroup) { this.orderInGroup = orderInGroup; }
+
     public void updateLastViewableDiaryDate() {
         this.lastViewableDiaryDate = LocalDate.now();
     }
-
-    public void updateOrderInGroup(Integer orderInGroup) { this.orderInGroup = orderInGroup; }
 }

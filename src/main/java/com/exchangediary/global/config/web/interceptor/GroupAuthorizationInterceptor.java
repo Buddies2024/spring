@@ -3,7 +3,7 @@ package com.exchangediary.global.config.web.interceptor;
 import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.ForbiddenException;
 import com.exchangediary.global.exception.serviceexception.NotFoundException;
-import com.exchangediary.member.service.MemberQueryService;
+import com.exchangediary.group.service.GroupMemberQueryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 public class GroupAuthorizationInterceptor implements HandlerInterceptor {
-    private final MemberQueryService memberQueryService;
+    private final GroupMemberQueryService groupMemberQueryService;
 
     @Override
     public boolean preHandle(
@@ -27,7 +27,8 @@ public class GroupAuthorizationInterceptor implements HandlerInterceptor {
         String groupIdInUri = extractGroupId(pathVariables, request.getRequestURI());
 
         Long memberId = (Long) request.getAttribute("memberId");
-        Optional<String> memberGroupId = memberQueryService.findGroupIdBelongTo(memberId);
+
+        Optional<String> memberGroupId = groupMemberQueryService.findGroupIdBelongTo(memberId);
 
         if (memberGroupId.isEmpty() || !memberGroupId.get().equals(groupIdInUri)) {
             throw new ForbiddenException(ErrorCode.GROUP_FORBIDDEN, "", groupIdInUri);

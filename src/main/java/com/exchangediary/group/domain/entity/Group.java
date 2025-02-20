@@ -1,7 +1,6 @@
 package com.exchangediary.group.domain.entity;
 
 import com.exchangediary.global.domain.entity.BaseEntity;
-import com.exchangediary.member.domain.entity.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -30,7 +29,7 @@ public class Group extends BaseEntity {
     @GeneratedValue(generator = "group_id")
     @GenericGenerator(
             name = "group_id",
-            strategy = "com.exchangediary.group.domain.RandomIdGenerator"
+            type = com.exchangediary.group.domain.RandomGroupIdGenerator.class
     )
     private String id;
     @NotNull
@@ -40,8 +39,8 @@ public class Group extends BaseEntity {
     @NotNull
     private LocalDate lastSkipOrderDate;
     @OneToMany(mappedBy = "group")
-    @OrderBy(" ASC")
-    private List<Member> members;
+    @OrderBy("orderInGroup ASC")
+    private List<GroupMember> groupMembers;
 
     public static Group from(String groupName) {
         return Group.builder()
