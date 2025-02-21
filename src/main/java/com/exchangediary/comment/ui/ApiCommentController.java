@@ -39,7 +39,7 @@ public class ApiCommentController {
             @RequestAttribute Long memberId
     ) {
         CommentCreateResponse response = commentCreateService.createComment(request, diaryId, memberId);
-        notificationService.pushNotification(diaryQueryService.findDiary(diaryId).getMember().getId(), "친구가 내 일기에 댓글을 달았어요!");
+        notificationService.pushNotification(diaryQueryService.findDiary(diaryId).getGroupMember().getId(), "친구가 내 일기에 댓글을 달았어요!");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
@@ -76,8 +76,8 @@ public class ApiCommentController {
             @RequestAttribute Long memberId
     ) {
         replyCreateService.createReply(request, diaryId, commentId, memberId);
-        notificationService.pushNotification(commentQueryService.findComment(commentId).getMember().getId(), "친구가 내 댓글에 답글을 달았어요!");
-        notificationService.pushNotification(diaryQueryService.findDiary(diaryId).getMember().getId(), "친구가 내 일기의 댓글에 답글을 달았어요!");
+        notificationService.pushNotification(commentQueryService.findComment(commentId).getGroupMember().getId(), "친구가 내 댓글에 답글을 달았어요!");
+        notificationService.pushNotification(diaryQueryService.findDiary(diaryId).getGroupMember().getId(), "친구가 내 일기의 댓글에 답글을 달았어요!");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
