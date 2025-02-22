@@ -24,12 +24,10 @@ public class GroupCreateJoinService {
     private final GroupMemberCreateService groupMemberCreateService;
     private final GroupRepository groupRepository;
 
-
     public GroupCreateResponse createGroup(GroupCreateRequest request, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
 
         Group group = groupRepository.save(Group.from(request.groupName()));
-
         groupMemberCreateService.createGroupLeader(request, group, member);
         return GroupCreateResponse.from(group);
     }

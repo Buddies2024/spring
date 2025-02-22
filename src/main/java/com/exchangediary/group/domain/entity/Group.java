@@ -1,6 +1,7 @@
 package com.exchangediary.group.domain.entity;
 
 import com.exchangediary.global.domain.entity.BaseEntity;
+import com.exchangediary.group.domain.RandomGroupIdGenerator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -29,7 +30,7 @@ public class Group extends BaseEntity {
     @GeneratedValue(generator = "group_id")
     @GenericGenerator(
             name = "group_id",
-            type = com.exchangediary.group.domain.RandomGroupIdGenerator.class
+            type = RandomGroupIdGenerator.class
     )
     private String id;
     @NotNull
