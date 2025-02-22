@@ -27,16 +27,16 @@ ALTER TABLE member
     DROP COLUMN group_id;
 
 ALTER TABLE diary ADD COLUMN group_member_id BIGINT NOT NULL;
-ALTER TABLE diary ADD CONSTRAINT diary_group_member_id_fkey FOREIGN KEY (group_member_id) REFERENCES group_member(id) ON DELETE CASCADE,;
+ALTER TABLE diary ADD CONSTRAINT diary_group_member_id_fkey FOREIGN KEY (group_member_id) REFERENCES group_member(id) ON DELETE CASCADE;
 UPDATE diary SET group_member_id = member_id;
 ALTER TABLE diary DROP COLUMN member_id;
 
 ALTER TABLE comment ADD COLUMN group_member_id BIGINT NOT NULL;
-ALTER TABLE comment ADD CONSTRAINT comment_group_member_id_fkey FOREIGN KEY (group_member_id) REFERENCES group_member(id) ON DELETE CASCADE,;
+ALTER TABLE comment ADD CONSTRAINT comment_group_member_id_fkey FOREIGN KEY (group_member_id) REFERENCES group_member(id) ON DELETE CASCADE;
 UPDATE comment SET group_member_id = member_id;
 ALTER TABLE comment DROP COLUMN member_id;
 
 ALTER TABLE reply ADD COLUMN group_member_id BIGINT NOT NULL;
-ALTER TABLE reply ADD CONSTRAINT reply_group_member_id_fkey FOREIGN KEY (group_member_id) REFERENCES group_member(id) ON DELETE CASCADE,;
+ALTER TABLE reply ADD CONSTRAINT reply_group_member_id_fkey FOREIGN KEY (group_member_id) REFERENCES group_member(id) ON DELETE CASCADE;
 UPDATE reply SET group_member_id = member_id;
 ALTER TABLE reply DROP COLUMN member_id;

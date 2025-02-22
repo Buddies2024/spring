@@ -13,7 +13,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     @Query("""
         SELECT d
         FROM Diary d
-        WHERE d.groupMember.member.id = :meberId
+        WHERE d.groupMember.member.id = :memberId
     """)
     List<Diary> findByMemberId(Long memberId);
 
@@ -42,7 +42,7 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
         SELECT count(d.id) > 0
         FROM Diary d
         WHERE d.group.id = :groupId
-            AND CAST(d.createdAt AS DATE) = date
+            AND CAST(d.createdAt AS DATE) = :date
     """)
     Boolean existsByGroupAndDate(String groupId, LocalDate date);
 }
