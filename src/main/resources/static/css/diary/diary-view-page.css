@@ -1,0 +1,190 @@
+@charset "utf-8";
+
+.diary-view-page {
+    background-image: url('/images/group/create-join-page/background.svg');
+
+    .mood {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    
+        float: right;
+        position: relative;
+        top: 7px;
+        right: 20px;
+    }
+    
+    .note {
+        position: relative;
+        top: 23px;
+        width: 375px;
+        height: 514px;
+    
+        background-image: url('/images/group/create-join-page/note.svg');
+    }
+    
+    .left-margin {
+        width: calc((100vw - 375px) / 2);
+        height: 514px;
+        background-color: #FCF9D1;
+    
+        position: absolute;
+        top: 23px;
+        left: 0;
+    
+        z-index: 1;
+    }
+    
+    .right-margin {
+        width: calc((100vw - 375px) / 2);
+        height: 514px;
+        background-color: #FCF9D1;
+    
+        position: absolute;
+        top: 23px;
+        right: 0;
+    
+        z-index: 1;
+    }
+    
+    .note-header {
+        width: 375px;
+        height: 45px;
+    }
+    
+    .note-body {
+        width: 375px;
+        height: 470px;
+        position: relative;
+    }
+    
+    .page-bar {
+        clear: both;
+    
+        width: 234px;
+        height: 45px;
+        flex-shrink: 0;
+        position: relative;
+        top: -24px;
+    
+        pointer-events: none;
+    }
+    
+    .page-icon {
+        width: 22px;
+        height: 44px;
+    
+        box-sizing: border-box;
+        float:left;
+    
+        position: relative;
+    
+        background: #FFFFFF;
+        border: 1px solid #E2E2E2;
+        border-radius: 20px;
+    }
+    
+    .page-icon.active {
+        border-color: #5A402A;
+        pointer-events: auto;
+    }
+    
+    .page-icon.active.fill {
+        background: #5A402A;
+        pointer-events: none;
+    }
+    
+    .page-icon.page1 {
+        left: 0;
+    }
+    
+    .page-icon.page2 {
+        left: 31px;
+    }
+    
+    .page-icon.page3 {
+        left: 62px;
+    }
+    
+    .page-icon.page4 {
+        left: 93px;
+    }
+    
+    .page-icon.page5 {
+        left: 124px;
+    }
+    
+    .note-title {
+        width: 304px;
+        height: 24px;
+    
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .character {
+        width: 20px;
+        height: 20px;
+    
+        float: left;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .character-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .character-icon.green-icon {
+        width: auto;
+    }
+    
+    .character-icon.blue-icon {
+        height: auto;
+        /*margin-bottom: 13px;*/
+    }
+    
+    .title-font {
+        float: left;
+        margin: 0 8px 3px 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    
+        color: var(--kakao-logo, #000);
+        font-variant-numeric: lining-nums proportional-nums;
+        font-feature-settings: 'dlig' on;
+        font-family: "HancomMalangMalang-Bold";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 14px; /* 70% */
+        letter-spacing: 0.2px;
+    }
+    
+    .note-content {
+        width: 375px;
+        height: 450px;
+        position: absolute;
+        top: 10px;
+    
+    
+        transition: transform 0.3s ease-out;
+    }
+    
+    .image {
+        width: 215px;
+        height: 215px;
+        flex-shrink: 0;
+    
+        position: relative;
+        top: 4px;
+    }
+    
+    .diary-content-area {
+        width: 304px;
+    }
+}

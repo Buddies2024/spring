@@ -4,7 +4,7 @@ import { KAKAO_REDIRECT_URI, KAKAO_CLIENT_ID } from "../../common/env.js";
 export default class LoginPage extends Component {
   template() {
     return `
-    <div class="background" style="background-image: url('/images/login-page/background.svg')">
+    <div class="background login-page">
         <div class="content">
             <div class="logo">
                 <img class="logo-img" src="/images/login-page/spring.svg">
@@ -25,7 +25,6 @@ export default class LoginPage extends Component {
                     </div>
                 </div>
             </a>
-            <div class="test">알림 테스트</div>
         </div>
     </div>
     `;

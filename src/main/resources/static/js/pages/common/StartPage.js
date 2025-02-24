@@ -27,7 +27,7 @@ export default class StartPage extends Component {
 
     template() {
         return `
-        <div class="background" style="background-image: url('/images/start-page/background.png'); background-size: 100dvw 100dvh;">
+        <div class="background start-page">
             <img class="logo ${this.$state.animationState}" src="${this.$state.logoUrl}"/>
             <div class="title-box">
                 <span class="text spring" >스프링</span>
@@ -48,7 +48,7 @@ export default class StartPage extends Component {
 
     getHash() {
         const userData = {
-            shouldLogin: false,
+            shouldLogin: true,
             groupId: ""
         };
         if (userData.shouldLogin) {

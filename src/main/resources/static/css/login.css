@@ -1,105 +1,109 @@
 @charset "utf-8";
 
-a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    flex-direction: column;
-}
+.login-page {
+    background-image: url('/images/login-page/background.svg');
 
-.content {
-    width: 100%;
-    height: 450px;
-    position: relative;
-    top: 184px;
-}
-
-.login-btn .logo {
-    width: 110px;
-    height: 50px;
-    flex-shrink: 0;
-}
-
-.logo-img {
-    width: 110px;
-    height: 50px;
-}
-
-.spring {
-    width: 192px;
-    height: 56px;
-    position: relative;
-    top: 48px;
-}
-
-.signup {
-    width: 150px;
-    height: 28px;
-    position: relative;
-    top: 217px;
-}
-
-.login-btn {
-    width: 326px;
-    height: 60px;
-    position: relative;
-    top: 225px;
-
-    flex-shrink: 0;
-    border-radius: 30px;
-    border: 1px solid #767676;
-    background: #FC0;
-}
-
-.kakao-login {
-    width: 133px;
-    height: 34px;
-}
-
-.kakao {
-    display: flex;
-    width: 32px;
-    height: 32px;
-    justify-content: center;
-    align-items: center;
-    float: left;
-}
-
-.login {
-    width: 100px;
-    height: 34px;
-    position: relative;
-    top: -2px;
-    left: 2px;
-    float: left;
-}
-
-.text {
-    text-align: center;
-    font-variant-numeric: lining-nums proportional-nums;
-    font-feature-settings: 'dlig' on;
-    font-family: "HancomMalangMalang-Regular";
-
-}
-
-.main-text {
-    color: var(--kakao-logo, #000);
-    font-size: 24px;
-    line-height: 28px; /* 116.667% */
-    letter-spacing: -0.24px;
-}
-
-.signup-text {
-    color: #767676;
-    font-size: 12px;
-    line-height: 28px; /* 233.333% */
-    letter-spacing: -0.12px;
-}
-
-.login-text {
-    color: #FCF9D1;
-    font-size: 16px;
-    line-height: 34px; /* 212.5% */
-    letter-spacing: -0.4px;
+    a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        flex-direction: column;
+    }
+    
+    .content {
+        width: 100%;
+        height: 450px;
+        position: relative;
+        top: 184px;
+    }
+    
+    .login-btn .logo {
+        width: 110px;
+        height: 50px;
+        flex-shrink: 0;
+    }
+    
+    .logo-img {
+        width: 110px;
+        height: 50px;
+    }
+    
+    .spring {
+        width: 192px;
+        height: 56px;
+        position: relative;
+        top: 48px;
+    }
+    
+    .signup {
+        width: 150px;
+        height: 28px;
+        position: relative;
+        top: 217px;
+    }
+    
+    .login-btn {
+        width: 326px;
+        height: 60px;
+        position: relative;
+        top: 225px;
+    
+        flex-shrink: 0;
+        border-radius: 30px;
+        border: 1px solid #767676;
+        background: #FC0;
+    }
+    
+    .kakao-login {
+        width: 133px;
+        height: 34px;
+    }
+    
+    .kakao {
+        display: flex;
+        width: 32px;
+        height: 32px;
+        justify-content: center;
+        align-items: center;
+        float: left;
+    }
+    
+    .login {
+        width: 100px;
+        height: 34px;
+        position: relative;
+        top: -2px;
+        left: 2px;
+        float: left;
+    }
+    
+    .text {
+        text-align: center;
+        font-variant-numeric: lining-nums proportional-nums;
+        font-feature-settings: 'dlig' on;
+        font-family: "HancomMalangMalang-Regular";
+    
+    }
+    
+    .main-text {
+        color: var(--kakao-logo, #000);
+        font-size: 24px;
+        line-height: 28px; /* 116.667% */
+        letter-spacing: -0.24px;
+    }
+    
+    .signup-text {
+        color: #767676;
+        font-size: 12px;
+        line-height: 28px; /* 233.333% */
+        letter-spacing: -0.12px;
+    }
+    
+    .login-text {
+        color: #FCF9D1;
+        font-size: 16px;
+        line-height: 34px; /* 212.5% */
+        letter-spacing: -0.4px;
+    }
 }

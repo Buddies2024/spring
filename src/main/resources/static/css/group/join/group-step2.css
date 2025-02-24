@@ -1,0 +1,56 @@
+@charset "utf-8";
+
+.group-join-page {
+    .input-box {
+        width: 326px;
+        height: 60px;
+        flex-shrink: 0;
+        position: relative;
+        top: 24px;
+    
+        border-radius: 20px;
+        border: 1px solid #767676;
+    }
+    
+    .input-box.input {
+        border: 2px solid #FC0;
+    }
+    
+    .input-textarea {
+        width: 269px;
+        height: 34px;
+        float: left;
+        position: relative;
+        left: 29px;
+        top: 9px;
+    }
+    
+    .input-value {
+        width: 269px;
+        height: 34px;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        resize: none;
+        white-space: pre-line;
+    
+        color: #000000;
+        font-family: "HancomMalangMalang-Regular";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+        /*line-height: 34px; !* 170% *!*/
+        letter-spacing: -0.5px;
+    }
+    
+    .error-text {
+        color: #E84D59;
+        font-family: "HancomMalangMalang-Regular";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 34px; /* 242.857% */
+        letter-spacing: -0.35px;
+        float: left;
+    }
+}

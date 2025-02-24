@@ -1,115 +1,117 @@
 @charset "utf-8";
 
-a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
-    flex-direction: column;
-}
-
-.top-bar {
-    width: 375px; 
-    height: 52px; 
-    position: relative; 
-    top: 27px; 
-}
-
-.bar-back {
-    width: 38px; 
-    height: 38px;
-    margin: 7px 10px 7px 27px; 
-    float: left; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-}
-
-.bar-icon {
-    width: 24px;
-    height: 24px; 
-    flex-shrink: 0;
-}
-
-.bar-main {
-    width: 184px; 
-    height: 38px; 
-    flex-shrink: 0; 
-    border-radius: 100px; 
-    border: 1px solid #767676;
-    float: left; 
-    margin: 7px 10px 7px 10px; 
-    position: relative;
-    left: 9px;
-}
-
-.back-btn {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.content {
-    width: 100%; 
-    height: 515px; 
-    position: relative; 
-    top: 41px;
-}
-
-.date {
-    color: var(--kakao-logo, #000);
-    text-align: center;
-    font-variant-numeric: lining-nums proportional-nums;
-    font-feature-settings: 'dlig' on;
-    font-family: Vibur;
-    font-size: 20px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 38px; /* 190% */
-    letter-spacing: 0.2px;
-
-    position: absolute;
-    top: 2px;
-    left: 20px;
-}
-
-.diary-content {
-    width: 304px;
-    height: 190px;
-    background-color: transparent;
-    border: none;
-    outline: none;
-    white-space: pre-line;
-    text-align: center;
-
-    color: var(--kakao-logo, #000);
-    font-variant-numeric: lining-nums proportional-nums;
-    font-feature-settings: 'dlig' on;
-    font-family: "HancomMalangMalang-Regular";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 15px;
-}
-
-.diary-content.only-text {
-    height: 445px;
-    margin-top: -2px;
-    margin-bottom: 0px;
-}
-
-.mood-icon {
-    width: 24px;
-    height: 24px;
-    flex-shrink: 0;
-}
-
-.image-size {
-    width: 215px;
-    height: 215px;
-    flex-shrink: 0;
+.diary-view-page, .diary-write-page {
+    a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        flex-direction: column;
+    }
+    
+    .top-bar {
+        width: 375px; 
+        height: 52px; 
+        position: relative; 
+        top: 27px; 
+    }
+    
+    .bar-back {
+        width: 38px; 
+        height: 38px;
+        margin: 7px 10px 7px 27px; 
+        float: left; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center;
+    }
+    
+    .bar-icon {
+        width: 24px;
+        height: 24px; 
+        flex-shrink: 0;
+    }
+    
+    .bar-main {
+        width: 184px; 
+        height: 38px; 
+        flex-shrink: 0; 
+        border-radius: 100px; 
+        border: 1px solid #767676;
+        float: left; 
+        margin: 7px 10px 7px 10px; 
+        position: relative;
+        left: 9px;
+    }
+    
+    .back-btn {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+    
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .content {
+        width: 100%; 
+        height: 515px; 
+        position: relative; 
+        top: 41px;
+    }
+    
+    .date {
+        color: var(--kakao-logo, #000);
+        text-align: center;
+        font-variant-numeric: lining-nums proportional-nums;
+        font-feature-settings: 'dlig' on;
+        font-family: Vibur;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 38px; /* 190% */
+        letter-spacing: 0.2px;
+    
+        position: absolute;
+        top: 2px;
+        left: 20px;
+    }
+    
+    .diary-content {
+        width: 304px;
+        height: 190px;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        white-space: pre-line;
+        text-align: center;
+    
+        color: var(--kakao-logo, #000);
+        font-variant-numeric: lining-nums proportional-nums;
+        font-feature-settings: 'dlig' on;
+        font-family: "HancomMalangMalang-Regular";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 15px;
+    }
+    
+    .diary-content.only-text {
+        height: 445px;
+        margin-top: -2px;
+        margin-bottom: 0px;
+    }
+    
+    .mood-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    
+    .image-size {
+        width: 215px;
+        height: 215px;
+        flex-shrink: 0;
+    }
 }
