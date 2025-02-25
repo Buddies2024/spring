@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class MemberRegistrationService {
-    private final RefreshTokenService refreshTokenService;
+    private final JwtService jwtService;
     private final MemberRepository memberRepository;
 
     public MemberIdResponse getOrCreateMember(Long kakaoId) {
         Member member = memberRepository.findBykakaoId(kakaoId)
                 .orElseGet(() -> signUp(kakaoId));
-        refreshTokenService.issueRefreshToken(member);
+        jwtService.issueRefreshToken(member);
         return MemberIdResponse.from(member.getId());
     }
 

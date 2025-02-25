@@ -2,6 +2,8 @@ package com.exchangediary.member.service;
 
 import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.UnauthorizedException;
+import com.exchangediary.member.domain.RefreshTokenRepository;
+import com.exchangediary.member.domain.entity.Member;
 import com.exchangediary.member.domain.entity.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -13,6 +15,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Date;
@@ -27,7 +30,7 @@ public class JwtService {
     private long accessTokenExpirationTime;
     @Value("${security.jwt.refresh-token.expiration-time}")
     private long refreshTokenExpirationTime;
-    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public String generateAccessToken(Long memberId) {
         Date now = new Date(System.currentTimeMillis());
@@ -52,6 +55,12 @@ public class JwtService {
                 .compact();
     }
 
+    public Long extractMemberId(String token) {
+        String sub = extractAllClaims(token).getSubject();
+        return Long.valueOf(sub);
+    }
+
+    @Transactional
     public String verifyAccessToken(String token) {
         try {
             verifyToken(token);
@@ -63,24 +72,45 @@ public class JwtService {
         return null;
     }
 
-    public Long extractMemberId(String token) {
-        String sub = extractAllClaims(token).getSubject();
-        return Long.valueOf(sub);
-    }
-
-    private void verifyRefreshToken(Long memberId) {
-        RefreshToken refreshToken = refreshTokenService.findRefreshTokenByMemberId(memberId);
+    @Transactional
+    public void verifyRefreshToken(Long memberId) {
+        RefreshToken refreshToken = findRefreshTokenByMemberId(memberId);
 
         try {
             verifyToken(refreshToken.getToken());
         } catch (ExpiredJwtException exception) {
-            refreshTokenService.expireRefreshToken(refreshToken);
+            refreshTokenRepository.delete(refreshToken);
             throw new UnauthorizedException(
                     ErrorCode.EXPIRED_TOKEN,
                     "",
                     refreshToken.getToken()
             );
         }
+    }
+
+    @Transactional(readOnly = true)
+    public RefreshToken findRefreshTokenByMemberId(Long memberId) {
+        return refreshTokenRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new UnauthorizedException(
+                        ErrorCode.JWT_TOKEN_UNAUTHORIZED,
+                        "",
+                        String.valueOf(memberId)
+                ));
+    }
+
+    @Transactional
+    public void issueRefreshToken(Member member) {
+        refreshTokenRepository.findByMemberId(member.getId())
+                .ifPresentOrElse(
+                        refreshToken -> {
+                            refreshToken.reissueToken(generateRefreshToken());
+                            refreshTokenRepository.save(refreshToken);
+                        },
+                        () -> {
+                            RefreshToken refreshToken = RefreshToken.of(generateRefreshToken(), member);
+                            refreshTokenRepository.save(refreshToken);
+                        }
+                );
     }
 
     private void verifyToken(String token) {
