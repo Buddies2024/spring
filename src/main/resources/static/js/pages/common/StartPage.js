@@ -48,7 +48,7 @@ export default class StartPage extends Component {
 
     getHash() {
         const userData = {
-            shouldLogin: true,
+            shouldLogin: false,
             groupId: ""
         };
         if (userData.shouldLogin) {
