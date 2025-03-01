@@ -60,7 +60,7 @@ public class JwtService {
         return Long.valueOf(sub);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = UnauthorizedException.class)
     public String verifyAccessToken(String token) {
         try {
             verifyToken(token);
@@ -73,7 +73,20 @@ public class JwtService {
     }
 
     @Transactional
-    public void verifyRefreshToken(Long memberId) {
+    public void issueRefreshToken(Member member) {
+        refreshTokenRepository.findByMemberId(member.getId())
+                .ifPresentOrElse(
+                        refreshToken -> {
+                            refreshToken.reissueToken(generateRefreshToken());
+                        },
+                        () -> {
+                            RefreshToken refreshToken = RefreshToken.of(generateRefreshToken(), member);
+                            refreshTokenRepository.save(refreshToken);
+                        }
+                );
+    }
+
+    private void verifyRefreshToken(Long memberId) {
         RefreshToken refreshToken = findRefreshTokenByMemberId(memberId);
 
         try {
@@ -88,29 +101,13 @@ public class JwtService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public RefreshToken findRefreshTokenByMemberId(Long memberId) {
+    private RefreshToken findRefreshTokenByMemberId(Long memberId) {
         return refreshTokenRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new UnauthorizedException(
                         ErrorCode.JWT_TOKEN_UNAUTHORIZED,
                         "",
                         String.valueOf(memberId)
                 ));
-    }
-
-    @Transactional
-    public void issueRefreshToken(Member member) {
-        refreshTokenRepository.findByMemberId(member.getId())
-                .ifPresentOrElse(
-                        refreshToken -> {
-                            refreshToken.reissueToken(generateRefreshToken());
-                            refreshTokenRepository.save(refreshToken);
-                        },
-                        () -> {
-                            RefreshToken refreshToken = RefreshToken.of(generateRefreshToken(), member);
-                            refreshTokenRepository.save(refreshToken);
-                        }
-                );
     }
 
     private void verifyToken(String token) {
