@@ -15,13 +15,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NotificationTokenService {
     private final NotificationRepository notificationRepository;
     private final MemberQueryService memberQueryService;
 
-    @Transactional(readOnly = true)
     public List<String> findTokensByMember(Long memberId) {
-        List<Notification> notifications = notificationRepository.findByMemberId(memberId);
+        List<Notification> notifications = notificationRepository.findAllByMemberId(memberId);
 
         if (notifications.isEmpty()) {
             return new ArrayList<>();
@@ -31,22 +31,21 @@ public class NotificationTokenService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<String> findTokensByCurrentOrderInGroup(String groupId) {
         return notificationRepository.findTokensByGroupIdAndCurrentOrder(groupId);
     }
 
-    @Transactional(readOnly = true)
+
     public List<String> findTokensByGroupAndExcludeMember(String groupId, Long memberId) {
         return notificationRepository.findTokensByGroupIdAndExcludeMemberId(groupId, memberId);
     }
 
-    @Transactional(readOnly = true)
+
     public List<String> findTokensByGroupAndExcludeMemberAndLeader(String groupId, Long memberId) {
         return notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(groupId, memberId);
     }
 
-    @Transactional(readOnly = true)
+
     public List<String> findTokensWithoutDiaryToday() {
         return notificationRepository.findTokensByMembersWithoutDiaryToday();
     }
@@ -54,10 +53,7 @@ public class NotificationTokenService {
     @Transactional
     public void saveNotificationToken(NotificationTokenRequest notificationTokenRequest, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
-        Notification notification = Notification.builder()
-                .token(notificationTokenRequest.token())
-                .member(member)
-                .build();
+        Notification notification = Notification.of(notificationTokenRequest.token(), member);
 
         try {
             notificationRepository.save(notification);

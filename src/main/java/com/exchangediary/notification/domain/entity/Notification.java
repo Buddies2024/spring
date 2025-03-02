@@ -34,4 +34,11 @@ public class Notification extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "notification_member_id_fkey"))
     private Member member;
+
+    public static Notification of(String token, Member member) {
+        return Notification.builder()
+                .token(token)
+                .member(member)
+                .build();
+    }
 }
