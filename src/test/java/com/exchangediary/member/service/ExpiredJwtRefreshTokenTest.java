@@ -33,11 +33,14 @@ public class ExpiredJwtRefreshTokenTest {
     @Test
     @DisplayName("만료된 access token을 검증 시 사용자가 refresh token을 갖고 있지 않다면, 예외를 던진다")
     void When_ExpiredJwtAccessTokenAndNoHasRefreshToken_Then_ThrowException() throws InterruptedException {
+        // Given
         Member member = Member.from(1L);
         memberRepository.save(member);
         String token = jwtService.generateAccessToken(member.getId());
 
         Thread.sleep(1000);
+
+        // When & Then
         assertThrows(UnauthorizedException.class, () ->
                 jwtService.verifyAccessToken(token)
         );
@@ -46,17 +49,22 @@ public class ExpiredJwtRefreshTokenTest {
     @Test
     @DisplayName("만료된 access token을 검증 시 사용자의 refresh token도 만료됐다면, 예외를 던진다")
     void When_ExpiredJwtAccessTokenAndExpiredRefreshToken_Then_ThrowException() throws InterruptedException {
+        // Given
         Member member = Member.from(1L);
         memberRepository.save(member);
+
         String token = jwtService.generateAccessToken(member.getId());
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), member);
         refreshTokenRepository.save(refreshToken);
 
         Thread.sleep(1000);
+
+        // When
         assertThrows(UnauthorizedException.class, () ->
                 jwtService.verifyAccessToken(token)
         );
 
+        // Then
         Optional<RefreshToken> result = refreshTokenRepository.findByMemberId(member.getId());
         assertThat(result.isEmpty()).isTrue();
     }

@@ -42,6 +42,7 @@ public class LoginApiTest extends ApiBaseTest {
         String token = response.cookie("token");
         Long memberId = jwtService.extractMemberId(token);
         assertThat(memberId).isEqualTo(member.getId());
+
         RefreshToken refreshToken = refreshTokenRepository.findByMemberId(memberId).get();
         assertThat(refreshToken).isNotNull();
     }
@@ -68,6 +69,7 @@ public class LoginApiTest extends ApiBaseTest {
         String token = response.cookie("token");
         Long memberId = jwtService.extractMemberId(token);
         assertThat(memberId).isEqualTo(member.getId());
+
         RefreshToken issuedRefreshToken = refreshTokenRepository.findByMemberId(memberId).get();
         assertThat(issuedRefreshToken).isNotEqualTo(refreshToken);
     }

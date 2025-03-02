@@ -28,15 +28,20 @@ public class ExpiredJwtAccessTokenTest {
     @Test
     @DisplayName("만료된 access token을 검증 시 사용자의 refresh token의 유효하다면, access token을 재발급한다.")
     void When_ExpiredJwtAccessTokenAndValidRefreshToken_Then_ReissueAccessToken() throws InterruptedException {
+        // Given
         Member member = Member.from(1L);
         memberRepository.save(member);
+
         String token = jwtService.generateAccessToken(member.getId());
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(),member);
         refreshTokenRepository.save(refreshToken);
 
         Thread.sleep(1000);
+
+        // When
         String newToken = jwtService.verifyAccessToken(token);
 
+        // Then
         Long memberId = jwtService.extractMemberId(newToken);
         assertThat(memberId).isEqualTo(member.getId());
     }
