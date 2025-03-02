@@ -15,33 +15,39 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NotificationApiTest extends ApiBaseTest {
+    private static final String URI = "/api/members/notifications/token";
     @Autowired
     private NotificationRepository notificationRepository;
 
     @Test
     void 알림_fcm_토큰_저장_성공() {
+        String fcmToken = "token";
+
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new NotificationTokenRequest("token"))
-                .when().patch("/api/members/notifications/token")
+                .body(new NotificationTokenRequest(fcmToken))
+                .when().patch(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
-        List<Notification> notifications = notificationRepository.findByMemberId(member.getId());
+        List<Notification> notifications = notificationRepository.findAllByMemberId(member.getId());
         assertThat(notifications).hasSize(1);
-        assertThat(notifications.get(0).getToken()).isEqualTo("token");
+        assertThat(notifications.get(0).getToken()).isEqualTo(fcmToken);
     }
 
     @Test
     void 알림_fcm_토큰_업데이트_성공() {
+        String fcmToken1 = "token1";
+        String fcmToken2 = "token2";
+
         RestAssured
                 .given()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new NotificationTokenRequest("old-token"))
-                .when().patch("/api/members/notifications/token")
+                .body(new NotificationTokenRequest(fcmToken1))
+                .when().patch(URI)
                 .then()
                 .statusCode(HttpStatus.OK.value());
 
@@ -49,14 +55,14 @@ public class NotificationApiTest extends ApiBaseTest {
                 .given().log().all()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new NotificationTokenRequest("new-token"))
-                .when().patch("/api/members/notifications/token")
+                .body(new NotificationTokenRequest(fcmToken2))
+                .when().patch(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
-        List<Notification> notifications = notificationRepository.findByMemberId(member.getId());
+        List<Notification> notifications = notificationRepository.findAllByMemberId(member.getId());
         assertThat(notifications).hasSize(2);
-        assertThat(notifications.get(0).getToken()).isEqualTo("old-token");
-        assertThat(notifications.get(1).getToken()).isEqualTo("new-token");
+        assertThat(notifications.get(0).getToken()).isEqualTo(fcmToken1);
+        assertThat(notifications.get(1).getToken()).isEqualTo(fcmToken2);
     }
 }
