@@ -1,8 +1,8 @@
 package com.exchangediary.member.service;
 
 import com.exchangediary.member.domain.MemberRepository;
-import com.exchangediary.member.domain.RefreshTokenRepository;
 import com.exchangediary.member.domain.entity.Member;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,17 +25,12 @@ public class MemberRegistrationServiceTest {
     private MemberRepository memberRepository;
     @Mock
     private JwtService jwtService;
-    @Mock
-    private RefreshTokenRepository refreshTokenRepository;
 
     @Test
-    void 새로운_회원_생성() {
+    @DisplayName("kakao id에 일치하는 회원이 없으면, 신규 회원을 생성한다.")
+    void When_NoMemberMatchingKakaoId_Expect_CreateNewMember() {
         Long kakaoId = 1L;
-        Member newMember = Member.builder()
-                .id(1L)
-                .kakaoId(kakaoId)
-                .orderInGroup(0)
-                .build();
+        Member newMember = Member.from(kakaoId);
 
         when(memberRepository.findBykakaoId(kakaoId)).thenReturn(Optional.empty());
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
@@ -47,13 +42,10 @@ public class MemberRegistrationServiceTest {
     }
 
     @Test
-    void 기존_회원_가져오기() {
+    @DisplayName("kakao id에 일치하는 회원이 있으면, 기존 회원을 반환한다.")
+    void When_MemberMatchingKakaoId_Expect_ReturnCurrentMember() {
         Long kakaoId = 1L;
-        Member member = Member.builder()
-                .id(1L)
-                .kakaoId(kakaoId)
-                .orderInGroup(0)
-                .build();
+        Member member = Member.from(kakaoId);
 
         when(memberRepository.findBykakaoId(kakaoId)).thenReturn(Optional.ofNullable(member));
 

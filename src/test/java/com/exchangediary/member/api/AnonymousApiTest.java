@@ -1,27 +1,25 @@
 package com.exchangediary.member.api;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
-import com.exchangediary.member.domain.enums.GroupRole;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.member.ui.dto.response.AnonymousInfoResponse;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnonymousApiTest extends ApiBaseTest {
     private static final String URI = "/api/anonymous/info";
-    @Autowired
-    private GroupRepository groupRepository;
 
     @Test
-    void 로그인한_그룹가입한_사용자() {
+    @DisplayName("로그인 O, 그룹 가입 O 사용자")
+    void When_LoginAndBelongToGroup() {
         Group group = createGroup();
-        updateSelf(group);
+        joinGroup("스프링", 2, 0, GroupRole.GROUP_LEADER, group, member);
 
-        var body = RestAssured
+        AnonymousInfoResponse body = RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .when().get(URI)
@@ -33,11 +31,12 @@ public class AnonymousApiTest extends ApiBaseTest {
     }
 
     @Test
-    void 로그인_안한_그룹가입한_사용자() {
+    @DisplayName("로그인 X, 그룹 가입 O 사용자")
+    void When_NoLoginAndBelongToGroup() {
         Group group = createGroup();
-        updateSelf(group);
+        joinGroup("스프링", 2, 0, GroupRole.GROUP_LEADER, group, member);
 
-        var body = RestAssured
+        AnonymousInfoResponse body = RestAssured
                 .given().log().all()
                 .when().get(URI)
                 .then().log().all()
@@ -48,8 +47,9 @@ public class AnonymousApiTest extends ApiBaseTest {
     }
 
     @Test
-    void 로그인한_그룹미가입_사용자() {
-        var body = RestAssured
+    @DisplayName("로그인 O, 그룹 가입 X 사용자")
+    void When_LoginAndNotBelongToGroup() {
+        AnonymousInfoResponse body = RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .when().get(URI)
@@ -61,8 +61,9 @@ public class AnonymousApiTest extends ApiBaseTest {
     }
 
     @Test
-    void 로그인_안한_그룹미가입_사용자() {
-        var body = RestAssured
+    @DisplayName("로그인 X, 그룹 가입 X 사용자")
+    void When_NoLoginAndNotBelongToGroup() {
+        AnonymousInfoResponse body = RestAssured
                 .given().log().all()
                 .when().get(URI)
                 .then().log().all()
@@ -70,15 +71,5 @@ public class AnonymousApiTest extends ApiBaseTest {
 
         assertThat(body.shouldLogin()).isTrue();
         assertThat(body.groupId()).isNull();
-    }
-
-    private Group createGroup() {
-        Group group = Group.from("버니즈");
-        return groupRepository.save(group);
-    }
-
-    private void updateSelf(Group group) {
-        member.joinGroup("닉넴", "red", 1, GroupRole.GROUP_LEADER, group);
-        memberRepository.save(member);
     }
 }
