@@ -6,7 +6,16 @@ const currentPathname = window.location.pathname
 function viewDiary() {
     fetch(`/api${currentPathname}`)
         .then(response => response.json())
-        .then(data => drawPageBar(data));
+        .then(data => {
+            drawTopBar(data)
+            drawPageBar(data)
+            drawComments(data.comments)
+        });
+}
+
+function drawTopBar(data) {
+    document.querySelector(".date").innerText = data.createdAt;
+    document.querySelector(".mood .mood-icon").src = `/images/diary/write-page/emoji/${data.todayMood}`;
 }
 
 function drawPageBar(diary) {
@@ -30,7 +39,6 @@ function drawPageBar(diary) {
         const page = { index: index, noteContent: noteContent };
         pages.push(page);
     }
-    drawComments(diary.comments);
     changePage(page);
 }
 
