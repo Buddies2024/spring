@@ -20,15 +20,4 @@ messaging.onBackgroundMessage(function (payload) {
       "백그라운드 알림 도착",
       payload
     );
-  
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-      body: payload.notification.body,
-      icon: payload.notification.icon,
-    };
-  
-    return self.registration.showNotification(
-      notificationTitle,
-      notificationOptions
-    );
-  });
+});

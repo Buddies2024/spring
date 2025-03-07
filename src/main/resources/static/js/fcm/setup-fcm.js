@@ -68,7 +68,9 @@ function handleMessage() {
             body: payLoad.notification.body,
             icon: payLoad.notification.icon,
         };
-        new Notification(notificationTitle, notificationOptions);
+        if (document.visibilityState === 'visible') {
+            new Notification(notificationTitle, notificationOptions);
+        }
     });
 }
 
