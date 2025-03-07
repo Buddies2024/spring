@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/groups/{groupId}/diaries")
 public class DiaryController {
     private final DiaryAuthorizationService diaryAuthorizationService;
-    private final DiaryQueryService diaryQueryService;
 
     @GetMapping
     public String writePage(
@@ -28,4 +27,8 @@ public class DiaryController {
         return "diary/write-page";
     }
 
+    @GetMapping("/{diaryId}")
+    public String viewDiary() {
+        return "diary/view-page";
+    }
 }
