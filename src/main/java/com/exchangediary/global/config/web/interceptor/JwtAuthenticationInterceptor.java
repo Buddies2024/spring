@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     private final JwtService jwtService;
@@ -22,18 +24,23 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler
-    ) {
-        String token = getJwtTokenFromCookies(request);
-        String newToken = jwtService.verifyAccessToken(token);
+    ) throws IOException {
+        try {
+            String token = getJwtTokenFromCookies(request);
+            String newToken = jwtService.verifyAccessToken(token);
 
-        if (newToken != null) {
-            cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
-            token = newToken;
+            if (newToken != null) {
+                cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
+                token = newToken;
+            }
+
+            Long memberId = jwtService.extractMemberId(token);
+            checkMemberExists(memberId);
+            request.setAttribute("memberId", memberId);
+        } catch (UnauthorizedException exception) {
+            response.sendRedirect("/login");
+            return false;
         }
-
-        Long memberId = jwtService.extractMemberId(token);
-        checkMemberExists(memberId);
-        request.setAttribute("memberId", memberId);
         return true;
     }
 
