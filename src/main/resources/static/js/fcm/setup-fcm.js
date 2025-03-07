@@ -4,13 +4,7 @@ import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/fireb
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-function setupFCM() {
-    registerServiceWorker();
-    requestNotificationPermission();
-    handleMessage();
-}
-
-function registerServiceWorker() {
+export function registerServiceWorker() {
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
             navigator.serviceWorker
@@ -74,4 +68,4 @@ function handleMessage() {
     });
 }
 
-setupFCM();
+handleMessage();

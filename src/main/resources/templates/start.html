@@ -17,6 +17,10 @@
 
 <th:block layout:fragment="script">
   <script src="/js/start-page/start.js"></script>
+  <script type="module">
+    import { registerServiceWorker } from "/js/fcm/setup-fcm.js"
+    registerServiceWorker();
+  </script>
 </th:block>
 
 </html>

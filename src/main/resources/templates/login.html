@@ -28,18 +28,11 @@
                     </div>
                 </div>
             </a>
-
-            <div class="test">알림 테스트</div>
         </div>
     </div>
 </th:block>
 
 <th:block layout:fragment="script">
-    <script type="module">
-        import { requestNotificationPermission } from "/js/fcm/setup-fcm.js"
-
-        document.querySelector(".test").addEventListener("click", requestNotificationPermission);
-    </script>
 </th:block>
 
 </html>
