@@ -1,0 +1,16 @@
+{
+    "name": "스프링",
+    "short_name": "스프링",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "스프링 너머의, 우리. 우리, 만의 연결고리.",
+    "icons": [
+      {
+        "src": "./images/logo.favicon.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  

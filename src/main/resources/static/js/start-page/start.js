@@ -6,22 +6,39 @@ const logo_images = [
 
 preLoadImgage(logo_images);
 
-let isAnimationComplete = false;
-
 setTimeout(() => {
     logo.src = "/images/start-page/line.gif";
 }, 10);
 
 setTimeout(() => {
     logo.classList.add("end");
-    isAnimationComplete = true;
-}, 2400);
+}, 2390);
 
 document.addEventListener("click", () => {
-    if (isAnimationComplete) {
-        window.location.href = '/login';
+    if (logo.classList.contains("end")) {
+        redirect();
     } else {
         logo.classList.add("end");
-        isAnimationComplete = true;
     }
 });
+
+function redirect() {
+    fetch(`/api/anonymous/info`)
+    .then(response => response.json())
+    .then(data => window.location.href = getUrl(data));
+}
+
+function getUrl(anonymousInfo) {
+    window.localStorage.removeItem("groupId");
+
+    if (anonymousInfo.shouldLogin) {
+        return "/login"
+    }
+
+    if (anonymousInfo.groupId === null) {
+        return "/groups"
+    }
+
+    window.localStorage.setItem("groupId", anonymousInfo.groupId);
+    return `/groups/${anonymousInfo.groupId}`
+}

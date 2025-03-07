@@ -21,11 +21,13 @@
     <link rel="stylesheet" href="/css/notification-modal.css" type="text/css">
     <link rel="stylesheet" href="/css/confirm-modal.css" type="text/css">
 
+    <link rel="icon" href="/images/logo.favicon.png"/>
+    <link rel="apple-touch-icon" href="/images/logo.favicon.png"/>
+
+    <link rel="manifest" href="/manifest.json"/>
+
     <script src="/js/common/image-preloading.js"></script>
     <script src="/js/common/base.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-messaging.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -40,7 +42,7 @@
         const vapidKey = "[[${vapidKey}]]";
     </script>
 
-    <script src="/js/fcm/setup-fcm.js"></script>
+    <script type="module" src="/js/fcm/setup-fcm.js"></script>
 
     <th:block layout:fragment="header"></th:block>
 </head>
@@ -60,7 +62,7 @@
 
     <th:block layout:fragment="body"></th:block>
 
-    <div class="help-icon-container">
+    <!-- <div class="help-icon-container">
         <div class="tooltip hidden">
             <img src ="/images/common/help-menu/tooltip.svg">
             <div class="tooltip-buttons">
@@ -91,10 +93,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </body>
 
 <th:block layout:fragment="script"></th:block>
-<script src="/js/common/help-menu.js"></script>
 
 </html>
