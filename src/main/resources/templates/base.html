@@ -21,11 +21,13 @@
     <link rel="stylesheet" href="/css/notification-modal.css" type="text/css">
     <link rel="stylesheet" href="/css/confirm-modal.css" type="text/css">
 
+    <link rel="icon" href="/images/logo.favicon.png"/>
+    <link rel="apple-touch-icon" href="/images/logo.favicon.png"/>
+
+    <link rel="manifest" href="/manifest.json"/>
+
     <script src="/js/common/image-preloading.js"></script>
     <script src="/js/common/base.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-messaging.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -40,7 +42,7 @@
         const vapidKey = "[[${vapidKey}]]";
     </script>
 
-    <script src="/js/fcm/setup-fcm.js"></script>
+    <script type="module" src="/js/fcm/setup-fcm.js"></script>
 
     <th:block layout:fragment="header"></th:block>
 </head>
