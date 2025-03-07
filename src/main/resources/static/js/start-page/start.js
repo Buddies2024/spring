@@ -22,12 +22,10 @@ document.addEventListener("click", () => {
     }
 });
 
-async function redirect() {
-    const anonymousInfo = await fetch(`/api/anonymous/info`)
+function redirect() {
+    fetch(`/api/anonymous/info`)
     .then(response => response.json())
-    .then(data => data);
-
-    window.location.href = getUrl(anonymousInfo);
+    .then(data => window.location.href = getUrl(data));
 }
 
 function getUrl(anonymousInfo) {
