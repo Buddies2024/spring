@@ -4,7 +4,7 @@
     height: 130px;
     bottom: 0px;
     right: 0px;
-    z-index: 20;
+    z-index: 2;
 }
 
 .tooltip {
@@ -77,9 +77,14 @@
     height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     background-color: rgba(252, 249, 209, 1);
-    z-index: 30;
+    z-index: 4;
+}
+
+.help-image {
+    width: 375px;
+    height: 667px;
 }
 
 .inquiry-popup-container {
@@ -88,7 +93,7 @@
     bottom: 0;
     width: 100%;
     height: 265px;
-    z-index: 30;
+    z-index: 4;
     display: flex;
     justify-content: center;
 }
@@ -151,7 +156,7 @@
     width: 100%;
     height: 100%;
     background: rgba(118, 118, 118, 0.7);
-    z-index: 25;
+    z-index: 3;
     display: block;
 }
 
