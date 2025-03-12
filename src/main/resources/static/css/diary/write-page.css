@@ -134,9 +134,9 @@ textarea.diary-content {
 
 .tooltip-box {
     position: relative;
-    top: 18px;
+    top: -20px;
     width: 310px;
-    height: 115px;
+    height: 107px;
 }
 
 .tooltip-img {
