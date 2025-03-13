@@ -5,6 +5,7 @@ import com.exchangediary.global.exception.serviceexception.UnauthorizedException
 import com.exchangediary.member.domain.entity.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -52,7 +53,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String verifyAccessToken(String token) {
+    public String verifyAccessToken(String token) throws UnauthorizedException {
         try {
             verifyToken(token);
         } catch (ExpiredJwtException exception) {
@@ -64,16 +65,19 @@ public class JwtService {
     }
 
     public Long extractMemberId(String token) {
-        String sub = extractAllClaims(token).getSubject();
-        return Long.valueOf(sub);
+        try {
+            String sub = extractAllClaims(token).getSubject();
+            return Long.valueOf(sub);
+        } catch (JwtException | IllegalArgumentException ignored) {}
+        return null;
     }
 
-    private void verifyRefreshToken(Long memberId) {
+    private void verifyRefreshToken(Long memberId) throws UnauthorizedException{
         RefreshToken refreshToken = refreshTokenService.findRefreshTokenByMemberId(memberId);
 
         try {
             verifyToken(refreshToken.getToken());
-        } catch (ExpiredJwtException exception) {
+        } catch (JwtException exception) {
             refreshTokenService.expireRefreshToken(refreshToken);
             throw new UnauthorizedException(
                     ErrorCode.EXPIRED_TOKEN,
@@ -97,7 +101,7 @@ public class JwtService {
         }
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) throws JwtException {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSigningKey())
