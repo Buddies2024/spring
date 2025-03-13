@@ -25,28 +25,42 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler
     ) throws IOException {
-        try {
-            String token = getJwtTokenFromCookies(request);
-            String newToken = jwtService.verifyAccessToken(token);
-
-            if (newToken != null) {
-                cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
-                token = newToken;
-            }
-
-            Long memberId = jwtService.extractMemberId(token);
-            checkMemberExists(memberId);
-            request.setAttribute("memberId", memberId);
-        } catch (UnauthorizedException exception) {
-            response.sendRedirect("/login");
-            return false;
-        }
-
         if (request.getRequestURI().equals("/login")) {
+            try {
+                verifyJwtToken(request, response);
+            } catch (UnauthorizedException exception) {
+                return true;
+            }
             response.sendRedirect("/");
             return false;
         }
+
+        try {
+            verifyJwtToken(request, response);
+        } catch (UnauthorizedException exception) {
+            if (request.getRequestURI().startsWith("/api")) {
+                throw exception;
+            }
+            response.sendRedirect("/login");
+            return false;
+        }
         return true;
+    }
+
+    private void verifyJwtToken(HttpServletRequest request,
+                                HttpServletResponse response
+    ) throws UnauthorizedException {
+        String token = getJwtTokenFromCookies(request);
+        String newToken = jwtService.verifyAccessToken(token);
+
+        if (newToken != null) {
+            cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
+            token = newToken;
+        }
+
+        Long memberId = jwtService.extractMemberId(token);
+        checkMemberExists(memberId);
+        request.setAttribute("memberId", memberId);
     }
 
     private String getJwtTokenFromCookies(HttpServletRequest request) {
