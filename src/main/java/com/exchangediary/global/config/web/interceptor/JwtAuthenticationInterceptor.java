@@ -41,6 +41,11 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             response.sendRedirect("/login");
             return false;
         }
+
+        if (request.getRequestURI().equals("/login")) {
+            response.sendRedirect("/");
+            return false;
+        }
         return true;
     }
 
