@@ -4,17 +4,16 @@ import com.exchangediary.member.service.CookieService;
 import com.exchangediary.member.service.JwtService;
 import com.exchangediary.member.service.KakaoService;
 import com.exchangediary.member.service.MemberRegistrationService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/kakao")
 public class ApiKakaoLoginController {
