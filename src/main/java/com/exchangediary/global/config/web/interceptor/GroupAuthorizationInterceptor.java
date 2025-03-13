@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -22,14 +23,22 @@ public class GroupAuthorizationInterceptor implements HandlerInterceptor {
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler
-    ) {
+    ) throws IOException {
         Map<String, String> pathVariables = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        String groupIdInUri = extractGroupId(pathVariables, request.getRequestURI());
-
+        String url = request.getRequestURI();
         Long memberId = (Long) request.getAttribute("memberId");
 
         Optional<String> memberGroupId = groupMemberQueryService.findGroupIdBelongTo(memberId);
 
+        if (url.equals("/groups")) {
+            if (memberGroupId.isEmpty()) {
+                return true;
+            }
+            response.sendRedirect("/");
+            return false;
+        }
+
+        String groupIdInUri = extractGroupId(pathVariables, request.getRequestURI());
         if (memberGroupId.isEmpty() || !memberGroupId.get().equals(groupIdInUri)) {
             throw new ForbiddenException(ErrorCode.GROUP_FORBIDDEN, "", groupIdInUri);
         }

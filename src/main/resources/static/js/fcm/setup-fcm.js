@@ -1,52 +1,10 @@
-setupFCM();
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js'
+import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging.js'
 
-function setupFCM() {
-    firebase.initializeApp(firebaseConfig);
-    const messaging = firebase.messaging();
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
-    registerServiceWorker();
-    handleNotificationPermission(messaging);
-
-    messaging.onMessage(payload => {
-        if (Notification.permission === "granted") {
-            const title = payload.notification.title;
-            const options = {
-                body: payload.notification.body
-            };
-
-            new Notification(title, options);
-        }
-    })
-}
-
-async function handleNotificationPermission(messaging) {
-    const permission = await Notification.requestPermission();
-
-    if (permission === "granted") {
-        if (sessionStorage.getItem("token") === null) {
-            messaging.getToken(messaging, {
-                vapidKey: vapidKey
-            })
-                .then(token => {
-                    fetch("/api/members/notifications/token", {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            "token": token
-                        })
-                    });
-                    sessionStorage.setItem("token", token);
-                })
-                .catch(() => {
-                    console.log("Fail to issue fcm token")
-                })
-        }
-    }
-}
-
-function registerServiceWorker() {
+export function registerServiceWorker() {
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
             navigator.serviceWorker
@@ -55,3 +13,59 @@ function registerServiceWorker() {
         });
     }
 }
+
+export function requestNotificationPermission() {
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            console.log('알림 권한이 허용되어 있습니다.');
+            setFCMToken();
+        } else {
+            console.log('알림 권한이 차단되어 있습니다.');
+        }
+    }).catch(function (err) {
+        console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
+    });
+}
+
+function setFCMToken() {
+    getToken(messaging, { vapidKey: vapidKey })
+    .then(function (currentToken) {
+        if (currentToken) {
+            console.log(currentToken);
+            sendTokenToServer(currentToken);
+        } else {
+            console.log("토큰 등록이 불가능 합니다.")
+        }
+    }).catch(function (err) {
+        console.log('토큰을 가져올 수 없습니다.', err);
+    });
+}
+
+function sendTokenToServer(token) {
+    fetch("/api/members/notifications/token", {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "token": token
+        })
+    });
+}
+
+function handleMessage() {
+    onMessage(messaging, (payLoad) => {
+        console.log("알림 도착");
+        console.log(payLoad);
+        var notificationTitle = payLoad.notification.title;
+        var notificationOptions = {
+            body: payLoad.notification.body,
+            icon: payLoad.notification.icon,
+        };
+        if (document.visibilityState === 'visible') {
+            new Notification(notificationTitle, notificationOptions);
+        }
+    });
+}
+
+handleMessage();
