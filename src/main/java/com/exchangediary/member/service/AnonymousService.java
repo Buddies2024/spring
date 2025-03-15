@@ -14,26 +14,20 @@ public class AnonymousService {
     private final MemberQueryService memberQueryService;
 
     public AnonymousInfoResponse viewAnonymousInfo(String token, HttpServletResponse response) {
+        boolean shouldLogin = true;
         String groupId = null;
-        boolean shouldLogin = needLogin(token, response);
 
-        if (!shouldLogin) {
-            Long memberId = jwtService.extractMemberId(token);
-            groupId = memberQueryService.findGroupIdBelongTo(memberId).orElse(null);
-        }
-        return AnonymousInfoResponse.of(shouldLogin, groupId);
-    }
-
-    private boolean needLogin(String token, HttpServletResponse response) {
         try {
             token = jwtService.verifyAccessToken(token);
 
             if (token != null) {
                 cookieService.addCookie(jwtService.COOKIE_NAME, token, response);
             }
-        } catch (UnauthorizedException exception) {
-            return true;
-        }
-        return false;
+            shouldLogin = false;
+            Long memberId = jwtService.extractMemberId(token);
+            groupId = memberQueryService.findGroupIdBelongTo(memberId).orElse(null);
+        } catch (UnauthorizedException ignored) {}
+
+        return AnonymousInfoResponse.of(shouldLogin, groupId);
     }
 }
