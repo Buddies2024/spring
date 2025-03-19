@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -29,8 +31,8 @@ public class JwtServiceTest {
         Long memberId = 1L;
         String token = jwtService.generateAccessToken(memberId);
 
-        String newToken = jwtService.verifyAccessToken(token);
+        Optional<Long> result = jwtService.verifyAccessToken(token);
 
-        assertThat(newToken).isNull();
+        assertThat(result.isPresent()).isFalse();
     }
 }

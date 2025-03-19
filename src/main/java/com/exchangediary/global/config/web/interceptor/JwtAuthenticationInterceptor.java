@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
@@ -27,7 +28,10 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     ) throws IOException {
         if (request.getRequestURI().equals("/login")) {
             try {
-                verifyJwtToken(request, response);
+                String token = verifyJwtToken(request, response);
+                Long memberId = jwtService.extractMemberId(token);
+                checkMemberExists(memberId);
+                request.setAttribute("memberId", memberId);
             } catch (UnauthorizedException exception) {
                 return true;
             }
@@ -36,7 +40,10 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         }
 
         try {
-            verifyJwtToken(request, response);
+            String token = verifyJwtToken(request, response);
+            Long memberId = jwtService.extractMemberId(token);
+            checkMemberExists(memberId);
+            request.setAttribute("memberId", memberId);
         } catch (UnauthorizedException exception) {
             if (request.getRequestURI().startsWith("/api")) {
                 throw exception;
@@ -47,20 +54,18 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private void verifyJwtToken(HttpServletRequest request,
+    private String verifyJwtToken(HttpServletRequest request,
                                 HttpServletResponse response
     ) throws UnauthorizedException {
         String token = getJwtTokenFromCookies(request);
-        String newToken = jwtService.verifyAccessToken(token);
+        Optional<Long> memberId = jwtService.verifyAccessToken(token);
 
-        if (newToken != null) {
+        if (memberId.isPresent()) {
+            String newToken = jwtService.generateAccessToken(memberId.get());
             cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
-            token = newToken;
+            return newToken;
         }
-
-        Long memberId = jwtService.extractMemberId(token);
-        checkMemberExists(memberId);
-        request.setAttribute("memberId", memberId);
+        return token;
     }
 
     private String getJwtTokenFromCookies(HttpServletRequest request) {

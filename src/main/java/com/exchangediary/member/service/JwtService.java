@@ -5,7 +5,6 @@ import com.exchangediary.global.exception.serviceexception.UnauthorizedException
 import com.exchangediary.member.domain.entity.RefreshToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,15 +53,15 @@ public class JwtService {
                 .compact();
     }
 
-    public String verifyAccessToken(String token) throws UnauthorizedException {
+    public Optional<Long> verifyAccessToken(String token) throws UnauthorizedException {
         try {
             verifyToken(token);
         } catch (ExpiredJwtException exception) {
             Long memberId = Long.valueOf(exception.getClaims().getSubject());
             verifyRefreshToken(memberId);
-            return generateAccessToken(memberId);
+            return Optional.of(memberId);
         }
-        return null;
+        return Optional.empty();
     }
 
     public Long extractMemberId(String token) {

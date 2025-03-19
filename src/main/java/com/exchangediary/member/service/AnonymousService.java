@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AnonymousService {
@@ -14,20 +16,30 @@ public class AnonymousService {
     private final MemberQueryService memberQueryService;
 
     public AnonymousInfoResponse viewAnonymousInfo(String token, HttpServletResponse response) {
-        boolean shouldLogin = true;
+        token = needLogin(token, response);
+        boolean shouldLogin = (token == null);
         String groupId = null;
 
-        try {
-            token = jwtService.verifyAccessToken(token);
-
-            if (token != null) {
-                cookieService.addCookie(jwtService.COOKIE_NAME, token, response);
-            }
-            shouldLogin = false;
+        if (!shouldLogin) {
             Long memberId = jwtService.extractMemberId(token);
             groupId = memberQueryService.findGroupIdBelongTo(memberId).orElse(null);
-        } catch (UnauthorizedException ignored) {}
+        }
 
         return AnonymousInfoResponse.of(shouldLogin, groupId);
+    }
+
+    private String needLogin(String token, HttpServletResponse response) {
+        try {
+            Optional<Long> memberId = jwtService.verifyAccessToken(token);
+
+            if (memberId.isPresent()) {
+                String newToken = jwtService.generateAccessToken(memberId.get());
+                cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
+                token = newToken;
+            }
+            return token;
+        } catch (UnauthorizedException exception) {
+            return null;
+        }
     }
 }
