@@ -52,16 +52,17 @@ public class NotificationTokenService {
         return notificationRepository.findTokensNoDiaryToday();
     }
 
+    @Transactional
     public void saveNotificationToken(NotificationTokenRequest notificationTokenRequest, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
-        Notification notification = Notification.builder()
-                .token(notificationTokenRequest.token())
-                .member(member)
-                .build();
+        boolean isDuplicated = notificationRepository.existsByToken(notificationTokenRequest.token());
 
-        try {
+        if (!isDuplicated) {
+            Notification notification = Notification.builder()
+                    .token(notificationTokenRequest.token())
+                    .member(member)
+                    .build();
             notificationRepository.save(notification);
-        } catch (DataIntegrityViolationException ignored) {
         }
     }
 
