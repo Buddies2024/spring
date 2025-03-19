@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -22,6 +23,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "WHERE m.orderInGroup = m.group.currentOrder AND d.id is NULL")
     List<String> findTokensNoDiaryToday();
     @Modifying
-    @Query("DELETE FROM Notification n WHERE CURRENT_DATE - CAST(n.createdAt AS DATE) >= 30")
-    void deleteAllIfAMonthOld();
+    @Query("DELETE FROM Notification n WHERE n.createdAt < :localDateTime")
+    void deleteAllByCreatedAtLessThan(LocalDateTime localDateTime);
 }
