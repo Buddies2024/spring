@@ -35,7 +35,32 @@ public class NotificationApiTest extends ApiBaseTest {
     }
 
     @Test
-    void 알림_fcm_토큰_업데이트_성공() {
+    void 동일한_fcm_토큰_저장() {
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+                .body(new NotificationTokenRequest("token"))
+                .when().patch("/api/members/notifications/token")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+                .body(new NotificationTokenRequest("token"))
+                .when().patch("/api/members/notifications/token")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        List<Notification> notifications = notificationRepository.findByMemberId(member.getId());
+        assertThat(notifications).hasSize(1);
+        assertThat(notifications.get(0).getToken()).isEqualTo("token");
+    }
+
+    @Test
+    void 알림_fcm_토큰_여러개_저장() {
         RestAssured
                 .given()
                 .cookie("token", token)
