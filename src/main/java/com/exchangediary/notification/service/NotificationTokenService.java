@@ -66,7 +66,7 @@ public class NotificationTokenService {
     }
 
     @Transactional
-    public void deleteOldTokens() {
-        notificationRepository.deleteAllByCreatedAtLessThan(LocalDateTime.now().minusMonths(1));
+    public void deleteOldTokens(long expirationDay) {
+        notificationRepository.deleteAllByCreatedAtLessThan(LocalDateTime.now().minusDays(expirationDay));
     }
 }
