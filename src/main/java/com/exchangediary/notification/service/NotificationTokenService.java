@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,21 +52,22 @@ public class NotificationTokenService {
         return notificationRepository.findTokensNoDiaryToday();
     }
 
+    @Transactional
     public void saveNotificationToken(NotificationTokenRequest notificationTokenRequest, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
-        Notification notification = Notification.builder()
-                .token(notificationTokenRequest.token())
-                .member(member)
-                .build();
+        boolean isDuplicated = notificationRepository.existsByToken(notificationTokenRequest.token());
 
-        try {
+        if (!isDuplicated) {
+            Notification notification = Notification.builder()
+                    .token(notificationTokenRequest.token())
+                    .member(member)
+                    .build();
             notificationRepository.save(notification);
-        } catch (DataIntegrityViolationException ignored) {
         }
     }
 
     @Transactional
-    public void deleteOldTokens() {
-        notificationRepository.deleteAllIfAMonthOld();
+    public void deleteOldTokens(long expirationDay) {
+        notificationRepository.deleteAllByCreatedAtLessThan(LocalDateTime.now().minusDays(expirationDay));
     }
 }

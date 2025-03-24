@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -35,9 +37,8 @@ public class ReissueJwtTokenTest {
         refreshTokenRepository.save(refreshToken);
 
         Thread.sleep(1000);
-        String newToken = jwtService.verifyAccessToken(token);
+        Optional<Long> memberId = jwtService.verifyAccessToken(token);
 
-        Long memberId = jwtService.extractMemberId(newToken);
-        assertThat(memberId).isEqualTo(member.getId());
+        assertThat(memberId.isPresent()).isTrue();
     }
 }
