@@ -31,7 +31,9 @@
             <div>
                 <table frame="void">
                     <tr>
-                        <td class="on-table"><a class="arrow left-arrow" href="#"></a></td>
+                        <td class="on-table">
+                            <a class="arrow-area left-arrow" href="#"><div class="arrow"></div></a>
+                        </td>
                         <td></td>
                         <td></td>
                         <td class="on-table">
@@ -39,7 +41,9 @@
                         </td>
                         <td></td>
                         <td></td>
-                        <td class="on-table"><a class="arrow right-arrow" href="#"></a></td>
+                        <td class="on-table">
+                            <a class="arrow-area right-arrow" href="#"><div class="arrow"></div></a>
+                        </td>
                     </tr>
                     <tr>
                         <td></td>
@@ -128,8 +132,8 @@
 </th:block>
 
 <th:block layout:fragment="script">
-    <script src="/js/group/monthly/draw-monthly.js"></script>
     <script src="/js/group/monthly/draw-bottom.js"></script>
+    <script src="/js/group/monthly/draw-monthly.js"></script>
     <script src="/js/group/monthly/change-month.js"></script>
 </th:block>
 
