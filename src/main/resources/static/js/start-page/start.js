@@ -16,16 +16,16 @@ setTimeout(() => {
 
 document.addEventListener("click", () => {
     if (logo.classList.contains("end")) {
-        redirect();
+        startSpring();
     } else {
         logo.classList.add("end");
     }
 });
 
-function redirect() {
+function startSpring() {
     fetch(`/api/anonymous/info`)
     .then(response => response.json())
-    .then(data => window.location.href = getUrl(data));
+    .then(data => redirect(getUrl(data)));
 }
 
 function getUrl(anonymousInfo) {
