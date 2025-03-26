@@ -64,6 +64,10 @@ function handleMessage() {
         };
         if (document.visibilityState === 'visible') {
             new Notification(notificationTitle, notificationOptions);
+
+            if (/^\/groups\/[A-Za-z0-9]{8}$/.test(location.pathname)) {
+                location.reload();
+            }
         }
     });
 }

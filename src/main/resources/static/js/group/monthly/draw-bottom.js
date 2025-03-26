@@ -40,3 +40,4 @@ function getCalendarBottomHtml(diaryStatus) {
             </div>`;
 }
 
+drawBottom();

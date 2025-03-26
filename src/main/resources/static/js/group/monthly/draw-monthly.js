@@ -1,15 +1,17 @@
 const table = document.querySelector("table");
 const year = document.querySelector(".year");
 const month = document.querySelector(".month");
+const groupName = document.querySelector(".group-name");
 const trs = Array.from(table.children[0].children).slice(3);
 const today = new Date();
 
-async function init() {
+function init() {
     year.innerText = today.getFullYear();
     month.innerText = today.getMonth() + 1;
 
-    await drawDateOfCalendar();
-    drawBottom();
+    drawDateOfCalendar();
+
+    groupName.addEventListener("click", () => location.reload());
 }
 
 async function drawDateOfCalendar() {

@@ -5,3 +5,9 @@ function redirect(url) {
 function replace(url) {
     window.location.replace(url);
 }
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        location.reload();
+    }
+});
