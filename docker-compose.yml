@@ -3,6 +3,7 @@ services:
   application:
     image: openjdk:21
     container_name: spring-app
+    working_dir: /app
     restart: always
     depends_on:
       - database
@@ -10,21 +11,24 @@ services:
       - '8080:8080'
     volumes:
       - './build/libs/spring.jar:/app/spring.jar'
-    command: java -jar /app/spring.jar
+      - 'spring-log:/app/log'
+    command: java -Xms512m -Xmx512m -jar spring.jar
 
   database:
     image: postgres:latest
-    container_name: spring-database
+    container_name: spring-db
     restart: always
     ports:
       - '5432:5432'
     volumes:
-      - spring:/var/lib/postgresql/data  
+      - spring-db:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
 volumes:
-  spring:
+  spring-db:
+    external: true
+  spring-log:
     external: true
