@@ -45,3 +45,4 @@ out/
 /log
 buddies-spring-firebase-adminsdk-fadag-ba724eb696.json
 env.properties
+.env
