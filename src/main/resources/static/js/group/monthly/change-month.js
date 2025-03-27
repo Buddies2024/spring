@@ -6,28 +6,12 @@ rightArrow.addEventListener("click", clickRightArrowButton);
 
 function clickLeftArrowButton(event) {
     event.preventDefault();
-    if (!isSameGroupCreatedYearAndMonth()) {
-        month.innerText -= 1;
-        if (month.innerText === "0") {
-            month.innerText = 12;
-            year.innerText -= 1;
-        }
-        clearDate();
-        drawDateOfCalendar();
-    }
+    calendar.prevMonth();
 }
 
 function clickRightArrowButton(event) {
     event.preventDefault();
-    if (!isSameCurrentDateYearAndMonth()) {
-        month.innerText = Number(month.innerText) + 1;
-        if (month.innerText === "13") {
-            month.innerText = 1;
-            year.innerText = Number(year.innerText) + 1;
-        }
-        clearDate();
-        drawDateOfCalendar();
-    }
+    calendar.nextMonth();
 }
 
 function isSameGroupCreatedYearAndMonth() {

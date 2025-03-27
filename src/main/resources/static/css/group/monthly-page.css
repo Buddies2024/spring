@@ -76,7 +76,7 @@ th,td {
     letter-spacing: 0.44px;
 }
 
-.days {
+.week {
     color: #767676;
     text-align: center;
     font-variant-numeric: lining-nums proportional-nums;
@@ -89,15 +89,15 @@ th,td {
     letter-spacing: 0.24px;
 }
 
-.day {
+.weekday {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.date {
+.day {
     width: 34px;
-    height: 34px;
+    height: 33px;
     border: 1px solid;
     border-radius: 50%;
     display: flex;
