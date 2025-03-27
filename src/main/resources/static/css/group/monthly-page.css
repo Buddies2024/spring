@@ -96,13 +96,14 @@ th,td {
 }
 
 .day {
-    width: 34px;
-    height: 33px;
+    width: 35px;
+    height: 35px;
     border: 1px solid;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
 
     color: #767676;
     text-align: center;
@@ -113,6 +114,11 @@ th,td {
     font-style: normal;
     font-weight: 400;
     letter-spacing: 0.14px;
+}
+
+.today .day{
+    color: rgba(0, 0, 0, 1);
+    border-width: 2px;
 }
 
 .arrow-area {
@@ -142,16 +148,6 @@ th,td {
     height: 12px;
     border-top: 3px solid #767676;
     border-right: 3px solid #767676;
-}
-
-.today {
-    color: rgba(0, 0, 0, 1);
-    border-width: 2px;
-}
-
-.highlight {
-    width: 36px;
-    height: 36px;
 }
 
 .calendar-top {

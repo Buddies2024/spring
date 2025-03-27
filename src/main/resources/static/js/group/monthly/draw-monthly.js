@@ -1,19 +1,21 @@
 class Calendar {
-    constructor(today) {
+    constructor(firstDay, today) {
+        this.firstDay = firstDay;
         this.today = today;
         this.$year = document.querySelector(".year");
         this.$month = document.querySelector(".month");
         this.$weeks = Array.from(document.querySelectorAll("table tr")).slice(3);
         this.$days = [];
-        this.setup(today.getFullYear(), today.getMonth() + 1);
+        this.draw(today.getFullYear(), today.getMonth() + 1);
     }
 
-    setup(year, month) {
+    draw(year, month) {
         this.drawYear(year);
         this.drawMonth(month);
         const firstWeekday = new Date(year, month - 1, 1).getDay();
         const lastDay = new Date(year, month, 0).getDate();
         this.drawDays(firstWeekday, lastDay);
+        this.drawToday();
     }
 
     drawYear(year) {
@@ -44,8 +46,37 @@ class Calendar {
         }
     }
 
+    drawDay(day, html) {
+        const $day = this.getDay(day);
+        $day.innerHTML = html;
+    }
+
+    getDay(day) {
+        return this.$days[day - 1];
+    }
+
+    drawToday() {
+        if (this.hasToday()) {
+            const day = this.today.getDate();
+            this.getDay(day).classList.add("today");
+        }
+    }
+
+    hasToday() {
+        if (today.getFullYear() !== this.year) {
+            return false
+        }
+        if (today.getMonth() !== this.month - 1) {
+            return false
+        }
+        return true
+    }
+
     clearDays() {
-        this.$days.forEach($day => $day.innerHTML = "");
+        this.$days.forEach($day => {
+            $day.innerHTML = "";
+            $day.className = "";
+        });
     }
 
     nextMonth() {
@@ -55,7 +86,7 @@ class Calendar {
             targetMonth = 1;
         }
 
-        this.setup(this.year, targetMonth);
+        this.draw(this.year, targetMonth);
     }
 
     prevMonth() {
@@ -64,20 +95,84 @@ class Calendar {
             this.year -= 1;
             targetMonth = 12;
         }
-        this.setup(this.year, targetMonth);
+        this.draw(this.year, targetMonth);
+    }
+
+    canMoveNext() {
+        if (this.year < this.today.getFullYear()) {
+            return true;
+        }
+        return this.year === this.today.getFullYear() && this.month - 1 < this.today.getMonth();
+    }
+
+    canMovePrev() {
+        if (this.year > this.firstDay.getFullYear()) {
+            return true;
+        }
+        return this.year === this.firstDay.getFullYear() && this.month - 1 > this.today.getMonth();
     }
 }
 
+const firstDay = new Date(groupCreatedYear, groupCreatedMonth);
 const today = new Date();
-const calendar = new Calendar(today);
+const calendar = new Calendar(firstDay, today);
 
 function init() {
     const groupName = document.querySelector(".group-name");
+    const leftArrow = document.querySelector(".left-arrow");
+    const rightArrow = document.querySelector(".right-arrow");
     
-    // drawDateOfCalendar();
-    drawBottom();
-
     groupName.addEventListener("click", () => location.reload());
+    leftArrow.addEventListener("click", clickLeftArrowButton);
+    rightArrow.addEventListener("click", clickRightArrowButton);
+
+    drawWrittenDays();
+    drawBottom();
+}
+
+function clickLeftArrowButton() {
+    if (calendar.canMovePrev()) {
+        calendar.prevMonth();
+        drawWrittenDays();
+        drawBottom();
+    }
+}
+
+function clickRightArrowButton() {
+    if (calendar.canMoveNext()) {
+        calendar.nextMonth();
+        drawWrittenDays();
+        drawBottom();
+    }
+}
+
+async function drawWrittenDays() {
+    const writtenDays = await fetch(`/api/groups/${groupId}/diaries/monthly?year=${calendar.year}&month=${calendar.month}`)
+    .then(response => response.json())
+    .then(data => data.days);
+
+    writtenDays.forEach(writtenDay => {
+        const html = makeDiaryHTML(writtenDay);
+        calendar.drawDay(writtenDay.day, html);
+    })
+}
+
+function makeDiaryHTML(writtenDay) {
+    const profileHTML = makeProfileHTML(writtenDay.profileImage);
+    const url = `/groups/${groupId}/diaries/${writtenDay.id}`;
+    let htmlClass = "day";
+    if (!writtenDay.canView) {
+        htmlClass += " cannot-view gray";
+    }
+    return `<a class="${htmlClass}" href="${url}">${profileHTML}</a>`;
+}
+
+function makeProfileHTML(profileImage) {
+    let htmlClass = `${profileImage} profile-icon`;
+    if (profileImage === "blue" || profileImage === "green") {
+        htmlClass += ` ${profileImage}-icon">`
+    }
+    return `<img class="${htmlClass}">`
 }
 
 function drawBottom() {
@@ -87,6 +182,11 @@ function drawBottom() {
         .then(response => response.json())
         .then(data => {
             calendarBottom.innerHTML = getCalendarBottomHtml(data);
+            if (calendar.hasToday() && data.isMyOrder && !data.writtenTodayDiary) {
+                const day = calendar.today.getDate();
+                const html = `<a class="day" href="/groups/${groupId}/diaries">${day}</a>`;
+                calendar.drawDay(day, html);
+            }
         });
 }
 
@@ -114,104 +214,5 @@ function getCalendarBottomHtml(diaryStatus) {
                 <span>내 차례가 올 때까지 일기를 기다려요!</span> 
             </div>`;
 }
-
-// function drawDateOfCalendar() {
-//     const firstDay = new Date(year.innerText, month.innerText - 1, 1).getDay();
-//     const lastDate = new Date(year.innerText, month.innerText, 0).getDate();
-    
-
-//     let date = 1;
-//     let day = firstDay
-//     let column = 0;
-
-//     while (date <= lastDate) {
-//         trs[column].children[day].innerHTML = `<span class="date day${date}">${date}</span>`;
-//         date++;
-//         day++;
-//         if (day === 7) {
-//             day = 0;
-//             column++;
-//         }
-//     }
-//     // drawWrittenDays();
-//     changeGrayProfile(writtenDays);
-//     addBorderToday();
-//     removeClickToday();
-// }
-
-// // async function drawWrittenDays() {
-// //     const writtenDays = await fetch(`/api/groups/${groupId}/diaries/monthly?year=${year.innerText}&month=${month.innerText}`)
-// //     .then(response => response.json())
-// //     .then(data => data.days);
-
-// //     writtenDays.forEach(writtenDay => {
-// //         const day = 
-// //     })
-// // }
-
-// function makeCircle(date, writtenDiaryDays) {
-//     const index = writtenDiaryDays.findIndex((day) => day.day === date);
-//     if (index !== -1) {
-//         return getProfileImageHtml(writtenDiaryDays[index], date);
-//     }
-//     if (isToday(date)) {
-//         return `<a class="date day${date} highlight" href="/groups/${groupId}/diaries">${date}</a>`;
-//     }
-//     return ;
-// }
-
-// function getProfileImageHtml(diary, date) {
-//     const profileImage = diary.profileImage;
-//     const diaryId = diary.id;
-
-//     if (profileImage === "blue" || profileImage === "green") {
-//         return `<a class="date day${date} highlight written" href="/groups/${groupId}/diaries/${diaryId}">
-//                     <img class="${profileImage} profile-icon ${profileImage}-icon">
-//                 </a>`;
-//     }
-//     return `<a class="date day${date} highlight written" href="/groups/${groupId}/diaries/${diaryId}">
-//                 <img class="${profileImage} profile-icon">
-//             </a>`;
-// }
-
-// function isToday(date) {
-//     if (today.getFullYear() !== Number(year.innerText)) {
-//         return false
-//     }
-//     if (today.getMonth() !== Number(month.innerText) - 1) {
-//         return false
-//     }
-//     return today.getDate() === date;
-// }
-
-// function changeGrayProfile(days) {
-//     days.forEach(day => {
-//        if (!day.canView) {
-//            console.log(day);
-//            const dayBtn = document.querySelector(`.day${day.day}`);
-
-//            dayBtn.classList.add("cannot-view");
-//            dayBtn.children[0].classList.add("gray");
-//        }
-//     });
-// }
-
-// function addBorderToday() {
-//     if (isToday(today.getDate())) {
-//         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).getDay() - 1;
-//         const todayDate = today.getDate();
-//         const column = Math.floor((todayDate + firstDay) / 7);
-//         const row = (todayDate + firstDay) % 7;
-//         trs[column].children[row].querySelector("a").classList.add("today");
-//     }
-// }
-
-// function removeClickToday() {
-//     const today = document.querySelector(".today");
-
-//     if (today && !canWrite) {
-//         today.classList.add("cannot-view");
-//     }
-// }
 
 init();
