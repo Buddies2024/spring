@@ -170,7 +170,7 @@ function makeDiaryHTML(writtenDay) {
 function makeProfileHTML(profileImage) {
     let htmlClass = `${profileImage} profile-icon`;
     if (profileImage === "blue" || profileImage === "green") {
-        htmlClass += ` ${profileImage}-icon">`
+        htmlClass += ` ${profileImage}-icon`
     }
     return `<img class="${htmlClass}">`
 }
