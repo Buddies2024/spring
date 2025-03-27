@@ -8,6 +8,10 @@ function replace(url) {
 
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-        location.reload();
+        if (typeof calendar === "undefined") {
+            location.reload();
+        } else {
+            calendar.reload();
+        }
     }
 });

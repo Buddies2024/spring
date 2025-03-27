@@ -111,6 +111,12 @@ class Calendar {
         }
         return this.year === this.firstDay.getFullYear() && this.month - 1 > this.today.getMonth();
     }
+
+    reload() {
+        this.draw(this.year, this.month);
+        drawWrittenDays();
+        drawBottom();
+    }
 }
 
 const firstDay = new Date(groupCreatedYear, groupCreatedMonth);
@@ -149,7 +155,7 @@ function clickRightArrowButton() {
 async function drawWrittenDays() {
     const writtenDays = await fetch(`/api/groups/${groupId}/diaries/monthly?year=${calendar.year}&month=${calendar.month}`)
     .then(response => response.json())
-    .then(data => data.days);
+    .then(data => data.days) ?? location.reload();
 
     writtenDays.forEach(writtenDay => {
         const html = makeDiaryHTML(writtenDay);

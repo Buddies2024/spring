@@ -66,7 +66,11 @@ function handleMessage() {
             new Notification(notificationTitle, notificationOptions);
 
             if (/^\/groups\/[A-Za-z0-9]{8}$/.test(location.pathname)) {
-                location.reload();
+                if (typeof calendar === "undefined") {
+                    location.reload();
+                } else {
+                    calendar.reload();
+                }
             }
         }
     });
