@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  application:
+    image: openjdk:21
+    container_name: spring-app
+    restart: always
+    depends_on:
+      - database
+    ports:
+      - '8080:8080'
+    volumes:
+      - './build/libs/spring.jar:/app/spring.jar'
+    command: java -jar /app/spring.jar
+
+  database:
+    image: postgres:latest
+    container_name: spring-database
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - spring:/var/lib/postgresql/data  
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+volumes:
+  spring:
+    external: true
