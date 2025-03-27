@@ -11,7 +11,7 @@ services:
       - '8080:8080'
     volumes:
       - './build/libs/spring.jar:/app/spring.jar'
-      - 'spring-log:/app/log'
+      - './log:/app/log'
     command: java -Xms512m -Xmx512m -jar spring.jar
 
   database:
@@ -29,6 +29,4 @@ services:
 
 volumes:
   spring-db:
-    external: true
-  spring-log:
     external: true
