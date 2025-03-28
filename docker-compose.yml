@@ -12,6 +12,7 @@ services:
     volumes:
       - './build/libs/spring.jar:/app/spring.jar'
       - './log:/app/log'
+      - '../upload:/app/upload'
     command: java -Xms512m -Xmx512m -jar spring.jar
 
   database:
