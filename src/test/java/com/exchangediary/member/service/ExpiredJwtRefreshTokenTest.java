@@ -32,7 +32,7 @@ public class ExpiredJwtRefreshTokenTest {
 
     @Test
     @DisplayName("만료된 access token을 검증 시 사용자가 refresh token을 갖고 있지 않다면, 예외를 던진다")
-    void When_ExpiredJwtAccessTokenAndNoHasRefreshToken_Then_ThrowException() throws InterruptedException {
+    void When_ExpiredJwtAccessTokenAndNoHasRefreshToken_Expect_ThrowException() throws InterruptedException {
         // Given
         Member member = Member.from(1L);
         memberRepository.save(member);
@@ -48,7 +48,7 @@ public class ExpiredJwtRefreshTokenTest {
 
     @Test
     @DisplayName("만료된 access token을 검증 시 사용자의 refresh token도 만료됐다면, 예외를 던진다")
-    void When_ExpiredJwtAccessTokenAndExpiredRefreshToken_Then_ThrowException() throws InterruptedException {
+    void When_ExpiredJwtAccessTokenAndExpiredRefreshToken_Expect_ThrowException() throws InterruptedException {
         // Given
         Member member = Member.from(1L);
         memberRepository.save(member);

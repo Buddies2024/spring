@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
@@ -27,7 +29,7 @@ public class ExpiredJwtAccessTokenTest {
 
     @Test
     @DisplayName("만료된 access token을 검증 시 사용자의 refresh token의 유효하다면, access token을 재발급한다.")
-    void When_ExpiredJwtAccessTokenAndValidRefreshToken_Then_ReissueAccessToken() throws InterruptedException {
+    void When_ExpiredJwtAccessTokenAndValidRefreshToken_Expect_ReissueAccessToken() throws InterruptedException {
         // Given
         Member member = Member.from(1L);
         memberRepository.save(member);
@@ -39,10 +41,9 @@ public class ExpiredJwtAccessTokenTest {
         Thread.sleep(1000);
 
         // When
-        String newToken = jwtService.verifyAccessToken(token);
+        Optional<Long> memberId = jwtService.verifyAccessToken(token);
 
         // Then
-        Long memberId = jwtService.extractMemberId(newToken);
-        assertThat(memberId).isEqualTo(member.getId());
+        assertThat(memberId.isPresent()).isTrue();
     }
 }

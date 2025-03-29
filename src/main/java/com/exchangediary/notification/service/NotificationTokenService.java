@@ -6,10 +6,10 @@ import com.exchangediary.notification.domain.NotificationRepository;
 import com.exchangediary.notification.domain.entity.Notification;
 import com.exchangediary.notification.ui.dto.request.NotificationTokenRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,16 +53,16 @@ public class NotificationTokenService {
     @Transactional
     public void saveNotificationToken(NotificationTokenRequest notificationTokenRequest, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
-        Notification notification = Notification.of(notificationTokenRequest.token(), member);
+        boolean isDuplicated = notificationRepository.existsByToken(notificationTokenRequest.token());
 
-        try {
+        if (!isDuplicated) {
+            Notification notification = Notification.of(notificationTokenRequest.token(), member);
             notificationRepository.save(notification);
-        } catch (DataIntegrityViolationException ignored) {
         }
     }
 
     @Transactional
-    public void deleteOldTokens() {
-        notificationRepository.deleteAllIfAMonthOld();
+    public void deleteOldTokens(long expirationDay) {
+        notificationRepository.deleteAllByCreatedAtLessThan(LocalDateTime.now().minusDays(expirationDay));
     }
 }

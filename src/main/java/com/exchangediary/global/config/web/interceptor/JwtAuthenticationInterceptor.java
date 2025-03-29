@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationInterceptor implements HandlerInterceptor {
@@ -25,23 +26,46 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler
     ) throws IOException {
-        try {
-            String token = getJwtTokenFromCookies(request);
-            String newToken = jwtService.verifyAccessToken(token);
-
-            if (newToken != null) {
-                cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
-                token = newToken;
+        if (request.getRequestURI().equals("/login")) {
+            try {
+                String token = verifyJwtToken(request, response);
+                Long memberId = jwtService.extractMemberId(token);
+                checkMemberExists(memberId);
+                request.setAttribute("memberId", memberId);
+            } catch (UnauthorizedException exception) {
+                return true;
             }
+            response.sendRedirect("/");
+            return false;
+        }
 
+        try {
+            String token = verifyJwtToken(request, response);
             Long memberId = jwtService.extractMemberId(token);
             checkMemberExists(memberId);
             request.setAttribute("memberId", memberId);
         } catch (UnauthorizedException exception) {
+            if (request.getRequestURI().startsWith("/api")) {
+                throw exception;
+            }
             response.sendRedirect("/login");
             return false;
         }
         return true;
+    }
+
+    private String verifyJwtToken(HttpServletRequest request,
+                                HttpServletResponse response
+    ) throws UnauthorizedException {
+        String token = getJwtTokenFromCookies(request);
+        Optional<Long> memberId = jwtService.verifyAccessToken(token);
+
+        if (memberId.isPresent()) {
+            String newToken = jwtService.generateAccessToken(memberId.get());
+            cookieService.addCookie(jwtService.COOKIE_NAME, newToken, response);
+            return newToken;
+        }
+        return token;
     }
 
     private String getJwtTokenFromCookies(HttpServletRequest request) {

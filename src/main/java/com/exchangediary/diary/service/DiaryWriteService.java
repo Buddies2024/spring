@@ -45,7 +45,7 @@ public class DiaryWriteService {
         diaryAuthorizationService.checkDiaryWritable(group, writer);
 
         try {
-            Diary diary = Diary.of(diaryRequest, writer, group);
+            Diary diary = Diary.of(diaryRequest.todayMood(), writer, group);
             Diary savedDiary = diaryRepository.save(diary);
             createDairyContent(diaryRequest.contents(), diary);
 

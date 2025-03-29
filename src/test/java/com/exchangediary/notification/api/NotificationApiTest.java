@@ -6,6 +6,7 @@ import com.exchangediary.notification.domain.entity.Notification;
 import com.exchangediary.notification.ui.dto.request.NotificationTokenRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,8 @@ public class NotificationApiTest extends ApiBaseTest {
     private NotificationRepository notificationRepository;
 
     @Test
-    void 알림_fcm_토큰_저장_성공() {
+    @DisplayName("새로운 fcm 토큰 저장 요청 시, notification 객체가 생성된다.")
+    void When_requestNewFcmToken_Expect_createNotification() {
         String fcmToken = "token";
 
         RestAssured
@@ -38,7 +40,36 @@ public class NotificationApiTest extends ApiBaseTest {
     }
 
     @Test
-    void 알림_fcm_토큰_업데이트_성공() {
+    @DisplayName("이미 저장되어있는 fcm 토큰 저장 요청 시, 아무 일도 일어나지 않는다.")
+    void When_requestSameFcmToken_Expect_notCreateNewNotification() {
+        String fcmToken = "token";
+
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+                .body(new NotificationTokenRequest(fcmToken))
+                .when().patch(URI)
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+                .body(new NotificationTokenRequest(fcmToken))
+                .when().patch(URI)
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        List<Notification> notifications = notificationRepository.findAllByMemberId(member.getId());
+        assertThat(notifications).hasSize(1);
+        assertThat(notifications.get(0).getToken()).isEqualTo("token");
+    }
+
+    @Test
+    @DisplayName("한 사용자가 여러 개의 fcm 토큰을 저장할 수 있다.")
+    void When_requestToSaveTwoFcmTokenForOneMember_Expect_createTwoNotifications() {
         String fcmToken1 = "token1";
         String fcmToken2 = "token2";
 

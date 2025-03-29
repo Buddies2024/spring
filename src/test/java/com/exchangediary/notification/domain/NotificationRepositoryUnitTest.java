@@ -33,7 +33,7 @@ public class NotificationRepositoryUnitTest {
     @DisplayName("그룹 안에서 member id를 제외한 모든 그룹원 토큰 가져오기")
     void Test_findTokensByGroupIdAndExcludeMemberId() {
         // Given
-        Group group = Group.from("버니즈");
+        Group group = Group.from(GROUP_NAME);
         entityManager.persist(group);
 
         Member self = setUpMember(1, group);
@@ -138,6 +138,7 @@ public class NotificationRepositoryUnitTest {
         assertThat(tokens.contains(groupMembers.get(1).toString())).isTrue();
         assertThat(tokens.contains(groupMembers.get(2).toString())).isTrue();
     }
+
     private Member setUpMember(int orderInGroup, Group group) {
         Member member = createMember(orderInGroup + 1);
         createGroupMember(orderInGroup, group, member);
@@ -165,20 +166,13 @@ public class NotificationRepositoryUnitTest {
     }
 
     private Notification createNotification(String token, Member member) {
-        Notification notification = Notification.builder()
-                .token(token)
-                .member(member)
-                .build();
+        Notification notification = Notification.of(token, member);
         entityManager.persist(notification);
         return notification;
     }
 
     private Diary createDiary(GroupMember groupMember, Group group) {
-        Diary diary = Diary.builder()
-                .todayMood("happy")
-                .groupMember(groupMember)
-                .group(group)
-                .build();
+        Diary diary = Diary.of("happy", groupMember, group);
         entityManager.persist(diary);
 
         DiaryContent diaryContent = DiaryContent.of(1, groupMember.getNickname(), diary);

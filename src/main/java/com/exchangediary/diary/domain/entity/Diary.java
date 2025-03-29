@@ -52,9 +52,9 @@ public class Diary extends BaseEntity {
     @OneToMany(mappedBy = "diary")
     private List<Comment> comments;
 
-    public static Diary of(DiaryRequest diaryRequest, GroupMember groupMember, Group group) {
+    public static Diary of(String todayMood, GroupMember groupMember, Group group) {
         return Diary.builder()
-                .todayMood(diaryRequest.todayMood())
+                .todayMood(todayMood)
                 .groupMember(groupMember)
                 .group(group)
                 .build();

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -55,20 +56,23 @@ public class JwtService {
                 .compact();
     }
 
-    public Long extractMemberId(String token) {
-        String sub = extractAllClaims(token).getSubject();
-        return Long.valueOf(sub);
-    }
-
     @Transactional(noRollbackFor = UnauthorizedException.class)
-    public String verifyAccessToken(String token) {
+    public Optional<Long> verifyAccessToken(String token) throws UnauthorizedException {
         try {
             verifyToken(token);
         } catch (ExpiredJwtException exception) {
             Long memberId = Long.valueOf(exception.getClaims().getSubject());
             verifyRefreshToken(memberId);
-            return generateAccessToken(memberId);
+            return Optional.of(memberId);
         }
+        return Optional.empty();
+    }
+
+    public Long extractMemberId(String token) {
+        try {
+            String sub = extractAllClaims(token).getSubject();
+            return Long.valueOf(sub);
+        } catch (JwtException | IllegalArgumentException ignored) {}
         return null;
     }
 
@@ -86,12 +90,12 @@ public class JwtService {
                 );
     }
 
-    private void verifyRefreshToken(Long memberId) {
+    private void verifyRefreshToken(Long memberId) throws UnauthorizedException{
         RefreshToken refreshToken = findRefreshTokenByMemberId(memberId);
 
         try {
             verifyToken(refreshToken.getToken());
-        } catch (ExpiredJwtException exception) {
+        } catch (JwtException exception) {
             refreshTokenRepository.delete(refreshToken);
             throw new UnauthorizedException(
                     ErrorCode.EXPIRED_TOKEN,
@@ -124,7 +128,7 @@ public class JwtService {
         }
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims extractAllClaims(String token) throws JwtException {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSigningKey())
