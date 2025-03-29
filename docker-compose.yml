@@ -13,7 +13,9 @@ services:
       - './build/libs/spring.jar:/app/spring.jar'
       - './log:/app/log'
       - '../upload:/app/upload'
-    command: java -Xms512m -Xmx512m -jar spring.jar
+    environment:
+      - TZ=Asia/Seoul
+    command: java -Duser.timezone=Asia/Seoul -Xms512m -Xmx512m -jar spring.jar
 
   database:
     image: postgres:latest
