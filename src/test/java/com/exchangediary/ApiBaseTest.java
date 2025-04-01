@@ -42,11 +42,11 @@ public class ApiBaseTest {
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
-        this.member = createMember();
+        this.member = createMember(kakaoId);
         this.token = getToken();
     }
 
-    private Member createMember() {
+    protected Member createMember(Long kakaoId) {
         Member member = Member.from(kakaoId);
         return memberRepository.save(member);
     }

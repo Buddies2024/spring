@@ -1,8 +1,6 @@
 package com.exchangediary.global.config.interceptor;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
-import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.member.domain.RefreshTokenRepository;
 import com.exchangediary.member.domain.entity.RefreshToken;
 import com.exchangediary.member.service.JwtService;
@@ -27,62 +25,113 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
-    private final String URI = "/api/groups/%s/profile-image";
+    private final String URI = "/groups/%s";
+    private final String LOGIN_URI = "/login";
+    private final String API_URI = "/api/groups/%s/profile-image";
     @Value("${security.jwt.secret-key}")
     private String secretKey;
     @Autowired
     private JwtService jwtService;
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
-    @Autowired
-    private GroupRepository groupRepository;
     private String groupId;
 
     @BeforeEach
-    void createGroup() {
-        Group group = Group.from("버니즈");
-        groupRepository.save(group);
-        this.groupId = group.getId();
+    void setup() {
+        this.groupId = createGroup().getId();
     }
 
     @Test
-    void 인증_실패_쿠키에_토큰없음() {
+    @DisplayName("쿠키에 토큰이 없으면 로그인 페이지로 리다이렉트된다.")
+    void When_HasNoTokenInCookie_Expect_RedirectLoginPage() {
+        String location = RestAssured
+                .given().log().all()
+                .redirects().follow(false)
+                .when().get(String.format(URI, groupId))
+                .then().log().all()
+                .statusCode(HttpStatus.FOUND.value())
+                .extract()
+                .header("Location");
+
+        assertThat(location.substring(location.lastIndexOf("/"))).isEqualTo(LOGIN_URI);
+    }
+
+    @Test
+    @DisplayName("쿠키에 유효한 토큰이 있는 경우 로그인 페이지 접근 시 시작 페이지로 리다이렉트된다.")
+    void When_RequestLoginPageAndHasTokenInCookie_Expect_RedirectStartPage() {
+        String location = RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .redirects().follow(false)
+                .when().get(LOGIN_URI)
+                .then().log().all()
+                .statusCode(HttpStatus.FOUND.value())
+                .extract()
+                .header("Location");
+
+        assertThat(location.substring(location.lastIndexOf("/"))).isEqualTo("/");
+    }
+
+    @Test
+    @DisplayName("로그인 페이지 접근 시 쿠키에 토큰이 없는 경우 성공한다.")
+    void When_RequestLoginPageAndHasNoToken_Expect_Sucess() {
+        RestAssured
+            .given().log().all()
+            .redirects().follow(false)
+            .when().get(LOGIN_URI)
+            .then().log().all()
+            .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    @DisplayName("API 요청 시 쿠키에 토큰이 없으면 401 예외를 발생한다.")
+    void When_RequestApiAndHasNoTokenInCookie_Expect_Throw401Exception() {
         RestAssured
                 .given().log().all()
-                .when().get(String.format(URI, groupId))
-                .then()
-                .log().status()
-                .log().headers()
+                .when().get(String.format(API_URI, groupId))
+                .then().log().all()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "invalid-token"})
-    void 인증_실패_쿠키에_잘못된_토큰(String token) {
+    @DisplayName("API 요청 시 쿠키에 잘못된 값의 토큰이 있으면 401 예외를 발생한다.")
+    void When_RequestApiAndHasInvalidTokenInCookie_Expect_Throw401Exception(String token) {
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .when().get(String.format(URI, groupId))
-                .then()
-                .log().status()
-                .log().headers()
+                .when().get(String.format(API_URI, groupId))
+                .then().log().all()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
-    @DisplayName("Valid access token. Then success authentication.")
-    void 인증_성공_유효한_액세스_토큰() {
+    @DisplayName("API 요청 시 토큰으로부터 추출한 사용자가 존재하지 않으면 401 예외를 발생한다.")
+    void When_RequestApiAndHasNonExistentMemberToken_Expect_Throw401Exception() {
+        String invalidToken = jwtService.generateAccessToken(1234L);
+
         RestAssured
                 .given().log().all()
-                .cookie("token", this.token)
-                .when().get(String.format(URI, groupId))
+                .cookie("token", invalidToken)
+                .when().get(String.format(API_URI, groupId))
+                .then().log().all()
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    @DisplayName("API 요청 시 유효한 토큰을 가지고 있으면, API 요청에 성공한다.")
+    void When_RequestApiAndHasValidToken_Expect_Success() {
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .when().get(String.format(API_URI, groupId))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
     }
 
     @Test
-    @DisplayName("Expired access token, and valid refresh token, so re-issue access token. Then success authentication.")
-    void 액세스_토큰_재발급() {
+    @DisplayName("API 요청 시 만료된 access 토큰과 유효한 refresh 토큰을 가지고 있으면, API 요청에 성공하고 access 토큰을 재발급한다.")
+    void When_RequestApiAndHasExpiredAccessTokenAndValidRefreshToken_Expect_ReissueAccessToken() {
         this.token = buildExpiredAccessToken();
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), this.member);
         refreshTokenRepository.save(refreshToken);
@@ -90,7 +139,7 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
         String token = RestAssured
                 .given().log().all()
                 .cookie("token", this.token)
-                .when().get(String.format(URI, groupId))
+                .when().get(String.format(API_URI, groupId))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -101,52 +150,34 @@ public class JwtAuthenticationInterceptorTest extends ApiBaseTest {
     }
 
     @Test
-    @DisplayName("Expired access token, and member has no refresh token. Then fail authentication.")
-    void 인증_실패_리프레쉬_토큰없음() {
+    @DisplayName("API 요청 시 만료된 access 토큰을 가지고 있고 refresh 토큰이 없으면, 401 예외를 발생한다.")
+    void When_RequestApiAndHasExpiredAccessTokenAndNoHasRefreshToken_Expect_Throw401Exception() {
         this.token = buildExpiredAccessToken();
 
         RestAssured
                 .given().log().all()
-                .cookie("token", this.token)
-                .when().get(String.format(URI, groupId))
-                .then()
-                .log().status()
-                .log().headers()
+                .cookie("token", token)
+                .when().get(String.format(API_URI, groupId))
+                .then().log().all()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
-    @DisplayName("Expired access token, and expired refresh token. Then fail authentication.")
-    void 인증_실패_만료된_리프레쉬_토큰() {
+    @DisplayName("API 요청 시 만료된 access 토큰과 refresh 토큰을 가지고 있으면, 401 예외를 발생한다.")
+    void When_RequestApiAndHasExpiredAccessTokenAndRefreshToken_Expect_Throw401Exception() {
         this.token = buildExpiredAccessToken();
         RefreshToken refreshToken = RefreshToken.of(buildExpiredRefreshToken(), this.member);
         refreshTokenRepository.save(refreshToken);
 
         RestAssured
                 .given().log().all()
-                .cookie("token", this.token)
-                .when().get(String.format(URI, groupId))
-                .then()
-                .log().status()
-                .log().headers()
+                .cookie("token", token)
+                .when().get(String.format(API_URI, groupId))
+                .then().log().all()
                 .statusCode(HttpStatus.UNAUTHORIZED.value());
 
         Optional<RefreshToken> result = refreshTokenRepository.findByMemberId(member.getId());
         assertThat(result.isEmpty()).isTrue();
-    }
-
-    @Test
-    void 인증_실패_존재하지_않는_사용자의_토큰() {
-        this.token = jwtService.generateAccessToken(this.member.getId() + 100L);
-
-        RestAssured
-                .given().log().all()
-                .cookie("token", this.token)
-                .when().get(String.format(URI, groupId))
-                .then()
-                .log().status()
-                .log().headers()
-                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
     private String buildExpiredAccessToken() {
