@@ -1,36 +1,33 @@
 package com.exchangediary.group.api;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.ui.dto.request.GroupCodeRequest;
 import com.exchangediary.group.ui.dto.response.GroupIdResponse;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupCodeApiTest extends ApiBaseTest {
-    private static final String API_PATH = "/api/groups/code/verify";
-    private static final String GROUP_NAME = "버니즈";
-    @Autowired
-    private GroupRepository groupRepository;
+    private static final String URI = "/api/groups/code/verify";
 
     @Test
-    void 그룹_코드_유효성_검증_성공() {
+    @DisplayName("존재하는 그룹의 그룹코드인 경우, 검증에 성공한다.")
+    void When_GroupCodeIsValid_Then_SuccessValidation() {
         Group group = createGroup();
-        groupRepository.save(group);
-        GroupCodeRequest groupCodeRequest = new GroupCodeRequest(group.getId());
 
         GroupIdResponse response = RestAssured
                 .given().log().all()
-                .body(groupCodeRequest)
+                .body(new GroupCodeRequest(group.getId()))
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .when().post(API_PATH)
+                .when().post(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract().as(GroupIdResponse.class);
@@ -39,35 +36,29 @@ public class GroupCodeApiTest extends ApiBaseTest {
     }
 
     @Test
-    void 그룹_코드_유효성_검증_실패() {
-        createGroup();
-        GroupCodeRequest groupCodeRequest = new GroupCodeRequest("invalid-code");
-
+    @DisplayName("존재하지 않는 그룹의 그룹코드인 경우, 404 예외를 반환한다.")
+    void When_GroupCodeIsInValid_Then_Throw404Exception() {
         RestAssured
                 .given().log().all()
-                .body(groupCodeRequest)
+                .body(new GroupCodeRequest("invalid-code"))
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .when().post(API_PATH)
+                .when().post(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
-    @Test
-    void 그룹_코드_유효성_검증_실패_빈코드() {
-        GroupCodeRequest groupCodeRequest = new GroupCodeRequest("");
-
+    @ParameterizedTest
+    @ValueSource(strings = {"", " "})
+    @DisplayName("공백의 그룹코드인 경우, 400 예외를 반환한다.")
+    void When_GroupCodeIsEmpty_Then_Throw400Exception(String code) {
         RestAssured
                 .given().log().all()
-                .body(groupCodeRequest)
+                .body(new GroupCodeRequest(code))
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .when().post(API_PATH)
+                .when().post(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    private Group createGroup() {
-        return Group.from(GROUP_NAME);
     }
 }
