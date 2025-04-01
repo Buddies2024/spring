@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class GroupMemberFindService {
     public GroupMember findSelfInGroup(Group group, Long memberId) {
         return group.getGroupMembers().stream()
-                .filter(member -> memberId.equals(member.getId()))
+                .filter(member -> memberId.equals(member.getMember().getId()))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(
                         ErrorCode.MEMBER_NOT_FOUND,
