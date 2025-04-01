@@ -54,6 +54,6 @@ public class GroupQueryService {
 
     public GroupMonthlyResponse getGroupMonthlyInfo(String groupId) {
         Group group = findGroup(groupId);
-        return GroupMonthlyResponse.of(group);
+        return GroupMonthlyResponse.from(group);
     }
 }

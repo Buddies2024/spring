@@ -33,7 +33,7 @@ public class MemberRegistrationServiceTest {
         Long kakaoId = 1L;
         Member newMember = Member.from(kakaoId);
 
-        when(memberRepository.findBykakaoId(kakaoId)).thenReturn(Optional.empty());
+        when(memberRepository.findByKakaoId(kakaoId)).thenReturn(Optional.empty());
         when(memberRepository.save(any(Member.class))).thenReturn(newMember);
 
         // When
@@ -51,7 +51,7 @@ public class MemberRegistrationServiceTest {
         Long kakaoId = 1L;
         Member member = Member.from(kakaoId);
 
-        when(memberRepository.findBykakaoId(kakaoId)).thenReturn(Optional.ofNullable(member));
+        when(memberRepository.findByKakaoId(kakaoId)).thenReturn(Optional.ofNullable(member));
 
         // When
         Long result = memberRegistrationService.getOrCreateMember(kakaoId).memberId();

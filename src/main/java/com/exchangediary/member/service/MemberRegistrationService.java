@@ -15,7 +15,7 @@ public class MemberRegistrationService {
     private final MemberRepository memberRepository;
 
     public MemberIdResponse getOrCreateMember(Long kakaoId) {
-        Member member = memberRepository.findBykakaoId(kakaoId)
+        Member member = memberRepository.findByKakaoId(kakaoId)
                 .orElseGet(() -> signUp(kakaoId));
         jwtService.issueRefreshToken(member);
         return MemberIdResponse.from(member.getId());
