@@ -44,7 +44,7 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
                 ELSE false
             END
         FROM GroupMember gm
-        WHERE gm.member.id = : memberId
+        WHERE gm.member.id = :memberId
     """)
     boolean isCurrentOrderByMemberId(Long memberId);
 }
