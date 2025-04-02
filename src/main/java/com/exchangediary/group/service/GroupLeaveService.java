@@ -24,6 +24,7 @@ public class GroupLeaveService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
 
+    // todo: group.leaveMember 호출 필요
     public void leaveGroup(String groupId, Long memberId) {
         Group group = groupQueryService.findGroup(groupId);
         GroupMember groupMember = groupMemberQueryService.findGroupMemberByMemberId(memberId);

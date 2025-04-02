@@ -1,8 +1,10 @@
 package com.exchangediary.group.service;
 
+import com.exchangediary.group.domain.GroupMemberRepository;
 import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.group.ui.dto.request.GroupCreateRequest;
 import com.exchangediary.group.ui.dto.request.GroupJoinRequest;
 import com.exchangediary.group.ui.dto.response.GroupCreateResponse;
@@ -21,14 +23,16 @@ public class GroupCreateJoinService {
     private final MemberQueryService memberQueryService;
     private final GroupQueryService groupQueryService;
     private final GroupValidationService groupValidationService;
-    private final GroupMemberCreateService groupMemberCreateService;
     private final GroupRepository groupRepository;
+    private final GroupMemberRepository groupMemberRepository;
 
     public GroupCreateResponse createGroup(GroupCreateRequest request, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
 
         Group group = groupRepository.save(Group.from(request.groupName()));
-        groupMemberCreateService.createGroupLeader(request, group, member);
+
+        createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_LEADER, group, member);
+
         return GroupCreateResponse.from(group);
     }
 
@@ -41,6 +45,19 @@ public class GroupCreateJoinService {
         groupValidationService.checkProfileDuplicate(groupMembers, request.profileImage());
         groupValidationService.checkNumberOfGroupMembers(groupMembers.size());
 
-        groupMemberCreateService.createGroupMember(request, group, member);
+        createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_MEMBER, group, member);
+    }
+
+    private void createGroupMember(String nickname, String profileImage, GroupRole groupRole, Group group, Member member) {
+        GroupMember groupMember = GroupMember.of(
+                nickname,
+                profileImage,
+                group.getMemberCount() + 1,
+                groupRole,
+                group,
+                member
+        );
+        groupMemberRepository.save(groupMember);
+        group.joinMember();
     }
 }

@@ -39,6 +39,8 @@ public class Group extends BaseEntity {
     private Integer currentOrder;
     @NotNull
     private LocalDate lastSkipOrderDate;
+    @NotNull
+    private Integer memberCount;
     @OneToMany(mappedBy = "group")
     @OrderBy("orderInGroup ASC")
     private List<GroupMember> groupMembers;
@@ -48,6 +50,7 @@ public class Group extends BaseEntity {
                 .name(groupName)
                 .currentOrder(1)
                 .lastSkipOrderDate(LocalDate.now().minusDays(1))
+                .memberCount(0)
                 .build();
     }
 
@@ -60,5 +63,13 @@ public class Group extends BaseEntity {
 
     public void updateLastSkipOrderDate() {
         this.lastSkipOrderDate = LocalDate.now();
+    }
+
+    public void joinMember() {
+        this.memberCount += 1;
+    }
+
+    public void leaveMember() {
+        this.memberCount -= 1;
     }
 }
