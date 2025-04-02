@@ -109,7 +109,7 @@ class Calendar {
         if (this.year > this.firstDay.getFullYear()) {
             return true;
         }
-        return this.year === this.firstDay.getFullYear() && this.month - 1 > this.today.getMonth();
+        return this.year === this.firstDay.getFullYear() && this.month - 1 > this.firstDay.getMonth();
     }
 
     reload() {
@@ -119,7 +119,7 @@ class Calendar {
     }
 }
 
-const firstDay = new Date(groupCreatedYear, groupCreatedMonth);
+const firstDay = new Date(groupCreatedYear, groupCreatedMonth - 1);
 const today = new Date();
 const calendar = new Calendar(firstDay, today);
 
