@@ -61,6 +61,8 @@ public class ApiBaseTest {
     }
 
     protected GroupMember joinGroup(String nickname, int profileImageIndex, int orderInGroup, GroupRole groupRole, Group group, Member member) {
+        group.joinMember();
+        groupRepository.save(group);
         GroupMember groupMember = GroupMember.of(
                 nickname,
                 PROFILE_IMAGES[profileImageIndex],

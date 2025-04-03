@@ -1,82 +1,90 @@
 package com.exchangediary.group.api;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.group.ui.dto.request.GroupCreateRequest;
 import com.exchangediary.group.ui.dto.response.GroupCreateResponse;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupCreateApiTest extends ApiBaseTest {
-    private static final String API_PATH = "/api/groups";
-    @Autowired
-    private GroupRepository groupRepository;
+    private static final String URI = "/api/groups";
 
     @Test
-    void 그룹_생성_성공() {
-        String groupName = "버니즈";
-        String profileImage = "red";
-        String nickname = "yen";
+    @DisplayName("그룹 생성에 성공한다.")
+    void Expect_CreateGroup() {
+        String groupName = GROUP_NAME;
+        String profileImage = PROFILE_IMAGES[0];
+        String nickname = "스프링";
 
         var response = RestAssured
                 .given().log().all()
-                .body(new GroupCreateRequest(groupName, profileImage, nickname))
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .when().post(API_PATH)
+                .body(new GroupCreateRequest(groupName, profileImage, nickname))
+                .when().post(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.CREATED.value())
                 .extract().as(GroupCreateResponse.class);
 
+        // Then
         Group group = groupRepository.findById(response.groupId()).get();
         assertThat(group.getName()).isEqualTo(groupName);
-        Member groupCreator = memberRepository.findById(member.getId()).get();
-        assertThat(groupCreator.getGroup().getId()).isEqualTo(group.getId());
-        assertThat(groupCreator.getOrderInGroup()).isEqualTo(1);
-        assertThat(groupCreator.getNickname()).isEqualTo(nickname);
-        assertThat(groupCreator.getProfileImage()).isEqualTo(profileImage);
-        assertThat(groupCreator.getGroupRole()).isEqualTo(GroupRole.GROUP_LEADER);
-        assertThat(groupCreator.getLastViewableDiaryDate()).isEqualTo(group.getCreatedAt().toLocalDate().minusDays(1));
+        assertThat(group.getCurrentOrder()).isEqualTo(1);
+        assertThat(group.getMemberCount()).isEqualTo(1);
+        assertThat(group.getLastSkipOrderDate()).isEqualTo(LocalDate.now().minusDays(1));
+
+        GroupMember groupMember = groupMemberRepository.findByMemberId(member.getId()).get();
+
+        assertThat(groupMember.getGroup().getId()).isEqualTo(group.getId());
+        assertThat(groupMember.getOrderInGroup()).isEqualTo(1);
+        assertThat(groupMember.getNickname()).isEqualTo(nickname);
+        assertThat(groupMember.getProfileImage()).isEqualTo(profileImage);
+        assertThat(groupMember.getGroupRole()).isEqualTo(GroupRole.GROUP_LEADER);
+        assertThat(groupMember.getLastViewableDiaryDate()).isEqualTo(group.getCreatedAt().toLocalDate().minusDays(1));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "    "})
-    void 그룹_생성_실패_빈_닉네임(String nickname) {
-        String groupName = "버니즈";
-        String profileImage = "red";
+    @DisplayName("그룹 생성자의 닉네임이 공백인 경우 그룹 생성에 실패한다.")
+    void When_GroupCreatorNicknameIsEmpty_Expect_CreateGroup(String nickname) {
+        String groupName = GROUP_NAME;
+        String profileImage = PROFILE_IMAGES[0];
 
         RestAssured
                 .given().log().all()
-                .body(new GroupCreateRequest(groupName, profileImage, nickname))
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .when().post(API_PATH)
+                .body(new GroupCreateRequest(groupName, profileImage, nickname))
+                .when().post(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "    "})
-    void 그룹_생성_실패_빈_프로필_경로(String profileImage) {
-        String groupName = "버니즈";
-        String nickname = "yen";
+    @DisplayName("그룹 생성자의 프로필 이미지가 공백인 경우 그룹 생성에 실패한다.")
+    void When_GroupCreatorProfileImageIsEmpty_Expect_CreateGroup(String profileImage) {
+        String groupName = GROUP_NAME;
+        String nickname = "스프링";
 
         RestAssured
                 .given().log().all()
-                .body(new GroupCreateRequest(groupName, profileImage, nickname))
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .when().post(API_PATH)
+                .body(new GroupCreateRequest(groupName, profileImage, nickname))
+                .when().post(URI)
                 .then().log().all()
                 .statusCode(HttpStatus.BAD_REQUEST.value());
     }
