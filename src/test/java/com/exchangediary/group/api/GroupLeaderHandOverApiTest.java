@@ -1,86 +1,95 @@
 package com.exchangediary.group.api;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.group.ui.dto.request.GroupLeaderHandOverRequest;
-import com.exchangediary.member.domain.MemberRepository;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GroupLeaderHandOverApiTest extends ApiBaseTest {
-    @Autowired
-    private GroupRepository groupRepository;
-    @Autowired
-    private MemberRepository memberRepository;
+    private static final String URI = "/api/groups/%s/leader/hand-over";
 
     @Test
-    void 그룹_리더_넘기기_성공() {
-        Group group = createGroup();
-        updateSelf(group, 1, GroupRole.GROUP_LEADER);
-        Member member = createMember(group, 2, GroupRole.GROUP_MEMBER);
+    @DisplayName("닉네임과 일치하는 그룹원이 있으면, 방장 권한을 넘긴다.")
+    void When_NicknameExistInGroup_Expect_HandOverLeader() {
+        // Given
+        String nextLeaderNickname = "뉴방장";
 
+        Group group = createGroup();
+        GroupMember oldLeader = joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+        GroupMember newLeader = joinGroup(nextLeaderNickname, 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+
+        // When
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new GroupLeaderHandOverRequest("group-member"))
-                .when().patch(String.format("/api/groups/%s/leader/hand-over", group.getId()))
+                .body(new GroupLeaderHandOverRequest(nextLeaderNickname))
+                .when().patch(String.format(URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
-        Member newLeader = memberRepository.findById(member.getId()).get();
-        Member oldLeader = memberRepository.findById(this.member.getId()).get();
-        assertThat(newLeader.getGroupRole()).isEqualTo(GroupRole.GROUP_LEADER);
-        assertThat(oldLeader.getGroupRole()).isEqualTo(GroupRole.GROUP_MEMBER);
+        // Then
+        GroupMember updatedNewLeader = groupMemberRepository.findById(newLeader.getId()).get();
+
+        assertThat(updatedNewLeader.getGroupRole()).isEqualTo(GroupRole.GROUP_LEADER);
+
+        GroupMember updatedOldLeader = groupMemberRepository.findById(oldLeader.getId()).get();
+
+        assertThat(updatedOldLeader.getGroupRole()).isEqualTo(GroupRole.GROUP_MEMBER);
     }
 
     @Test
-    void 그룹_리더_넘기기_실패_존재하지_않는_그룹원_인덱스() {
-        Group group = createGroup();
-        updateSelf(group, 1, GroupRole.GROUP_LEADER);
+    @DisplayName("닉네임이 방장 닉네임과 일치하면, 아무일도 일어나지 않는다.")
+    void When_NicknameMatchGroupLeader_Expect_DoNothing() {
+        // Given
+        String currentLeaderNickname = "스프링";
 
+        Group group = createGroup();
+        joinGroup(currentLeaderNickname, 0, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("그룹원", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+
+        // When
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new GroupLeaderHandOverRequest("invalid-nickname"))
-                .when().patch(String.format("/api/groups/%s/leader/hand-over", group.getId()))
+                .body(new GroupLeaderHandOverRequest(currentLeaderNickname))
+                .when().patch(String.format(URI, group.getId()))
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        // Then
+        GroupMember leader = groupMemberRepository.findByMemberId(this.member.getId()).get();
+
+        assertThat(leader.getGroupRole()).isEqualTo(GroupRole.GROUP_LEADER);
+    }
+
+    @Test
+    @DisplayName("닉네임과 일치하는 그룹원이 없으면, 404 예외를 반환한다.")
+    void When_NicknameIsNotFoundInGroup_Expect_Throw404Exception() {
+        // Given
+        String invalidNickname = "invalid-nickname";
+
+        Group group = createGroup();
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("그룹원", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+
+        // When & Then
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .contentType(ContentType.JSON)
+                .body(new GroupLeaderHandOverRequest(invalidNickname))
+                .when().patch(String.format(URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.NOT_FOUND.value());
-    }
-
-    private Group createGroup() {
-        return groupRepository.save(Group.from("group-name"));
-    }
-
-    private void updateSelf(Group group, int order, GroupRole role) {
-        this.member.joinGroup(
-                "me",
-                "red",
-                order,
-                role,
-                group
-        );
-        memberRepository.save(this.member);
-    }
-
-    private Member createMember(Group group, int order, GroupRole role) {
-        return memberRepository.save(Member.builder()
-                .kakaoId(1L)
-                .nickname("group-member")
-                .profileImage("orange")
-                .orderInGroup(order)
-                .group(group)
-                .groupRole(role)
-                .build()
-        );
     }
 }
