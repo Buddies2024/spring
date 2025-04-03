@@ -35,7 +35,7 @@ public class GroupLeaderService {
         groupValidationService.checkSkipOrderAuthority(group);
 
         long skipDiaryMemberId = groupMemberFindService.findCurrentOrderMember(group).getId();
-        group.updateCurrentOrder(group.getCurrentOrder() + 1, group.getGroupMembers().size());
+        group.changeCurrentOrder(group.getCurrentOrder() + 1);
         group.updateLastSkipOrderDate();
         GroupMember currentWriter = groupMemberFindService.findCurrentOrderMember(group);
         currentWriter.updateLastViewableDiaryDate();

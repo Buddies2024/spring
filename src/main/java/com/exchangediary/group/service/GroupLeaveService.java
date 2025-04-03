@@ -65,9 +65,9 @@ public class GroupLeaveService {
         int numberOfGroupMember = groupMembers.size() - 1;
 
         if (leaveMemberOrder < currentOrder) {
-            group.updateCurrentOrder(currentOrder - 1, numberOfGroupMember);
+            group.changeCurrentOrder(currentOrder - 1);
         } else {
-            group.updateCurrentOrder(currentOrder, numberOfGroupMember);
+            group.changeCurrentOrder(currentOrder);
         }
 
         if (leaveMemberOrder == currentOrder) {

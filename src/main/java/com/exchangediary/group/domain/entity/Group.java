@@ -54,8 +54,8 @@ public class Group extends BaseEntity {
                 .build();
     }
 
-    public void updateCurrentOrder(int currentOrder, int numberOfMembers) {
-        if (currentOrder > numberOfMembers) {
+    public void changeCurrentOrder(int currentOrder) {
+        if (currentOrder > memberCount) {
             currentOrder = 1;
         }
         this.currentOrder = currentOrder;
