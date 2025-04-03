@@ -40,7 +40,7 @@ public class GroupQueryService {
         return group.getId();
     }
 
-    public GroupProfileResponse viewSelectableProfileImage(String groupId) {
+    public GroupProfileResponse viewSelectedProfileImage(String groupId) {
         Group group = findGroup(groupId);
         List<GroupMember> groupMembers = group.getGroupMembers();
         return GroupProfileResponse.from(groupMembers);
