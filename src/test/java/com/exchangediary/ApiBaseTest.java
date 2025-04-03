@@ -73,4 +73,11 @@ public class ApiBaseTest {
         );
         return groupMemberRepository.save(groupMember);
     }
+
+    protected void makeFullGroup(Group group) {
+        joinGroup("리더", 1, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        for (int idx = 1 ; idx < 7; idx++) {
+            joinGroup("그룹원" + idx, idx, idx + 1, GroupRole.GROUP_MEMBER, group, createMember(idx * 10L));
+        }
+    }
 }
