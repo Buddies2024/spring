@@ -19,7 +19,7 @@ public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
     @DisplayName("사용자가 속한 그룹의 API 요청 시, 성공한다.")
     void When_RequestGroupApiWhichMemberBelong_Then_Success() {
         Group group = createGroup();
-        joinGroup("스프링", 0, 1, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
 
         RestAssured
                 .given().log().all()
@@ -33,7 +33,7 @@ public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
     @DisplayName("사용자가 속하지않은 그룹의 API 요청 시, 403 에러를 발생한다.")
     void When_RequestGroupApiWhichMemberNotBelong_Then_Throw403Exception() {
         Group group = createGroup();
-        joinGroup("스프링", 0, 1, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
         Group otherGroup = createGroup();
 
         RestAssured
@@ -61,7 +61,7 @@ public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
     @DisplayName("사용자가 속한 그룹 페이지에 접근 시, 성공한다.")
     void When_RequestGroupPageWhichMemberBelong_Then_Success() {
         Group group = createGroup();
-        joinGroup("스프링", 0, 1, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
 
         RestAssured
                 .given().log().all()
@@ -75,7 +75,7 @@ public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
     @DisplayName("사용자가 속하지 않은 그룹 페이지에 접근 시, 403 페이지를 보여준다.")
     void When_RequestGroupPageWhichMemberNotBelong_Then_Redirect403Exception() {
         Group group = createGroup();
-        joinGroup("스프링", 0, 1, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
         Group otherGroup = createGroup();
 
         String contentType = RestAssured
@@ -95,7 +95,7 @@ public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
     @DisplayName("사용자가 그룹에 가입되어있고 그룹 생성 페이지에 접근 시, 시작 페이지로 리다이렉트한다.")
     void When_RequestGroupCreatePageWhichMemberBelong_Then_Success() {
         Group group = createGroup();
-        joinGroup("스프링", 0, 1, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
 
         String location = RestAssured
                 .given().log().all()

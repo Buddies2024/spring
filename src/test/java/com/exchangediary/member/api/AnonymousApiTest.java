@@ -17,7 +17,7 @@ public class AnonymousApiTest extends ApiBaseTest {
     @DisplayName("로그인 O, 그룹 가입 O 사용자")
     void When_LoginAndBelongToGroup() {
         Group group = createGroup();
-        joinGroup("스프링", 2, 0, GroupRole.GROUP_LEADER, group, member);
+        joinGroup("스프링", 2, GroupRole.GROUP_LEADER, group, member);
 
         AnonymousInfoResponse body = RestAssured
                 .given().log().all()
@@ -34,7 +34,7 @@ public class AnonymousApiTest extends ApiBaseTest {
     @DisplayName("로그인 X, 그룹 가입 O 사용자")
     void When_NoLoginAndBelongToGroup() {
         Group group = createGroup();
-        joinGroup("스프링", 2, 0, GroupRole.GROUP_LEADER, group, member);
+        joinGroup("스프링", 2, GroupRole.GROUP_LEADER, group, member);
 
         AnonymousInfoResponse body = RestAssured
                 .given().log().all()

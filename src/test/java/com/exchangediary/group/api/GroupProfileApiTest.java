@@ -21,8 +21,8 @@ class GroupProfileApiTest extends ApiBaseTest {
         // Given
         Group group = createGroup();
 
-        joinGroup("레드", 0, 1, GroupRole.GROUP_LEADER, group, createMember(2L));
-        joinGroup("오렌지", 1, 2, GroupRole.GROUP_MEMBER, group, createMember(3L));
+        joinGroup("레드", 0, GroupRole.GROUP_LEADER, group, createMember(2L));
+        joinGroup("오렌지", 1, GroupRole.GROUP_MEMBER, group, createMember(3L));
 
         // When
         GroupProfileResponse response = RestAssured

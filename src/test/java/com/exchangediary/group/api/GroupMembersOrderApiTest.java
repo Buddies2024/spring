@@ -22,12 +22,12 @@ public class GroupMembersOrderApiTest extends ApiBaseTest {
         // Given
         Group group = createGroup();
 
-        joinGroup("리더", 1, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup("리더", 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
         for (int idx = 1 ; idx < 7; idx++) {
             if (idx == 2) {
-                joinGroup("스프링", idx, idx + 1, GroupRole.GROUP_MEMBER, group, this.member);
+                joinGroup("스프링", idx, GroupRole.GROUP_MEMBER, group, this.member);
             } else {
-                joinGroup("그룹원" + idx, idx, idx + 1, GroupRole.GROUP_MEMBER, group, createMember(idx * 10L));
+                joinGroup("그룹원" + idx, idx, GroupRole.GROUP_MEMBER, group, createMember(idx * 10L));
             }
         }
         group.changeCurrentOrder(5);
@@ -60,7 +60,7 @@ public class GroupMembersOrderApiTest extends ApiBaseTest {
     void When_MemberIsSolo_Expect_AllIndexIs0() {
         Group group = createGroup();
 
-        joinGroup("스프링", 1, 1, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("스프링", 1, GroupRole.GROUP_LEADER, group, this.member);
 
         GroupMembersResponse response = RestAssured
                 .given().log().all()

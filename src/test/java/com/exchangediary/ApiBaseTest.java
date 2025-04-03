@@ -60,13 +60,13 @@ public class ApiBaseTest {
         return groupRepository.save(group);
     }
 
-    protected GroupMember joinGroup(String nickname, int profileImageIndex, int orderInGroup, GroupRole groupRole, Group group, Member member) {
+    protected GroupMember joinGroup(String nickname, int profileImageIndex, GroupRole groupRole, Group group, Member member) {
         group.joinMember();
         groupRepository.save(group);
         GroupMember groupMember = GroupMember.of(
                 nickname,
                 PROFILE_IMAGES[profileImageIndex],
-                orderInGroup,
+                group.getMemberCount(),
                 groupRole,
                 group,
                 member
@@ -75,9 +75,9 @@ public class ApiBaseTest {
     }
 
     protected void makeFullGroup(Group group) {
-        joinGroup("리더", 1, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup("리더", 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
         for (int idx = 1 ; idx < 7; idx++) {
-            joinGroup("그룹원" + idx, idx, idx + 1, GroupRole.GROUP_MEMBER, group, createMember(idx * 10L));
+            joinGroup("그룹원" + idx, idx, GroupRole.GROUP_MEMBER, group, createMember(idx * 10L));
         }
     }
 }

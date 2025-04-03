@@ -28,7 +28,7 @@ class GroupJoinApiTest extends ApiBaseTest {
         String profileImage = PROFILE_IMAGES[0];
 
         Group group = createGroup();
-        joinGroup("리더", 1, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup("리더", 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
 
         // When
         RestAssured
@@ -85,7 +85,7 @@ class GroupJoinApiTest extends ApiBaseTest {
         String profileImage = PROFILE_IMAGES[0];
 
         Group group = createGroup();
-        joinGroup("리더", 0, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup("리더", 0, GroupRole.GROUP_LEADER, group, createMember(1234L));
 
         // When & Then
         RestAssured
@@ -107,7 +107,7 @@ class GroupJoinApiTest extends ApiBaseTest {
         String profileImage = PROFILE_IMAGES[0];
 
         Group group = createGroup();
-        joinGroup(nickname, 1, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup(nickname, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
 
         // When & Then
         RestAssured

@@ -21,7 +21,7 @@ class GroupNicknameApiTest extends ApiBaseTest {
         String nickname = "스프링";
 
         Group group = createGroup();
-        joinGroup("리더", 0, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup("리더", 0, GroupRole.GROUP_LEADER, group, createMember(1234L));
 
         RestAssured
                 .given().log().all()
@@ -40,7 +40,7 @@ class GroupNicknameApiTest extends ApiBaseTest {
         String nickname = "스프링";
 
         Group group = createGroup();
-        joinGroup(nickname, 0, 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup(nickname, 0, GroupRole.GROUP_LEADER, group, createMember(1234L));
 
         // When & Then
         RestAssured
