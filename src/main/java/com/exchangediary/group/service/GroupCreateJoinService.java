@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -28,22 +26,20 @@ public class GroupCreateJoinService {
 
     public GroupCreateResponse createGroup(GroupCreateRequest request, Long memberId) {
         Member member = memberQueryService.findMember(memberId);
+        Group group = Group.from(request.groupName());
 
-        Group group = groupRepository.save(Group.from(request.groupName()));
-
-        createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_LEADER, group, member);
-
-        return GroupCreateResponse.from(group);
+        Group savedGroup = groupRepository.save(group);
+        createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_LEADER, savedGroup, member);
+        return GroupCreateResponse.from(savedGroup);
     }
 
     public void joinGroup(String groupId, Long memberId, GroupJoinRequest request) {
         Group group = groupQueryService.findGroup(groupId);
         Member member = memberQueryService.findMember(memberId);
 
-        List<GroupMember> groupMembers = group.getGroupMembers();
-
-        groupValidationService.checkProfileDuplicate(groupMembers, request.profileImage());
-        groupValidationService.checkNumberOfGroupMembers(groupMembers.size());
+        groupValidationService.checkNumberOfGroupMembers(group.getMemberCount());
+        groupValidationService.checkNicknameDuplicate(group.getGroupMembers(), request.nickname());
+        groupValidationService.checkProfileDuplicate(group.getGroupMembers(), request.profileImage());
 
         createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_MEMBER, group, member);
     }
