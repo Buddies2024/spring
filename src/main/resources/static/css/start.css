@@ -25,6 +25,21 @@
     height: 100%;
 }
 
+@media (max-aspect-ratio: 390/844) {
+    .logo {
+        width: 105%;
+        height: 100%;
+    }
+}
+
+@media (max-aspect-ratio: 402/812) {
+    .logo {
+        width: 103%;
+        height: 100%;
+    }
+}
+
+
 .logo.end {
     content: url('/images/start-page/logo.png');
 }
