@@ -8,6 +8,17 @@ const inquiryPopupContainer = document.querySelector(".inquiry-popup-container")
 const overlay = document.querySelector(".overlay");
 
 let helpImagePath = '';
+let currentImageIndex = 0;
+const diaryViewImages = [
+    '/images/common/help-menu/help-image/help-diary-view.png',
+    '/images/common/help-menu/help-image/help-diary-view-new-comment.png',
+    '/images/common/help-menu/help-image/help-diary-view-comment-write.png',
+    '/images/common/help-menu/help-image/help-diary-view-reply.png'
+];
+
+if (window.location.pathname === '/' || window.location.pathname === '/login') {
+    document.querySelector('.help-icon-container').remove();
+}
 
 helpIcon.addEventListener('click', () => {
     tooltip.classList.toggle('hidden');
@@ -30,32 +41,34 @@ helpButton.addEventListener('click', () => {
     if (monthlyRegexp.test(pathname)) {
         showHelpMonthly();
     } else if (diaryWriteRegexp.test(pathname)) {
-        helpImagePath = '/images/common/help-menu/help-image/help-diary-write.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-diary-write.png';
     } else if (diaryViewRegexp.test(pathname)) {
-        helpImagePath = '/images/common/help-menu/help-image/help-diary-view.svg';
+        helpImagePath = diaryViewImages[currentImageIndex];
+        currentImageIndex++;
     } else if (stepContent.classList.contains("step1")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-step1.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-step1.png';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-step1.png';
     } else if (stepContent.classList.contains("step2-create")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-create-step2.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-create-step2.png';
     } else if (stepContent.classList.contains("step2-join")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-join-step2.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-join-step2.png';
     } else if (stepContent.classList.contains("step3")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-step3.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-step3.png';
     } else if (stepContent.classList.contains("step4")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-step4.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-step4.png';
     } else if (stepContent.classList.contains("step5-create")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-create-step5.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-create-step5.png';
     } else if (stepContent.classList.contains("step5-join")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-join-step5.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-join-step5.png';
     }
     showHelpImage(helpImagePath);
 });
 
 function showHelpMonthly() {
     if (groupMenu.classList.contains("blur")) {
-        helpImagePath = '/images/common/help-menu/help-image/help-group-menu.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-group-menu.png';
     } else {
-        helpImagePath = '/images/common/help-menu/help-image/help-monthly.svg';
+        helpImagePath = '/images/common/help-menu/help-image/help-monthly.png';
     }
 }
 
@@ -66,7 +79,16 @@ function showHelpImage(helpImagePath) {
 }
 
 helpImageContainer.addEventListener('click', () => {
-    helpImageContainer.classList.add('hidden');
+    if (currentImageIndex >= diaryViewImages.length) {
+        currentImageIndex = 0;
+    }
+    if (currentImageIndex !== 0) {
+        showHelpImage(diaryViewImages[currentImageIndex])
+        currentImageIndex++;
+    }
+    else {
+        helpImageContainer.classList.add('hidden');
+    }
 });
 
 inquiryButton.addEventListener('click', () => {
