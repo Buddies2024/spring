@@ -48,7 +48,7 @@
   <script type="module">
     import { requestNotificationPermission } from "/js/fcm/setup-fcm.js";
 
-    document.querySelector(".notification").addEventListener("click", requestNotificationPermission);
+    document.querySelector(".notification").addEventListener("click", () => requestNotificationPermission());
   </script>
 </th:block>
 

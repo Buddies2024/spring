@@ -14,7 +14,7 @@ export function registerServiceWorker() {
     }
 }
 
-export function requestNotificationPermission() {
+export function requestNotificationPermission(method) {
     Notification.requestPermission().then((permission) => {
         if (permission === 'granted') {
             console.log('알림 권한이 허용되어 있습니다.');
@@ -22,6 +22,7 @@ export function requestNotificationPermission() {
         } else {
             console.log('알림 권한이 차단되어 있습니다.');
         }
+        method && method();
     }).catch(function (err) {
         console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
     });

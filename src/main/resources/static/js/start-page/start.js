@@ -1,3 +1,5 @@
+import { registerServiceWorker, requestNotificationPermission } from "/js/fcm/setup-fcm.js"
+
 const logo = document.querySelector(".logo");
 const logo_images = [
     "/images/start-page/line.gif",
@@ -5,6 +7,7 @@ const logo_images = [
 ];
 
 preLoadImgage(logo_images);
+registerServiceWorker();
 
 setTimeout(() => {
     logo.src = "/images/start-page/line.gif";
@@ -16,7 +19,7 @@ setTimeout(() => {
 
 document.addEventListener("click", () => {
     if (logo.classList.contains("end")) {
-        startSpring();
+        requestNotificationPermission(startSpring);
     } else {
         logo.classList.add("end");
     }
