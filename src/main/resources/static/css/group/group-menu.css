@@ -289,17 +289,15 @@
     border: 0.4px solid var(--kakao-logo, #000);
 }
 
-.btn.group-leave {
-    margin-left: 20px;
+.group-leave {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+}
 
-    color: var(--kakao-logo, #000);
-    text-align: center;
-    font-family: "HancomMalangMalang-Regular";
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 26.847px; /* 223.725% */
-    letter-spacing: -0.3px;
+.group-leave img {
+    width: 24px;
+    height: 24px;
 }
 
 .btn.group-code {
@@ -317,7 +315,6 @@
 
 .btn.notification {
     margin-left: 20px;
-    margin-top: 10px;
 
     color: var(--kakao-logo, #000);
     text-align: center;

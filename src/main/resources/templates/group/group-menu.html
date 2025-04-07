@@ -33,10 +33,10 @@
         </div>
         <div class="menu-footer">
           <div class="menu-btns">
-            <a class="btn group-leave" th:href="@{/api/groups/{groupId}/leave(groupId=${group.id})}">탈퇴하기</a>
             <a class="btn group-code" href="#" th:data-code="${group.id}">코드 복사</a>
-            <a class="btn notification" href="#">알림 활성화(테스트)</a>
+            <a class="btn notification" href="#">알림 활성화</a>
           </div>
+          <a class="group-leave" th:href="@{/api/groups/{groupId}/leave(groupId=${group.id})}"><img src="/images/group/menu/exit.svg" /></a>
         </div>
       </div>
     </div>
