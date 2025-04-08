@@ -29,7 +29,7 @@ public class CommentCreateService {
 
         diaryAuthorizationService.checkDiaryViewable(groupMember.getLastViewableDiaryDate(), diary);
         commentAuthorizationService.checkCommentWritable(groupMember, diary);
-        Comment comment = Comment.of(request, groupMember, diary);
+        Comment comment = Comment.of(request.xCoordinate(), request.yCoordinate(), request.page(), request.content(), groupMember, diary);
         commentRepository.save(comment);
         return CommentCreateResponse.of(comment, groupMember.getProfileImage());
     }

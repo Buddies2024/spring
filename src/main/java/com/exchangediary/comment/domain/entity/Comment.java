@@ -59,12 +59,19 @@ public class Comment extends BaseEntity {
     @OrderBy("createdAt ASC")
     private List<Reply> replies;
 
-    public static Comment of(CommentCreateRequest commentRequest, GroupMember groupMember, Diary diary) {
+    public static Comment of(
+            double xCoordinate,
+            double yCoordinate,
+            int page,
+            String content,
+            GroupMember groupMember,
+            Diary diary
+    ) {
         return Comment.builder()
-                .xCoordinate(commentRequest.xCoordinate())
-                .yCoordinate(commentRequest.yCoordinate())
-                .page(commentRequest.page())
-                .content(commentRequest.content())
+                .xCoordinate(xCoordinate)
+                .yCoordinate(yCoordinate)
+                .page(page)
+                .content(content)
                 .groupMember(groupMember)
                 .diary(diary)
                 .build();

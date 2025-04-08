@@ -45,9 +45,9 @@ public class Reply extends BaseEntity {
     @NotNull
     private final Comment comment;
 
-    public static Reply of(ReplyCreateRequest request, GroupMember groupMember, Comment comment) {
+    public static Reply of(String content, GroupMember groupMember, Comment comment) {
         return Reply.builder()
-                .content(request.content())
+                .content(content)
                 .groupMember(groupMember)
                 .comment(comment)
                 .build();

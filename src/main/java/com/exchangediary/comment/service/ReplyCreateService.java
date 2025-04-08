@@ -29,7 +29,7 @@ public class ReplyCreateService {
 
         diaryAuthorizationService.checkDiaryViewable(groupMember.getLastViewableDiaryDate(), diary);
         Comment comment = commentQueryService.findComment(commentId);
-        Reply reply = Reply.of(request, groupMember, comment);
+        Reply reply = Reply.of(request.content(), groupMember, comment);
         replyRepository.save(reply);
     }
 }
