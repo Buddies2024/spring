@@ -41,6 +41,7 @@ public class NotificationRepositoryUnitTest {
             setUpMember(idx, group);
         }
         entityManager.flush();
+        entityManager.clear();
 
         // When
         List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberId(group.getId(), self.getId());
@@ -60,7 +61,9 @@ public class NotificationRepositoryUnitTest {
         for (int idx = 2; idx <= 4; idx++) {
             setUpMember(idx, group);
         }
+
         entityManager.flush();
+        entityManager.clear();
 
         // When
         List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(group.getId(), self.getId());
@@ -81,7 +84,9 @@ public class NotificationRepositoryUnitTest {
         for (int idx = 3; idx <= 4; idx++) {
             setUpMember(idx, group);
         }
+
         entityManager.flush();
+        entityManager.clear();
 
         // When
         List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(group.getId(), self.getId());
@@ -101,10 +106,14 @@ public class NotificationRepositoryUnitTest {
         for (int idx = 2; idx <= 4; idx++) {
             setUpMember(idx, group);
         }
-        entityManager.flush();
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         List<String> tokens = notificationRepository.findTokensByGroupIdAndCurrentOrder(group.getId());
 
+        // Then
         assertThat(tokens).hasSize(1);
         assertThat(tokens.get(0)).isEqualTo(member.toString());
     }
@@ -128,6 +137,9 @@ public class NotificationRepositoryUnitTest {
             }
             groupMembers.add(groupMember);
         }
+
+        entityManager.flush();
+        entityManager.clear();
 
         // When
         List<String> tokens = notificationRepository.findTokensByMembersWithoutDiaryToday();

@@ -20,7 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GroupMemberRepositoryUnitTest {
     private static final String GROUP_NAME = "버디즈";
     private static final String[] PROFILE_IMAGES = {"red", "orange", "yellow", "green", "blue", "navy", "purple"};
-
+    private static final String NICKNAME = "스프링";
+    
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
@@ -42,69 +43,117 @@ public class GroupMemberRepositoryUnitTest {
     @Test
     @DisplayName("사용자 id로 그룹원 가져오기")
     void Test_findByMemberId() {
-        GroupMember groupMember = GroupMember.of("스프링", PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
+        // Given
+        GroupMember groupMember = GroupMember.of(NICKNAME, PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
         entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         GroupMember result = groupMemberRepository.findByMemberId(member.getId()).get();
 
-        assertThat(result).isEqualTo(groupMember);
+        // Then
+        assertThat(result.getId()).isEqualTo(groupMember.getId());
+        assertThat(result.getGroup().getId()).isEqualTo(group.getId());
+        assertThat(result.getMember().getId()).isEqualTo(member.getId());
     }
 
     @Test
     @DisplayName("사용자 id로 그룹원의 그룹 id 가져오기")
     void Test_findGroupIdByMemberId() {
-        GroupMember groupMember = GroupMember.of("스프링", PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
+        // Given
+        GroupMember groupMember = GroupMember.of(NICKNAME, PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
         entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         String groupId = groupMemberRepository.findGroupIdByMemberId(member.getId()).get();
 
+        // Then
         assertThat(groupId).isEqualTo(group.getId());
     }
 
     @Test
     @DisplayName("사용자 id로 그룹원의 마지막으로 조회 가능한 일기 날짜 가져오기")
     void Test_findLastViewableDiaryDateByMemberId() {
-        GroupMember groupMember = GroupMember.of("스프링", PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
+        // Given
+        GroupMember groupMember = GroupMember.of(NICKNAME, PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
         entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         LocalDate lastViewableDiaryDate = groupMemberRepository.findLastViewableDiaryDateByMemberId(member.getId()).get();
 
+        // Then
         assertThat(lastViewableDiaryDate).isEqualTo(groupMember.getLastViewableDiaryDate());
     }
 
     @Test
     @DisplayName("사용자 id로 그룹원의 리더 여부 판별")
     void Test_isGroupLeaderByMemberId() {
-        GroupMember groupMember = GroupMember.of("스프링", PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
+        // Member is group leader
+        // Given
+        GroupMember groupMember = GroupMember.of(NICKNAME, PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
         entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         boolean isLeader = groupMemberRepository.isGroupLeaderByMemberId(member.getId());
 
+        // Then
         assertThat(isLeader).isTrue();
 
+        // Member is not group leader
+        // Given
+        groupMember = groupMemberRepository.findByMemberId(member.getId()).get();
         groupMember.changeGroupRole(GroupRole.GROUP_MEMBER);
-        entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         isLeader = groupMemberRepository.isGroupLeaderByMemberId(member.getId());
 
+        // Then
         assertThat(isLeader).isFalse();
     }
 
     @Test
     @DisplayName("사용자 id로 그룹원이 현재 그룹 순서인지 판별하기")
     void Test_isCurrentOrderByMemberId() {
-        GroupMember groupMember = GroupMember.of("스프링", PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
+        // Member`s order is current
+        // Given
+        GroupMember groupMember = GroupMember.of(NICKNAME, PROFILE_IMAGES[0], 1, GroupRole.GROUP_LEADER, group, member);
         entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         boolean isCurrentOrder = groupMemberRepository.isCurrentOrderByMemberId(member.getId());
 
+        // Then
         assertThat(isCurrentOrder).isTrue();
 
+        // Member`s order is not current
+        // Given
+        groupMember = groupMemberRepository.findByMemberId(member.getId()).get();
         groupMember.changeOrderInGroup(2);
-        entityManager.persist(groupMember);
 
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
         isCurrentOrder = groupMemberRepository.isCurrentOrderByMemberId(member.getId());
 
+        // Then
         assertThat(isCurrentOrder).isFalse();
     }
 }
