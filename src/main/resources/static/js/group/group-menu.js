@@ -19,7 +19,6 @@ groupCodeBtn.addEventListener("click", () => {
         openNotificationModal("error", ["오류가 발생했습니다."], 2000);
     }
 });
-notificationBtn.addEventListener("click", changeNotificationState);
 
 function openMenu() {
     fetch(`/api/groups/${groupId}/members`)
@@ -28,6 +27,7 @@ function openMenu() {
     groupMenu.style.display = "block";
     groupMenu.classList.add("blur");
     setTimeout(() => menu.style.transform = "translateX(0)", 10);
+    drawNotificationBtn();
 }
 
 function closeMenu(event) {
@@ -164,6 +164,29 @@ async function deleteGroup(event) {
             }
         })
     }
+}
+
+function drawNotificationBtn() {
+    const classList = notificationBtn.classList
+    notificationBtn.removeEventListener("click", showNotificationSetting);
+    notificationBtn.removeEventListener("click", changeNotificationState);
+
+    Notification.requestPermission().then((permission) => {
+        if (permission === "denied") {
+            classList.replace(classList[2], "denied");
+            notificationBtn.innerHTML = "알림 권한 활성화";
+            notificationBtn.addEventListener("click", showNotificationSetting);
+        } else {
+            classList.replace(classList[2], "on");
+            notificationBtn.innerHTML = "<img />알림 ON";
+            notificationBtn.addEventListener("click", changeNotificationState);
+        }
+    })
+}
+
+function showNotificationSetting(event) {
+    event.preventDefault();
+    openNotificationModal("error", ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"], 2147483647);
 }
 
 function changeNotificationState(event) {

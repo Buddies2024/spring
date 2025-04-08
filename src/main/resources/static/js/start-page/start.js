@@ -17,7 +17,7 @@ setTimeout(() => {
 setTimeout(() => {
     logo.classList.add("end");
     drawStartPrompt();
-}, 2390);
+}, 2400);
 
 document.addEventListener("click", () => {
     if (logo.classList.contains("end")) {

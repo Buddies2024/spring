@@ -12,6 +12,7 @@ document.addEventListener("visibilitychange", () => {
             location.reload();
         } else {
             calendar.reload();
+            drawNotificationBtn();
         }
     }
 });

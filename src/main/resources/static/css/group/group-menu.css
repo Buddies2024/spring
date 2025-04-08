@@ -327,6 +327,10 @@
     justify-content: left;
 }
 
+.notification.denied {
+    justify-content: center;
+}
+
 .notification img {
     margin-left: 24px;
     margin-right: 1px;
