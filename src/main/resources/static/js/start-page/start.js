@@ -5,6 +5,7 @@ const logo_images = [
     "/images/start-page/line.gif",
     "/images/start-page/logo.png"
 ];
+const startPrompt = document.querySelector(".start-prompt");
 
 preLoadImgage(logo_images);
 registerServiceWorker();
@@ -15,6 +16,7 @@ setTimeout(() => {
 
 setTimeout(() => {
     logo.classList.add("end");
+    drawStartPrompt();
 }, 2390);
 
 document.addEventListener("click", () => {
@@ -22,6 +24,7 @@ document.addEventListener("click", () => {
         requestNotificationPermission(startSpring);
     } else {
         logo.classList.add("end");
+        drawStartPrompt();
     }
 });
 
@@ -44,4 +47,13 @@ function getUrl(anonymousInfo) {
 
     window.localStorage.setItem("groupId", anonymousInfo.groupId);
     return `/groups/${anonymousInfo.groupId}`
+}
+
+function drawStartPrompt() {
+    startPrompt.innerText = "화면을 눌러 시작하기";
+    startPrompt.classList.add("typing");
+
+    setTimeout(() => {
+        startPrompt.classList.replace("typing", "blinking-text")
+    }, 1000);
 }
