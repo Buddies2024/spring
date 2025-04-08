@@ -5,6 +5,7 @@ const groupMembers = menu.querySelector(".group-members");
 const groupSize = menu.querySelector(".group-size .size");
 const groupLeaveBtn = menu.querySelector(".group-leave");
 const groupCodeBtn = menu.querySelector(".group-code");
+const notificationBtn = menu.querySelector(".notification");
 var isLeader = false;
 
 menuBtn.addEventListener("click", openMenu);
@@ -18,6 +19,7 @@ groupCodeBtn.addEventListener("click", () => {
         openNotificationModal("error", ["오류가 발생했습니다."], 2000);
     }
 });
+notificationBtn.addEventListener("click", changeNotificationState);
 
 function openMenu() {
     fetch(`/api/groups/${groupId}/members`)
@@ -161,5 +163,18 @@ async function deleteGroup(event) {
                 openNotificationModal("error", ["오류가 발생했습니다."], 2000);
             }
         })
+    }
+}
+
+function changeNotificationState(event) {
+    event.preventDefault();
+    const notificationBtn = event.target.closest("a.notification");
+
+    if (notificationBtn.classList.contains("on")) {
+        notificationBtn.classList.replace("on", "off");
+        notificationBtn.innerHTML = "<img />알림 OFF";
+    } else {
+        notificationBtn.classList.replace("off", "on");
+        notificationBtn.innerHTML = "<img />알림 ON";
     }
 }

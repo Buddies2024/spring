@@ -324,4 +324,18 @@
     font-weight: 400;
     line-height: 26.847px; /* 212.5% */
     letter-spacing: -0.316px;
+    justify-content: left;
+}
+
+.notification img {
+    margin-left: 24px;
+    margin-right: 1px;
+}
+
+.notification.on img {
+    content: url("/images/group/menu/notification.svg");
+}
+
+.notification.off img {
+    content: url("/images/group/menu/notification-mute.svg");
 }

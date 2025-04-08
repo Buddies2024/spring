@@ -34,7 +34,7 @@
         <div class="menu-footer">
           <div class="menu-btns">
             <a class="btn group-code" href="#" th:data-code="${group.id}">코드 복사</a>
-            <a class="btn notification" href="#">알림 활성화</a>
+            <a class="btn notification on" href="#"><img />알림 ON</a>
           </div>
           <a class="group-leave" th:href="@{/api/groups/{groupId}/leave(groupId=${group.id})}"><img src="/images/group/menu/exit.svg" /></a>
         </div>
@@ -44,12 +44,6 @@
 
   <script src="/js/group/group-menu.js"></script>
   <script src="/js/group/leader.js"></script>
-
-  <script type="module">
-    import { requestNotificationPermission } from "/js/fcm/setup-fcm.js";
-
-    document.querySelector(".notification").addEventListener("click", () => requestNotificationPermission());
-  </script>
 </th:block>
 
 </html>
