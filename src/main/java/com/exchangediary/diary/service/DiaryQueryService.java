@@ -9,7 +9,6 @@ import com.exchangediary.diary.ui.dto.response.DiaryResponse;
 import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.InvalidDateException;
 import com.exchangediary.global.exception.serviceexception.NotFoundException;
-import com.exchangediary.group.domain.GroupMemberRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.domain.entity.GroupMember;
 import com.exchangediary.group.service.GroupMemberQueryService;
@@ -31,7 +30,6 @@ public class DiaryQueryService {
     private final DiaryAuthorizationService diaryAuthorizationService;
     private final GroupMemberQueryService groupMemberQueryService;
     private final DiaryRepository diaryRepository;
-    private final GroupMemberRepository groupMemberRepository;
     private final GroupQueryService groupQueryService;
 
     public Diary findDiary(Long diaryId) {
