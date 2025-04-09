@@ -90,7 +90,7 @@
 
 .diary-content-area {
     position: relative;
-    top: 24px;
+    top: 12px;
 }
 
 textarea.diary-content {
@@ -134,7 +134,7 @@ textarea.diary-content {
 
 .tooltip-box {
     position: relative;
-    top: 18px;
+    bottom: 18px;
     width: 310px;
     height: 115px;
 }

@@ -55,11 +55,9 @@ function drawMenu(data) {
     }
 
     if (data.members.length === 1) {
-        groupLeaveBtn.innerHTML = '<img src="/images/group/menu/delete.svg" />';
         groupLeaveBtn.removeEventListener("click", leaveGroup);
         groupLeaveBtn.addEventListener("click", deleteGroup);
     } else {
-        groupLeaveBtn.innerText = '<img src="/images/group/menu/leave.svg" />';
         groupLeaveBtn.removeEventListener("click", deleteGroup);
         groupLeaveBtn.addEventListener("click", leaveGroup);
     }
