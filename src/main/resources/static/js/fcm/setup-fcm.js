@@ -14,32 +14,19 @@ export function registerServiceWorker() {
     }
 }
 
-export function requestNotificationPermission(method) {
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('알림 권한이 허용되어 있습니다.');
-            setFCMToken();
-        } else {
-            console.log('알림 권한이 차단되어 있습니다.');
-        }
-        method && method();
-    }).catch(function (err) {
-        console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
-    });
-}
+export async function setFCMToken() {
+    try {
+        const currentToken = await getToken(messaging, { vapidKey: vapidKey });
 
-function setFCMToken() {
-    getToken(messaging, { vapidKey: vapidKey })
-    .then(function (currentToken) {
         if (currentToken) {
             console.log(currentToken);
             sendTokenToServer(currentToken);
         } else {
-            console.log("토큰 등록이 불가능 합니다.")
+            console.log("토큰 등록이 불가능 합니다.");
         }
-    }).catch(function (err) {
+    } catch (err) {
         console.log('토큰을 가져올 수 없습니다.', err);
-    });
+    }
 }
 
 function sendTokenToServer(token) {

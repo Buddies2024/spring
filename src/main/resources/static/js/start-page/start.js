@@ -1,4 +1,4 @@
-import { registerServiceWorker, requestNotificationPermission } from "/js/fcm/setup-fcm.js"
+import { registerServiceWorker, setFCMToken } from "/js/fcm/setup-fcm.js"
 
 const logo = document.querySelector(".logo");
 const logo_images = [
@@ -24,12 +24,29 @@ function init() {
     
     document.addEventListener("click", () => {
         if (logo.classList.contains("end")) {
-            requestNotificationPermission(startSpring);
+            requestNotificationPermission();
         } else {
             logo.classList.add("end");
             drawStartPrompt();
         }
     });
+}
+
+async function requestNotificationPermission() {
+    try {
+        const permission = await Notification.requestPermission();
+
+        if (permission === 'granted') {
+            console.log('알림 권한이 허용되어 있습니다.');
+            await setFCMToken();
+        } else {
+            console.log('알림 권한이 차단되어 있습니다.');
+        }
+    } catch (err) {
+        console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
+    }
+
+    startSpring();
 }
 
 function startSpring() {
