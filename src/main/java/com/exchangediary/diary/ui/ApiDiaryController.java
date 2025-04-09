@@ -4,7 +4,7 @@ import com.exchangediary.diary.service.DiaryWriteService;
 import com.exchangediary.diary.service.DiaryQueryService;
 import com.exchangediary.diary.ui.dto.request.DiaryRequest;
 import com.exchangediary.diary.ui.dto.response.DiaryResponse;
-import com.exchangediary.diary.ui.dto.response.DiaryWritableStatusResponse;
+import com.exchangediary.diary.ui.dto.response.TodayDiaryStatusResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryMonthlyResponse;
 import com.exchangediary.notification.service.NotificationService;
 import jakarta.validation.Valid;
@@ -58,12 +58,12 @@ public class ApiDiaryController {
                 .body(diaryMonthlyResponse);
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<DiaryWritableStatusResponse> getDiaryWritableStatus(
+    @GetMapping("/today")
+    public ResponseEntity<TodayDiaryStatusResponse> getTodayDiaryStatus(
             @PathVariable String groupId,
             @RequestAttribute Long memberId
     ) {
-        DiaryWritableStatusResponse response = diaryQueryService.getMembersDiaryAuthorization(groupId, memberId);
+        TodayDiaryStatusResponse response = diaryQueryService.getTodayDiaryStatus(groupId, memberId);
         return ResponseEntity
                 .ok()
                 .body(response);

@@ -3,14 +3,17 @@ package com.exchangediary.diary.service;
 import com.exchangediary.diary.domain.dto.DiaryInMonthly;
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.diary.domain.DiaryRepository;
-import com.exchangediary.diary.ui.dto.response.DiaryWritableStatusResponse;
+import com.exchangediary.diary.ui.dto.response.TodayDiaryStatusResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryMonthlyResponse;
 import com.exchangediary.diary.ui.dto.response.DiaryResponse;
 import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.InvalidDateException;
 import com.exchangediary.global.exception.serviceexception.NotFoundException;
 import com.exchangediary.group.domain.GroupMemberRepository;
+import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
 import com.exchangediary.group.service.GroupMemberQueryService;
+import com.exchangediary.group.service.GroupQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ public class DiaryQueryService {
     private final GroupMemberQueryService groupMemberQueryService;
     private final DiaryRepository diaryRepository;
     private final GroupMemberRepository groupMemberRepository;
+    private final GroupQueryService groupQueryService;
 
     public Diary findDiary(Long diaryId) {
         return diaryRepository.findById(diaryId)
@@ -56,17 +60,22 @@ public class DiaryQueryService {
         return DiaryMonthlyResponse.of(diaries, lastViewableDiaryDate);
     }
 
-    public DiaryWritableStatusResponse getMembersDiaryAuthorization(String groupId, Long memberId) {
-        boolean writtenTodayDiary = false;
-        Long diaryId = null;
+    public TodayDiaryStatusResponse getTodayDiaryStatus(String groupId, Long memberId) {
+        Group group = groupQueryService.findGroup(groupId);
+        GroupMember groupMember = groupMemberQueryService.findGroupMemberByMemberId(memberId);
 
-        Boolean isMyOrder = groupMemberRepository.isCurrentOrderByMemberId(memberId);
-        Optional<Diary> todayDiary = diaryRepository.findDiaryByGroupIdAndDate(groupId, LocalDate.now());
-        if (todayDiary.isPresent()) {
-            writtenTodayDiary = true;
-            diaryId = getTodayDiaryId(isMyOrder, memberId, todayDiary.get());
+        boolean isMyOrder = group.getCurrentOrder().equals(groupMember.getOrderInGroup());
+        Long diaryId = null;
+        boolean canViewTodayDiary = false;
+
+        Optional<Diary> maybeTodayDiary = diaryRepository.findDiaryByGroupIdAndDate(groupId, LocalDate.now());
+        if (maybeTodayDiary.isPresent()) {
+            Diary todayDiary = maybeTodayDiary.get();
+
+            diaryId = todayDiary.getId();
+            canViewTodayDiary = !groupMember.getLastViewableDiaryDate().isBefore(todayDiary.getCreatedAt().toLocalDate());
         }
-        return DiaryWritableStatusResponse.of(isMyOrder, writtenTodayDiary, diaryId);
+        return TodayDiaryStatusResponse.of(isMyOrder, diaryId, canViewTodayDiary);
     }
 
     private void checkYearMonthFormat(int year, int month) {
@@ -79,15 +88,5 @@ public class DiaryQueryService {
                     String.format("%d-%02d", year, month)
             );
         }
-    }
-
-    private Long getTodayDiaryId(Boolean isMyOrder, Long memberId, Diary todayDiary) {
-        if (todayDiary.getGroupMember().getMember().getId().equals(memberId)) {
-            return todayDiary.getId();
-        }
-        if (isMyOrder) {
-            return todayDiary.getId();
-        }
-        return null;
     }
 }
