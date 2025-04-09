@@ -23,6 +23,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
 public class ApiBaseTest {
     public static final String GROUP_NAME = "버디즈";
     public static final String[] PROFILE_IMAGES = {"red", "orange", "yellow", "green", "blue", "navy", "purple"};
+    public static final String TODAY_MOOD = "happy.png";
 
     @LocalServerPort
     private int port;
