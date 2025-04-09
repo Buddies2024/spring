@@ -57,9 +57,9 @@
     color: #5A402A;
     text-align: center;
     font-family: "HancomMalangMalang-Bold";
-    font-size: 20px;
+    font-size: 18px;
     font-style: normal;
-    line-height: 26px; /* 100% */
+    line-height: 24px; /* 100% */
     letter-spacing: 0.12px;
 }
 
@@ -68,7 +68,7 @@
     overflow: hidden;
     white-space: nowrap;
     width: 0;
-    animation: typing 2s steps(20, end) forwards;
+    animation: typing 2s steps(22, end) forwards;
   }
   
   @keyframes typing {
