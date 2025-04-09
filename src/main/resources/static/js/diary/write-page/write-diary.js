@@ -17,7 +17,7 @@ function init() {
     drawTodayDate();
     addEventToWriteBtn();
     makePages();
-    addEventSlide();
+    addEventPages();
     getRandomText();
 }
 
@@ -117,16 +117,12 @@ function makePages() {
     nextPage = pages[1];
 }
 
-function addEventSlide() {
+function addEventPages() {
     pages.forEach(page => {
-        addSlideEventByNoteContent(page.noteContent);
-        page.noteContent.addEventListener("touchstart", () => page.diaryContent.blur());
-    });
-    content.addEventListener("transitionend", (event) => {
-        if (event.target === currentPage.noteContent) {
-            currentPage.diaryContent.focus();
-        }
-    });
+        page.diaryContent.addEventListener("focus", () => { isActive = false });
+        page.diaryContent.addEventListener("focusout", () => { isActive = true });
+        addSlideEventByNoteContent(page.noteContent)
+    })
 }
 
 function changePage(targetPage) {
