@@ -10,7 +10,7 @@ const TEXTLIST = [
     "스프링을 채울 준비가 되었나요➿?\ntip! 꼭 길게 쓰지 않아도 괜찮아요.",
     "밥 한 끼 같이 먹듯, 스프링에 마음을 나눠요➿\ntip! 오늘 먹었던 음식처럼,\n사소한 이야기도 좋아요."
 ];
-
+var canFocus = false;
 init();
 
 function init() {
@@ -119,10 +119,16 @@ function makePages() {
 
 function addEventPages() {
     pages.forEach(page => {
-        page.diaryContent.addEventListener("focus", () => { isActive = false });
-        page.diaryContent.addEventListener("focusout", () => { isActive = true });
-        addSlideEventByNoteContent(page.noteContent)
-    })
+        addSlideEventByNoteContent(page.noteContent);
+    });
+    content.addEventListener("transitionend", foucsCurrentTextarea);
+}
+
+function foucsCurrentTextarea(event) {
+    if (canFocus && event.target === currentPage.noteContent) {
+        currentPage.diaryContent.focus();
+        canFocus = false;
+    }
 }
 
 function changePage(targetPage) {

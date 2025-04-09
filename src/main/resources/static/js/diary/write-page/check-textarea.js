@@ -1,38 +1,19 @@
 const textareas = Array.from(document.querySelectorAll(".diary-content"));
 const textareaValues = textareas.map(textarea => textarea.value);
-var isCalled = false;
 addEventTextareas();
 
 function addEventTextareas() {
     Array.from(textareas).forEach(textarea => {
-        textarea.addEventListener("keyup", checkPrevPage);
+        textarea.addEventListener("focus", () => { isActive = false });
+        textarea.addEventListener("focusout", () => { isActive = true });
         textarea.addEventListener("input", checkNextPage);
         textarea.addEventListener("click", closeModal);
     });
 }
 
-function checkPrevPage(event) {
-    if (event.key === "Backspace" && !isCalled) {
-        const textarea = event.target;
-        const index = textareas.indexOf(textarea);
-
-        if (textarea.value[0] === "\n") {
-            textareaValues[index] = textarea.value.slice(1);
-            textarea.value = textareaValues[index];
-            textarea.selectionEnd = 0;
-        } 
-        else if (index > 0) {
-            textarea.blur();
-            changePageBySlide("prev", "0.3s");
-        }
-    }
-    isCalled = event.key === "Process";
-}
-
 function checkNextPage(event) {
     const textarea = event.target;
     const index = textareas.indexOf(textarea);
-    isCalled = true;
 
     if (textarea.scrollHeight !== textarea.offsetHeight) {
         if (textarea.value.length === textareaValues[index].length) {
@@ -42,8 +23,8 @@ function checkNextPage(event) {
         textarea.value = textareaValues[index];
         textarea.selectionEnd = selection;
         if (canTurnPage(index, event)) {
-            textarea.blur();
-            isCalled = false;
+            isActive = true;
+            canFocus = true;
             changePageBySlide("next", "0.3s");
         }
     }
