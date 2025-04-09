@@ -10,23 +10,27 @@ const startPrompt = document.querySelector(".start-prompt");
 preLoadImgage(logo_images);
 registerServiceWorker();
 
-setTimeout(() => {
-    logo.src = "/images/start-page/line.gif";
-}, 10);
+window.addEventListener("load", init);
 
-setTimeout(() => {
-    logo.classList.add("end");
-    drawStartPrompt();
-}, 2400);
-
-document.addEventListener("click", () => {
-    if (logo.classList.contains("end")) {
-        requestNotificationPermission(startSpring);
-    } else {
+function init() {
+    setTimeout(() => {
+        logo.src = "/images/start-page/line.gif";
+    }, 10);
+    
+    setTimeout(() => {
         logo.classList.add("end");
         drawStartPrompt();
-    }
-});
+    }, 2400);
+    
+    document.addEventListener("click", () => {
+        if (logo.classList.contains("end")) {
+            requestNotificationPermission(startSpring);
+        } else {
+            logo.classList.add("end");
+            drawStartPrompt();
+        }
+    });
+}
 
 function startSpring() {
     fetch(`/api/anonymous/info`)
