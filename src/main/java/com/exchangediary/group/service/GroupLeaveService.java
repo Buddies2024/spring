@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -24,64 +22,47 @@ public class GroupLeaveService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
 
-    // todo: group.leaveMember 호출 필요
     public void leaveGroup(String groupId, Long memberId) {
         Group group = groupQueryService.findGroup(groupId);
-        GroupMember groupMember = groupMemberQueryService.findGroupMemberByMemberId(memberId);
+        GroupMember leaveMember = groupMemberQueryService.findGroupMemberByMemberId(memberId);
 
-        forbidGroupLeaderLeave(groupMember, group.getGroupMembers().size());
+        forbidGroupLeaderLeave(leaveMember, group.getMemberCount());
         diaryImageService.deleteAllImageByMemberId(memberId, groupId);
 
-        int leaveMemberOrder = groupMember.getOrderInGroup();
-        groupMemberRepository.delete(groupMember);
-        updateGroupAfterMemberLeave(group, leaveMemberOrder);
+        groupMemberRepository.delete(leaveMember);
+        groupMemberRepository.flush();
+
+        updateGroupAfterMemberLeave(group, leaveMember.getOrderInGroup());
     }
 
-    private void forbidGroupLeaderLeave(GroupMember groupMember, int numberOfGroupMember) {
-        if (numberOfGroupMember > 1 && GroupRole.GROUP_LEADER.equals(groupMember.getGroupRole())) {
+    private void forbidGroupLeaderLeave(GroupMember groupMember, int memberCount) {
+        if (memberCount > 1 && GroupRole.GROUP_LEADER.equals(groupMember.getGroupRole())) {
             throw new ForbiddenException(ErrorCode.GROUP_LEADER_LEAVE_FORBIDDEN, "", "");
         }
     }
 
-    private void updateGroupAfterMemberLeave(Group group, int leaveMemberOrder) {
-        if (group.getGroupMembers().size() == 1) {
+    private void updateGroupAfterMemberLeave(Group group, int leaveMembersOrder) {
+        if (group.getMemberCount() == 1) {
             groupRepository.delete(group);
         } else {
-            updateGroupMembersOrder(group, leaveMemberOrder);
-            updateGroupCurrentOrder(group, leaveMemberOrder);
+            group.leaveMember();
+            updateGroupCurrentOrder(group, leaveMembersOrder);
+            updateGroupMembersOrder(group, leaveMembersOrder);
         }
     }
 
-    private void updateGroupMembersOrder(Group group, int leaveMemberOrder) {
+    private void updateGroupCurrentOrder(Group group, int leaveMembersOrder) {
+        if (leaveMembersOrder < group.getCurrentOrder()) {
+            group.changeCurrentOrder(group.getCurrentOrder() - 1);
+        } else if (leaveMembersOrder == group.getCurrentOrder()) {
+            group.changeCurrentOrder(group.getCurrentOrder());
+            group.getGroupMembers().get(group.getCurrentOrder() - 1).updateLastViewableDiaryDate();
+        }
+    }
+
+    private void updateGroupMembersOrder(Group group, int leaveMembersOrder) {
         group.getGroupMembers().stream()
-                .filter(member -> member.getOrderInGroup() > leaveMemberOrder)
+                .filter(member -> member.getOrderInGroup() > leaveMembersOrder)
                 .forEach(member -> member.changeOrderInGroup(member.getOrderInGroup() - 1));
-        groupMemberRepository.saveAll(group.getGroupMembers());
-    }
-
-    private void updateGroupCurrentOrder(Group group, int leaveMemberOrder) {
-        List<GroupMember> groupMembers = group.getGroupMembers();
-        int currentOrder = group.getCurrentOrder();
-        int numberOfGroupMember = groupMembers.size() - 1;
-
-        if (leaveMemberOrder < currentOrder) {
-            group.changeCurrentOrder(currentOrder - 1);
-        } else {
-            group.changeCurrentOrder(currentOrder);
-        }
-
-        if (leaveMemberOrder == currentOrder) {
-            int index = getCurrentMemberIndex(group.getCurrentOrder());
-            group.getGroupMembers().get(index).updateLastViewableDiaryDate();
-        }
-
-        groupRepository.save(group);
-    }
-
-    private int getCurrentMemberIndex(int currentOrder) {
-        if (currentOrder == 1) {
-            return 0;
-        }
-        return currentOrder;
     }
 }
