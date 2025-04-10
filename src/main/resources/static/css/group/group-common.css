@@ -71,6 +71,8 @@ a {
 .note-body {
     width: 375px;
     height: 389px;
+
+    will-change: transform;
 }
 
 .note-footer {
