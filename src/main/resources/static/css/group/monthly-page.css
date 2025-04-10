@@ -122,21 +122,21 @@ th,td {
 }
 
 .arrow-area {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 
     position: absolute;
-    top: 26px;
+    top: 24px;
 }
 
 .arrow-area.left-arrow {
-    left: 17px;
-    transform: rotate(225deg);
+    content: url("/images/monthly-page/left-arrow.svg");
+    left: 18px;
 }
 
 .arrow-area.right-arrow {
-    right: 17px;
-    transform: rotate(45deg);
+    content: url("/images/monthly-page/right-arrow.svg");
+    right: 18px;
 }
 
 .arrow {
