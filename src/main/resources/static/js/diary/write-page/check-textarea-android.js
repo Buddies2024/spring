@@ -1,16 +1,21 @@
-function addEventTextareasByIos() {
+function addEventTextareasByAndroid() {
     Array.from(textareas).forEach(textarea => {
         textarea.addEventListener("focus", () => { isActive = false });
         textarea.addEventListener("focusout", () => { isActive = true });
         textarea.addEventListener("click", closeModal);
+        textarea.addEventListener("beforeinput", checkBeforeInputEvent);
         textarea.addEventListener("keydown", checkKeydownEvent);
         textarea.addEventListener("input", checkNextPage);
     });
 
-    function checkKeydownEvent(event) {
+    function checkBeforeInputEvent(event) {
         if (!canTyping) {
             event.preventDefault();
-        } else {
+        } 
+    }
+
+    function checkKeydownEvent(event) {
+        if (canTyping) {
             const textarea = event.target;
             prevValue = textarea.value;
             prevCursorpos = textarea.selectionStart;
@@ -20,14 +25,17 @@ function addEventTextareasByIos() {
     function checkNextPage(event) {
         const textarea = event.target;
         const text = event.data;
+
         if (textarea.scrollHeight > textarea.clientHeight) {
-            if (isKorean(text) && text.length == 2) {
+            if (canTyping && text && text.length > 1 && isKorean(text.slice(-2))) {
                 prevValue = textarea.value.slice(0, -1);
             }
             textarea.value = prevValue;
             textarea.setSelectionRange(prevCursorpos, prevCursorpos);
     
-            changeNextPage(textarea);
+            if (canTyping) {
+                changeNextPage(textarea);
+            }
         }
     }
     
