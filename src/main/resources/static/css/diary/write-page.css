@@ -86,6 +86,7 @@
     height: 500px;
     position: absolute;
     transition: transform 0.3s ease-out;
+    will-change: transform;
 }
 
 .diary-content-area {
@@ -95,6 +96,7 @@
 
 textarea.diary-content {
     resize: none;
+    touch-action: none;
     /* 마지막 줄 나타내는 테두리 */
     /* border-bottom: 1px solid #000;
     box-sizing: border-box; */

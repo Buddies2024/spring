@@ -1,4 +1,13 @@
 function addEventTextareasByAndroid() {
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", () => {
+            const height = window.visualViewport.height;
+            if (height >= window.innerHeight) {
+                document.activeElement.blur();
+            }
+        });
+    }
+    
     Array.from(textareas).forEach(textarea => {
         textarea.addEventListener("focus", () => { isActive = false });
         textarea.addEventListener("focusout", () => { isActive = true });
