@@ -124,9 +124,9 @@ function addEventPages() {
 }
 
 function foucsCurrentTextarea(event) {
-    if (isMoving && event.target === currentPage.noteContent) {
+    if (!canTyping && event.target === currentPage.noteContent) {
         currentPage.diaryContent.focus();
-        isMoving = false;
+        canTyping = true;
     }
 }
 
