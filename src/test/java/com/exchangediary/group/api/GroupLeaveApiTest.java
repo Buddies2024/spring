@@ -18,16 +18,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
-@Sql(scripts = {"classpath:on-delete-cascade-update.sql"}, executionPhase = BEFORE_TEST_METHOD)
 public class GroupLeaveApiTest extends ApiBaseTest {
     private static final String URI = "/api/groups/%s/leave";
 
