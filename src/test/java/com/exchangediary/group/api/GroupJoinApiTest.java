@@ -41,12 +41,13 @@ class GroupJoinApiTest extends ApiBaseTest {
                 .statusCode(HttpStatus.OK.value());
 
         // Then
-        List<GroupMember> groupMembers = groupMemberRepository.findAll();
+        Group updatedGroup = groupRepository.findById(group.getId()).get();
+        assertThat(updatedGroup.getMemberCount()).isEqualTo(2);
 
+        List<GroupMember> groupMembers = groupMemberRepository.findAll();
         assertThat(groupMembers).hasSize(2);
 
         GroupMember updatedMember = groupMembers.stream().filter(groupMember -> groupMember.getNickname().equals(nickname)).findFirst().get();
-
         assertThat(updatedMember.getNickname()).isEqualTo(nickname);
         assertThat(updatedMember.getProfileImage()).isEqualTo(profileImage);
         assertThat(updatedMember.getOrderInGroup()).isEqualTo(2);
