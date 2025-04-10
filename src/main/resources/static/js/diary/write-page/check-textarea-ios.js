@@ -37,7 +37,7 @@ function addEventTextareasByIos() {
         return koreanRegex.test(text);
     }
     
-    function changeNextPage(textarea) {
+    async function changeNextPage(textarea) {
         const index = textarea.getAttribute("data-id");
     
         if (index === "5") {
@@ -51,9 +51,15 @@ function addEventTextareasByIos() {
             openNotificationModal("error", ["더 이상 새로운 줄을 추가할 수 없어요!", "마지막 줄의 내용을 줄이거나", "다음 페이지로 넘어가주세요!"], 5000);
             return;
         }
-    
-        isActive = true;
-        canTyping = false;
-        changePageBySlide("next", "0.3s");
+
+        textarea.blur();
+        const texts = textarea.value.split("\n");
+        const lastText = texts[texts.length - 1].slice(-5)
+        const result = await openConfirmModal(`"${lastText}" 까지 작성되었습니다.`, "다음 페이지로 넘어가시겠습니까?");
+        if (result) {
+            isActive = true;
+            canTyping = false;
+            changePageBySlide("next", "0.3s");
+        }
     }
 }

@@ -125,7 +125,6 @@ function addEventPages() {
 
 function foucsCurrentTextarea(event) {
     if (!canTyping && event.target === currentPage.noteContent) {
-        currentPage.diaryContent.focus();
         canTyping = true;
     }
 }
