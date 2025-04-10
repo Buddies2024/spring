@@ -1,6 +1,5 @@
 package com.exchangediary.comment.domain.entity;
 
-import com.exchangediary.comment.ui.dto.request.CommentCreateRequest;
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.global.domain.entity.BaseEntity;
 import com.exchangediary.group.domain.entity.GroupMember;
