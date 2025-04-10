@@ -45,7 +45,7 @@ public class GroupLeaderService {
     public long kickOutMember(String groupId, GroupKickOutRequest request) {
         Group group = groupQueryService.findGroup(groupId);
         GroupMember kickMember = groupMemberFindService.findMemberByNickname(group, request.nickname());
-        groupLeaveService.leaveGroup(groupId, kickMember.getId());
+        groupLeaveService.leaveGroup(groupId, kickMember.getMember().getId());
         return kickMember.getId();
     }
 
