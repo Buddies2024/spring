@@ -100,7 +100,7 @@ function addBackBtn() {
         const backBtn = document.createElement("div");
 
         backBtn.classList.add("bar-back");
-        backBtn.innerHTML = `<a href="#" class="back-btn"><img class="back-icon" src="/images/common/back_icon.svg"/></a>`;
+        backBtn.innerHTML = `<a href="javascript:void(0);" class="back-btn"><img class="back-icon" src="/images/common/back_icon.svg"/></a>`;
         topBar.appendChild(backBtn);
 
         backBtn.addEventListener("click", () => !isMoving && prevStep());

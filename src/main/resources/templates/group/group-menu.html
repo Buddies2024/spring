@@ -33,8 +33,8 @@
         </div>
         <div class="menu-footer">
           <div class="menu-btns">
-            <a class="btn group-code" href="#" th:data-code="${group.id}">코드 복사</a>
-            <a class="btn notification denied" href="#">알림 권한 활성화</a>
+            <a class="btn group-code" href="javascript:void(0);" th:data-code="${group.id}">코드 복사</a>
+            <a class="btn notification denied" href="javascript:void(0);">알림 권한 활성화</a>
           </div>
           <a class="group-leave" th:href="@{/api/groups/{groupId}/leave(groupId=${group.id})}"><img src="/images/group/menu/leave.svg" /></a>
         </div>

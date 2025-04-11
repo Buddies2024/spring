@@ -43,7 +43,6 @@ function drawPageBar(diary) {
 }
 
 function changePageByBtn(event) {
-    event.preventDefault();
     const pageIndex = event.target.getAttribute("data-index");
     const targetPage = pages[pageIndex];
     const skipSize = currentPage.index - pageIndex;

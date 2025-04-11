@@ -95,7 +95,7 @@ function getAngle(number, memberSize) {
 }
 
 function makeMemberHtml(characterName, memberName) {
-    return `<a class="profile-image" href="#">
+    return `<a class="profile-image" href="javascript:void(0);">
                 <img class="${characterName} character-icon" />
             </a>
             <span class="profile-nickname">${memberName}</span>`
@@ -183,12 +183,10 @@ function drawNotificationBtn() {
 }
 
 function showNotificationSetting(event) {
-    event.preventDefault();
     openNotificationModal("error", ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"], 2147483647);
 }
 
 function changeNotificationState(event) {
-    event.preventDefault();
     const notificationBtn = event.target.closest("a.notification");
 
     if (notificationBtn.classList.contains("on")) {

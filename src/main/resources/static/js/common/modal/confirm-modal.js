@@ -23,14 +23,12 @@ function openConfirmModal(message, warning_message=null) {
     return new Promise(resolve => {
         const confirm_btn = confirm_modal_popup.querySelector(".confirm-btn");
         confirm_btn.addEventListener("click", (event) => {
-            event.preventDefault();
             closeConfirmModal();
             setTimeout(() => resolve(true));
         });
 
         const cancel_btn = confirm_modal_popup.querySelector(".cancel-btn");
         cancel_btn.addEventListener("click", (event) => {
-            event.preventDefault();
             closeConfirmModal();
             setTimeout(() => resolve(false));
         })
