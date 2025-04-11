@@ -25,10 +25,13 @@ public class Member extends BaseEntity {
     private Long id;
     @NotNull
     private final Long kakaoId;
+    @NotNull
+    private Boolean on_notification;
 
     public static Member from(Long kakaoId) {
         return Member.builder()
                 .kakaoId(kakaoId)
+                .on_notification(true)
                 .build();
     }
 }
