@@ -34,4 +34,8 @@ public class Member extends BaseEntity {
                 .onNotification(true)
                 .build();
     }
+
+    public void toggleNotification() {
+        this.onNotification = !this.onNotification;
+    }
 }
