@@ -10,7 +10,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByKakaoId(Long kakaoId);
 
     @Query("""
-        SELECT m.on_notification
+        SELECT m.onNotification
         FROM Member m
         WHERE m.id = :id
     """)
