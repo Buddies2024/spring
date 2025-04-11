@@ -5,8 +5,9 @@ const currentPathName = window.location.pathname;
 init();
 
 function init() {
-    commentBtn.addEventListener("click", clickCommentBtn);
-    document.addEventListener("click", clickCommentBlur);
+    commentBtn.addEventListener("click", () => openNotificationModal("yellow", ["COMING SOON", "댓글 기능을 찾아내셨군요!"], 2000));
+    // commentBtn.addEventListener("click", clickCommentBtn);
+    // document.addEventListener("click", clickCommentBlur);
 }
 
 function clickCommentBlur(event) {

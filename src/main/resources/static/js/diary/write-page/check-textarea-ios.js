@@ -42,20 +42,20 @@ function addEventTextareasByIos() {
     
         if (index === "5") {
             textarea.blur();
-            openNotificationModal("error", ["마지막 페이지까지 작성했어요!"], 2000);
+            openNotificationModal("error", ["더 이상 글자를 입력할 수 없어요.", "못다 한 이야기는 다음 순서에!"], 2000);
             return;
         }
     
         if (textarea.selectionEnd !== textarea.value.length) {
             textarea.blur();
-            openNotificationModal("error", ["더 이상 새로운 줄을 추가할 수 없어요!", "마지막 줄의 내용을 줄이거나", "다음 페이지로 넘어가주세요!"], 5000);
+            openNotificationModal("error", ["이 페이지는 가득 차서", "새로운 문장을 추가할 수 없어요."], 2000);
             return;
         }
 
         textarea.blur();
         const texts = textarea.value.split("\n");
         const lastText = texts[texts.length - 1].slice(-5)
-        const result = await openConfirmModal(`"${lastText}" 까지 작성되었습니다.`, "다음 페이지로 넘어가시겠습니까?");
+        const result = await openConfirmModal("페이지를 넘길까요?", `이 페이지는 "${lastText}" 까지 작성되었어요.`);
         if (result) {
             isActive = true;
             canTyping = false;

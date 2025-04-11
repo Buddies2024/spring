@@ -14,7 +14,7 @@ groupLeaveBtn.addEventListener("click", leaveGroup);
 groupCodeBtn.addEventListener("click", () => {
     try {
         navigator.clipboard.writeText(groupCodeBtn.getAttribute("data-code"))
-        openNotificationModal("success", ["코드 복사에 성공했습니다."], 500);
+        openNotificationModal("success", ["복사 성공!", "친구들을 초대해 보아요."], 1000);
     } catch {
         openNotificationModal("error", ["오류가 발생했습니다."], 2000);
     }

@@ -45,6 +45,14 @@
     content: url('/images/common/notification-modal/error.svg');
 }
 
+.notification-modal .yellow {
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    left: 5px;
+    top: 6px;
+}
+
 .notification-modal .modal-body {
     width: 326px;
     height: 150px;
