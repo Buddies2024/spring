@@ -18,7 +18,7 @@ public record ReplyResponse(
 
     private static ReplyResponse from(Reply reply) {
         return ReplyResponse.builder()
-                .profileImage(reply.getMember().getProfileImage())
+                .profileImage(reply.getGroupMember().getProfileImage())
                 .content(reply.getContent())
                 .build();
     }

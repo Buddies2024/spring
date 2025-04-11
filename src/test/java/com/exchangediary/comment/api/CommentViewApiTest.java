@@ -6,148 +6,130 @@ import com.exchangediary.comment.domain.ReplyRepository;
 import com.exchangediary.comment.domain.entity.Comment;
 import com.exchangediary.comment.domain.entity.Reply;
 import com.exchangediary.comment.ui.dto.response.CommentResponse;
+import com.exchangediary.diary.domain.DiaryContentRepository;
 import com.exchangediary.diary.domain.DiaryRepository;
 import com.exchangediary.diary.domain.entity.Diary;
-import com.exchangediary.group.domain.GroupRepository;
+import com.exchangediary.diary.domain.entity.DiaryContent;
+import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.group.domain.entity.Group;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 public class CommentViewApiTest extends ApiBaseTest {
     private static final String API_PATH = "/api/groups/%s/diaries/%d/comments/%d";
-    @Autowired
-    private GroupRepository groupRepository;
+
     @Autowired
     private DiaryRepository diaryRepository;
+    @Autowired
+    private DiaryContentRepository diaryContentRepository;
     @Autowired
     private CommentRepository commentRepository;
     @Autowired
     private ReplyRepository replyRepository;
 
     @Test
-    void 댓글_조회_성공() {
+    @DisplayName("답글을 포함한 댓글 조회에 성공한다.")
+    void When_CommentHasRepliesExpect_SuccessViewComment() {
         Group group = createGroup();
-        updateSelf(group, 1);
-        this.member.updateLastViewableDiaryDate();
-        memberRepository.save(member);
-        Member diaryCreator = createMember(group);
-        Diary diary = createDiary(group, diaryCreator);
-        Comment comment = createComment(member, diary);
-        createReply(member, comment);
+        GroupMember me = joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, member);
+        GroupMember writer = joinGroup("작성자", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+        Diary diary = writeDiary(writer, group, List.of("오늘의 날씨 맑음 :)"), me);
+        Comment comment = createComment(10, 10, 1, "댓글 조회 테스트 중!!", me, diary);
+        Reply firstReply = createReply("테스트 잘 되니??", writer, comment);
+        Reply secondReply = createReply("몰라 자고 싶은 거 같기도...", me, comment);
 
-        var response = RestAssured
+        CommentResponse body = RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .when().get(String.format(API_PATH, group.getId(), diary.getId(), comment.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract().as(CommentResponse.class);
-        var replies = response.replies();
 
-        assertThat(replies.getFirst().content()).isEqualTo("답글");
-        assertThat(replies.getFirst().profileImage()).isEqualTo("orange");
-        assertThat(response.content()).isEqualTo("댓글");
-        assertThat(response.profileImage()).isEqualTo("orange");
+        assertThat(body.content()).isEqualTo(comment.getContent());
+        assertThat(body.profileImage()).isEqualTo(me.getProfileImage());
+        assertThat(body.replies()).hasSize(2);
+        assertThat(body.replies().get(0).content()).isEqualTo(firstReply.getContent());
+        assertThat(body.replies().get(0).profileImage()).isEqualTo(writer.getProfileImage());
+        assertThat(body.replies().get(1).content()).isEqualTo(secondReply.getContent());
+        assertThat(body.replies().get(1).profileImage()).isEqualTo(me.getProfileImage());
     }
 
     @Test
-    void 댓글_조회_성공_답글_없을_경우() {
+    @DisplayName("답글이 달리지 않은 댓글 조회에 성공한다.")
+    void When_CommentHasNoReplyExpect_SuccessViewComment() {
         Group group = createGroup();
-        updateSelf(group, 1);
-        this.member.updateLastViewableDiaryDate();
-        memberRepository.save(member);
-        Member diaryCreator = createMember(group);
-        Diary diary = createDiary(group, diaryCreator);
-        Comment comment = createComment(member, diary);
+        GroupMember me = joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, member);
+        GroupMember writer = joinGroup("작성자", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+        Diary diary = writeDiary(writer, group, List.of("오늘의 날씨 맑음 :)"), me);
+        Comment comment = createComment(10, 10, 1, "댓글 조회 테스트 중!!", me, diary);
 
-        var response = RestAssured
+        CommentResponse body = RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .when().get(String.format(API_PATH, group.getId(), diary.getId(), comment.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract().as(CommentResponse.class);
-        var replies = response.replies();
 
-        assertThat(replies).isEmpty();
-        assertThat(response.content()).isEqualTo("댓글");
-        assertThat(response.profileImage()).isEqualTo("orange");
+        assertThat(body.content()).isEqualTo(comment.getContent());
+        assertThat(body.profileImage()).isEqualTo(me.getProfileImage());
+        assertThat(body.replies()).hasSize(0);
     }
 
     @Test
-    void 댓글_조회_실패_댓글_없을_경우() {
+    @DisplayName("id에 해당하는 댓글이 없는 경우 404 예외가 발생한다.")
+    void When_NonExistentComment_Throw404Exception() {
         Group group = createGroup();
-        updateSelf(group, 1);
-        this.member.updateLastViewableDiaryDate();
-        memberRepository.save(member);
-        Member diaryCreator = createMember(group);
-        Diary diary = createDiary(group, diaryCreator);
+        GroupMember me = joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, member);
+        GroupMember writer = joinGroup("작성자", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+        Diary diary = writeDiary(writer, group, List.of("오늘의 날씨 맑음 :)"), me);
+        createComment(10, 10, 1, "댓글 조회 테스트 중!!", me, diary);
 
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .when().get(String.format(API_PATH, group.getId(), diary.getId(), 10))
+                .when().get(String.format(API_PATH, group.getId(), diary.getId(), 1234L))
                 .then().log().all()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .body("message", equalTo(ErrorCode.COMMENT_NOT_FOUND.getMessage()));
     }
 
-    private Group createGroup() {
-        return groupRepository.save(Group.from("GROUP_NAME"));
+    private Diary writeDiary(GroupMember writer, Group group, List<String> contents, GroupMember nextWriter) {
+        Diary diary = Diary.of(TODAY_MOOD, writer, group);
+        diaryRepository.save(diary);
+
+        for (int idx = 0; idx < contents.size(); idx++) {
+            DiaryContent diaryContent = DiaryContent.of(idx + 1, contents.get(idx), diary);
+            diaryContentRepository.save(diaryContent);
+        }
+
+        writer.updateLastViewableDiaryDate();
+        groupMemberRepository.save(writer);
+        nextWriter.updateLastViewableDiaryDate();
+        groupMemberRepository.save(nextWriter);
+        group.changeCurrentOrder(nextWriter.getOrderInGroup());
+        groupRepository.save(group);
+        return diary;
     }
 
-    private void updateSelf(Group group, int order) {
-        member.joinGroup("api요청멤버", "orange", order, GroupRole.GROUP_MEMBER, group);
-        memberRepository.save(member);
+    private Comment createComment(double x, double y, int page, String content, GroupMember groupMember, Diary diary) {
+        Comment comment = Comment.of(x, y, page, content, groupMember, diary);
+        return commentRepository.save(comment);
     }
 
-    private Diary createDiary(Group group, Member member) {
-        Diary diary = Diary.builder()
-                .todayMood("sleepy.svg")
-                .group(group)
-                .member(member)
-                .build();
-        return diaryRepository.save(diary);
-    }
-
-    private Member createMember(Group group) {
-        Member member = Member.builder()
-                .profileImage("orange")
-                .kakaoId(1234L)
-                .orderInGroup(2)
-                .nickname("하니")
-                .groupRole(GroupRole.GROUP_MEMBER)
-                .group(group)
-                .build();
-        memberRepository.save(member);
-        return member;
-    }
-
-    private Comment createComment(Member member, Diary diary) {
-        return commentRepository.save(
-                Comment.builder()
-                        .xCoordinate(123.45)
-                        .yCoordinate(333.33)
-                        .page(1)
-                        .content("댓글")
-                        .member(member)
-                        .diary(diary)
-                        .build()
-        );
-    }
-
-    private void createReply(Member member, Comment comment) {
-        replyRepository.save(
-                Reply.builder()
-                        .content("답글")
-                        .member(member)
-                        .comment(comment)
-                        .build()
-        );
+    private Reply createReply(String content, GroupMember groupMember, Comment comment) {
+        Reply reply = Reply.of(content, groupMember, comment);
+        return replyRepository.save(reply);
     }
 }

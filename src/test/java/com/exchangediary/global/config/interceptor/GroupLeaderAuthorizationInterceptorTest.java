@@ -1,110 +1,50 @@
 package com.exchangediary.global.config.interceptor;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.group.ui.dto.request.GroupLeaderHandOverRequest;
-import com.exchangediary.member.domain.MemberRepository;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 public class GroupLeaderAuthorizationInterceptorTest extends ApiBaseTest {
-    private static final String API_PATH = "/api/groups/%s/leader";
-    @Autowired
-    private GroupRepository groupRepository;
-    @Autowired
-    private MemberRepository memberRepository;
+    private static final String URI = "/api/groups/%s/leader/skip-order";
 
     @Test
-    void 방장_권한_성공_방장넘기기 () {
+    @DisplayName("사용자가 방장이면, 방장 권한을 행사할 수 있다.")
+    void When_MemberIsReader_Expect_CanExerciseLeadersAuthority() {
         Group group = createGroup();
-        updateSelfInfo(member, GroupRole.GROUP_LEADER, group);
-        Member groupMember = createMember(group, 2, GroupRole.GROUP_MEMBER);
+        joinGroup("리더", 0, GroupRole.GROUP_LEADER, group, this.member);
+        GroupMember others = joinGroup("그룹원", 1, GroupRole.GROUP_MEMBER, group, createMember(1234L));
 
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new GroupLeaderHandOverRequest("api요청멤버"))
-                .when().patch(String.format(API_PATH + "/hand-over", group.getId()))
-                .then()
-                .log().all()
+                .body(new GroupLeaderHandOverRequest(others.getNickname()))
+                .when().patch(String.format(URI, group.getId()))
+                .then().log().all()
                 .statusCode(HttpStatus.OK.value());
     }
 
     @Test
-    void 방장_권한_성공_순서넘기기 () {
+    @DisplayName("사용자가 방장이 아니면, 403 예외를 반환한다.")
+    void When_MemberIsNotReader_Expect_Throw403Exception() {
         Group group = createGroup();
-        updateSelfInfo(member, GroupRole.GROUP_LEADER, group);
-
-        RestAssured
-                .given().log().all()
-                .cookie("token", token)
-                .when().patch(String.format(API_PATH + "/skip-order", group.getId()))
-                .then()
-                .log().all()
-                .statusCode(HttpStatus.OK.value());
-    }
-
-    @Test
-    void 방장_권한_실패_순서넘기기 () {
-        Group group = createGroup();
-        updateSelfInfo(member, GroupRole.GROUP_MEMBER, group);
-
-        RestAssured
-                .given().log().all()
-                .cookie("token", token)
-                .when().patch(String.format(API_PATH + "/skip-order", group.getId()))
-                .then()
-                .log().all()
-                .statusCode(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    void 방장_권한_실패_방장넘기기 () {
-        Group group = createGroup();
-        updateSelfInfo(member, GroupRole.GROUP_MEMBER, group);
+        GroupMember others = joinGroup("리더", 1, GroupRole.GROUP_LEADER, group, createMember(1234L));
+        joinGroup("그룹원", 1, GroupRole.GROUP_MEMBER, group, this.member);
 
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
                 .contentType(ContentType.JSON)
-                .body(new GroupLeaderHandOverRequest("api요청멤버"))
-                .when().patch(String.format(API_PATH + "/hand-over", group.getId()))
-                .then()
-                .log().all()
+                .body(new GroupLeaderHandOverRequest(others.getNickname()))
+                .when().patch(String.format(URI, group.getId()))
+                .then().log().all()
                 .statusCode(HttpStatus.FORBIDDEN.value());
-    }
-
-    private Group createGroup() {
-        return groupRepository.save(Group.from("group-name"));
-    }
-
-    private Member createMember(Group group, int order, GroupRole role) {
-        return memberRepository.save(Member.builder()
-                .kakaoId(1L)
-                .nickname("group-member")
-                .profileImage("orange")
-                .orderInGroup(order)
-                .group(group)
-                .groupRole(role)
-                .build()
-        );
-    }
-
-    private Member updateSelfInfo(Member member, GroupRole role, Group group) {
-        member.joinGroup(
-                "api요청멤버",
-                "orange",
-                1,
-                role,
-                group);
-        memberRepository.save(member);
-        return member;
     }
 }

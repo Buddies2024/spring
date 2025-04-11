@@ -1,4 +1,4 @@
-package com.exchangediary.member.domain.enums;
+package com.exchangediary.group.domain.enums;
 
 public enum GroupRole {
     GROUP_LEADER,

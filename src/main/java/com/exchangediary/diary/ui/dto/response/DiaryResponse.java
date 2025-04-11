@@ -21,8 +21,8 @@ public record DiaryResponse(
                 .createdAt(diary.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")))
                 .todayMood(diary.getTodayMood())
                 .imageFileName(diary.getImageFileName())
-                .nickname(diary.getMember().getNickname())
-                .profileImage(diary.getMember().getProfileImage())
+                .nickname(diary.getGroupMember().getNickname())
+                .profileImage(diary.getGroupMember().getProfileImage())
                 .contents(DiaryContentResponse.fromContents(diary.getContents()))
                 .comments(DiaryCommentResponse.fromComments(diary.getComments()))
                 .build();

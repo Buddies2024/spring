@@ -11,7 +11,7 @@ public record GroupMonthlyResponse(
         int createdMonth,
         String code
 ) {
-    public static GroupMonthlyResponse of(Group group) {
+    public static GroupMonthlyResponse from(Group group) {
         return GroupMonthlyResponse.builder()
                 .id(group.getId())
                 .name(group.getName())

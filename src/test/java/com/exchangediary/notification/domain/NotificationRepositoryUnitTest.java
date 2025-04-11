@@ -3,8 +3,9 @@ package com.exchangediary.notification.domain;
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.diary.domain.entity.DiaryContent;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
 import com.exchangediary.notification.domain.entity.Notification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,144 +14,182 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 public class NotificationRepositoryUnitTest {
+    private static final String GROUP_NAME = "버디즈";
+    private static final String[] PROFILE_IMAGES = {"red", "orange", "yellow", "green", "blue", "navy", "purple"};
+
     @PersistenceContext
     private EntityManager entityManager;
     @Autowired
     private NotificationRepository notificationRepository;
 
     @Test
-    @DisplayName("findByMemberId 동작 확인")
-    void 멤버의_토큰_여러개_가져오기() {
-        Group group = Group.from("버니즈");
+    @DisplayName("그룹 안에서 member id를 제외한 모든 그룹원 토큰 가져오기")
+    void Test_findTokensByGroupIdAndExcludeMemberId() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
         entityManager.persist(group);
-        Member self = createMember(1, group);
-        entityManager.persist(Notification.builder()
-                .token("token-one")
-                .member(self)
-                .build());
-        entityManager.persist(Notification.builder()
-                .token("token-two")
-                .member(self)
-                .build());
+
+        Member self = setUpMember(1, group);
+        for (int idx = 2; idx <= 4; idx++) {
+            setUpMember(idx, group);
+        }
         entityManager.flush();
+        entityManager.clear();
 
-        List<Notification> notifications = notificationRepository.findByMemberId(self.getId());
+        // When
+        List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberId(group.getId(), self.getId());
 
-        assertThat(notifications).hasSize(3);
-    }
-
-    @Test
-    @DisplayName("findAllTokenByGroupIdExceptMemberId 동작 확인")
-    void 본인_제외한_그룹원_토큰_가져오기() {
-        Group group = Group.from("버니즈");
-        entityManager.persist(group);
-        Member self = createMember(1, group);
-        createMember(2, group);
-        createMember(3, group);
-        createMember(4, group);
-        entityManager.flush();
-
-        List<String> tokens = notificationRepository.findTokensByGroupIdExceptMemberId(group.getId(), self.getId());
-
+        // Then
         assertThat(tokens).hasSize(3);
     }
 
     @Test
-    @DisplayName("findAllTokenByGroupIdExceptMemberIdAndLeader 동작 확인")
-    void 본인과_방장_제외한_그룹원_토큰_가져오기() {
-        Group group = Group.from("버니즈");
+    @DisplayName("사용자가 리더인 경우, 그룹 안에서 member id와 리더를 제외한 모든 그룹원 토큰 가져오기")
+    void Test_findTokensByGroupIdAndExcludeMemberIdAndLeader_When_SelfIsLeader() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
         entityManager.persist(group);
-        Member self = createMember(1, group);
-        createMember(2, group);
-        createMember(3, group);
-        createMember(4, group);
-        createLeader(5, group);
+
+        Member self = setUpMember(1, group);
+        for (int idx = 2; idx <= 4; idx++) {
+            setUpMember(idx, group);
+        }
+
         entityManager.flush();
+        entityManager.clear();
 
-        List<String> tokens = notificationRepository.findTokensByGroupIdExceptMemberIdAndLeader(group.getId(), self.getId());
+        // When
+        List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(group.getId(), self.getId());
 
+        // Then
         assertThat(tokens).hasSize(3);
     }
 
     @Test
-    @DisplayName("findAllTokenByGroupIdExceptMemberIdAndLeader 동작 확인")
-    void 현재_순서_그룹원_토큰_가져오기() {
-        Group group = Group.from("버니즈");
+    @DisplayName("사용자가 리더가 아닌 경우, 그룹 안에서 member id와 리더를 제외한 모든 그룹원 토큰 가져오기")
+    void Test_findTokensByGroupIdAndExcludeMemberIdAndLeader_When_SelfIsNotLeader() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
         entityManager.persist(group);
-        createMember(1, group);
-        createMember(2, group);
-        createMember(3, group);
-        createMember(4, group);
+
+        Member Leader = setUpMember(1, group);
+        Member self = setUpMember(2, group);
+        for (int idx = 3; idx <= 4; idx++) {
+            setUpMember(idx, group);
+        }
+
         entityManager.flush();
+        entityManager.clear();
 
-        List<String> tokens = notificationRepository.findByGroupIdAndCurrentOrder(group.getId());
+        // When
+        List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(group.getId(), self.getId());
 
-        assertThat(tokens.get(0)).isEqualTo("버니즈1");
-    }
-
-    @Test
-    @DisplayName("findAllTokenNoDiaryToday 동작 확인")
-    void 오늘_일기_작성하지않은_모든_그룹원_토큰_가져오기() {
-        Group group1 = Group.from("그룹1");
-        entityManager.persist(group1);
-        Member member = createMember(1, group1);
-        createDiary(member, group1);
-        Group group2 = Group.from("그룹2");
-        entityManager.persist(group2);
-        createMember(1, group2);
-        Group group3 = Group.from("그룹3");
-        entityManager.persist(group3);
-        createMember(1, group3);
-        entityManager.flush();
-
-        List<String> tokens = notificationRepository.findTokensNoDiaryToday();
-
+        // Then
         assertThat(tokens).hasSize(2);
-        assertThat(tokens.contains(group1.getName() + 1)).isFalse();
-        assertThat(tokens.contains(group2.getName() + 1)).isTrue();
-        assertThat(tokens.contains(group3.getName() + 1)).isTrue();
     }
 
-    private Member createMember(long num, Group group) {
-        Member member = Member.of(num);
-        member.joinGroup("one", "red", (int) num, GroupRole.GROUP_MEMBER, group);
-        entityManager.persist(member);
-        Notification notification = Notification.builder()
-                .token(group.getName() + num)
-                .member(member)
-                .build();
-        entityManager.persist(notification);
+    @Test
+    @DisplayName("현재 일기 작성 차례인 사용자 토큰 가져오기")
+    void Test_findTokensByGroupIdAndCurrentOrder() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
+        entityManager.persist(group);
 
+        Member member = setUpMember(1, group);
+        for (int idx = 2; idx <= 4; idx++) {
+            setUpMember(idx, group);
+        }
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByGroupIdAndCurrentOrder(group.getId());
+
+        // Then
+        assertThat(tokens).hasSize(1);
+        assertThat(tokens.get(0)).isEqualTo(member.toString());
+    }
+
+    @Test
+    @DisplayName("오늘 일기 작성하지 않은 그룹 내 모든 사용자 토큰 가져오기")
+    void Test_findTokensByMembersWithoutDiaryToday_When_OnlyWriteGroup1() {
+        // Given
+        List<GroupMember> groupMembers = new ArrayList<>();
+
+        for (int idx = 0; idx < 3; idx++) {
+            Group group = Group.from(GROUP_NAME + idx);
+            entityManager.persist(group);
+
+            Member member = createMember(idx + 1);
+            GroupMember groupMember = createGroupMember(1, group, member);
+            createNotification(groupMember.toString(), member);
+
+            if (idx == 0) {
+                createDiary(groupMember, group);
+            }
+            groupMembers.add(groupMember);
+        }
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByMembersWithoutDiaryToday();
+
+        // Then
+        assertThat(tokens).hasSize(2);
+        assertThat(tokens.contains(groupMembers.get(0).toString())).isFalse();
+        assertThat(tokens.contains(groupMembers.get(1).toString())).isTrue();
+        assertThat(tokens.contains(groupMembers.get(2).toString())).isTrue();
+    }
+
+    private Member setUpMember(int orderInGroup, Group group) {
+        Member member = createMember(orderInGroup + 1);
+        createGroupMember(orderInGroup, group, member);
+        createNotification(member.toString(), member);
         return member;
     }
 
-    private Member createLeader(long num, Group group) {
-        Member member = Member.of(num);
-        member.joinGroup("리더", "red", (int) num, GroupRole.GROUP_LEADER, group);
+    private Member createMember(long kakaoId) {
+        Member member = Member.from(kakaoId);
         entityManager.persist(member);
-        Notification notification = Notification.builder()
-                .token(group.getName() + num)
-                .member(member)
-                .build();
-        entityManager.persist(notification);
-
         return member;
     }
 
-    private void createDiary(Member member, Group group) {
-        Diary diary = Diary.builder()
-                .member(member)
-                .group(group)
-                .todayMood("sad.png")
-                .build();
+    private GroupMember createGroupMember(int orderInGroup, Group group, Member member) {
+        GroupMember groupMember = GroupMember.of(
+                PROFILE_IMAGES[orderInGroup],
+                PROFILE_IMAGES[orderInGroup],
+                orderInGroup,
+                orderInGroup == 1 ? GroupRole.GROUP_LEADER : GroupRole.GROUP_MEMBER,
+                group,
+                member
+        );
+        entityManager.persist(groupMember);
+        return groupMember;
+    }
+
+    private Notification createNotification(String token, Member member) {
+        Notification notification = Notification.of(token, member);
+        entityManager.persist(notification);
+        return notification;
+    }
+
+    private Diary createDiary(GroupMember groupMember, Group group) {
+        Diary diary = Diary.of("happy", groupMember, group);
         entityManager.persist(diary);
-        DiaryContent diaryContent = DiaryContent.of(1, "content", diary);
+
+        DiaryContent diaryContent = DiaryContent.of(1, groupMember.getNickname(), diary);
         entityManager.persist(diaryContent);
+
+        return diary;
     }
 }

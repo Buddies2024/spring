@@ -4,6 +4,7 @@ import com.exchangediary.global.config.web.interceptor.GroupLeaderAuthorizationI
 import com.exchangediary.global.config.web.interceptor.GroupAuthorizationInterceptor;
 import com.exchangediary.global.config.web.interceptor.JwtAuthenticationInterceptor;
 import com.exchangediary.group.service.GroupLeaderService;
+import com.exchangediary.group.service.GroupMemberQueryService;
 import com.exchangediary.member.service.CookieService;
 import com.exchangediary.member.service.JwtService;
 import com.exchangediary.member.service.MemberQueryService;
@@ -20,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final JwtService jwtService;
     private final CookieService cookieService;
     private final MemberQueryService memberQueryService;
+    private final GroupMemberQueryService groupMemberQueryService;
     private final GroupLeaderService groupLeaderService;
 
     @Value("${file.resources.location}")
@@ -36,7 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new JwtAuthenticationInterceptor(jwtService, cookieService, memberQueryService))
                 .addPathPatterns("/login", "/groups/**", "/diaries/**", "/api/**")
                 .excludePathPatterns("/", "/api/kakao/callback", "/api/anonymous/info");
-        registry.addInterceptor(new GroupAuthorizationInterceptor(memberQueryService))
+        registry.addInterceptor(new GroupAuthorizationInterceptor(groupMemberQueryService))
                 .addPathPatterns("/groups/**", "/api/groups/*/**")
                 .excludePathPatterns(
                         "/api/groups/*/profile-image",

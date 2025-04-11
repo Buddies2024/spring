@@ -1,7 +1,7 @@
 package com.exchangediary.group.domain.entity;
 
 import com.exchangediary.global.domain.entity.BaseEntity;
-import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.group.domain.RandomGroupIdGenerator;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -30,7 +30,7 @@ public class Group extends BaseEntity {
     @GeneratedValue(generator = "group_id")
     @GenericGenerator(
             name = "group_id",
-            strategy = "com.exchangediary.group.domain.RandomIdGenerator"
+            type = RandomGroupIdGenerator.class
     )
     private String id;
     @NotNull
@@ -39,20 +39,23 @@ public class Group extends BaseEntity {
     private Integer currentOrder;
     @NotNull
     private LocalDate lastSkipOrderDate;
+    @NotNull
+    private Integer memberCount;
     @OneToMany(mappedBy = "group")
-    @OrderBy("order_in_group ASC")
-    private List<Member> members;
+    @OrderBy("orderInGroup ASC")
+    private List<GroupMember> groupMembers;
 
     public static Group from(String groupName) {
         return Group.builder()
                 .name(groupName)
                 .currentOrder(1)
                 .lastSkipOrderDate(LocalDate.now().minusDays(1))
+                .memberCount(0)
                 .build();
     }
 
-    public void updateCurrentOrder(int currentOrder, int numberOfMembers) {
-        if (currentOrder > numberOfMembers) {
+    public void changeCurrentOrder(int currentOrder) {
+        if (currentOrder > memberCount) {
             currentOrder = 1;
         }
         this.currentOrder = currentOrder;
@@ -60,5 +63,13 @@ public class Group extends BaseEntity {
 
     public void updateLastSkipOrderDate() {
         this.lastSkipOrderDate = LocalDate.now();
+    }
+
+    public void joinMember() {
+        this.memberCount += 1;
+    }
+
+    public void leaveMember() {
+        this.memberCount -= 1;
     }
 }

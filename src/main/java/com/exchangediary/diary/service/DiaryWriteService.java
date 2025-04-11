@@ -9,12 +9,12 @@ import com.exchangediary.diary.ui.dto.request.DiaryRequest;
 import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.FailedImageUploadException;
 import com.exchangediary.global.exception.serviceexception.NotFoundException;
+import com.exchangediary.group.domain.GroupMemberRepository;
 import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.service.GroupMemberQueryService;
 import com.exchangediary.group.service.GroupQueryService;
-import com.exchangediary.member.domain.MemberRepository;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.service.MemberQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,30 +29,29 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class DiaryWriteService {
-    private final MemberQueryService memberQueryService;
-    private final GroupQueryService groupQueryService;
     private final DiaryAuthorizationService diaryAuthorizationService;
-    private final ImageService imageService;
+    private final DiaryImageService diaryImageService;
+    private final GroupQueryService groupQueryService;
+    private final GroupMemberQueryService groupMemberQueryService;
     private final DiaryRepository diaryRepository;
-    private final GroupRepository groupRepository;
-    private final MemberRepository memberRepository;
     private final DiaryContentRepository diaryContentRepository;
+    private final GroupRepository groupRepository;
+    private final GroupMemberRepository groupMemberRepository;
 
     public Long writeDiary(DiaryRequest diaryRequest, MultipartFile file, String groupId, Long memberId) {
-        Member member = memberQueryService.findMember(memberId);
+        GroupMember writer = groupMemberQueryService.findGroupMemberByMemberId(memberId);
         Group group = groupQueryService.findGroup(groupId);
 
-        diaryAuthorizationService.checkDiaryWritable(group, member);
+        diaryAuthorizationService.checkDiaryWritable(group, writer);
 
         try {
-            Diary diary = Diary.of(diaryRequest, member, group);
+            Diary diary = Diary.of(diaryRequest.todayMood(), writer, group);
             Diary savedDiary = diaryRepository.save(diary);
             createDairyContent(diaryRequest.contents(), diary);
 
-            imageService.saveImage(file, diary, group.getId());
+            diaryImageService.saveImage(file, diary, group.getId());
             updateGroupCurrentOrder(group);
-            updateViewableDiaryDate(member, group);
-            member.updateLastViewableDiaryDate();
+            updateViewableDiaryDate(writer, group);
 
             return savedDiary.getId();
         } catch (IOException e) {
@@ -72,13 +71,12 @@ public class DiaryWriteService {
     }
 
     private void updateGroupCurrentOrder(Group group) {
-        int currentOrder = group.getCurrentOrder() + 1;
-        group.updateCurrentOrder(currentOrder, group.getMembers().size());
+        group.changeCurrentOrder(group.getCurrentOrder() + 1);
         groupRepository.save(group);
     }
 
-    private void updateViewableDiaryDate(Member currentWriter, Group group) {
-        Member nextWriter = group.getMembers().stream()
+    private void updateViewableDiaryDate(GroupMember currentWriter, Group group) {
+        GroupMember nextWriter = group.getGroupMembers().stream()
                         .filter(member -> group.getCurrentOrder().equals(member.getOrderInGroup()))
                         .findFirst()
                         .orElseThrow(() -> new NotFoundException(
@@ -89,6 +87,6 @@ public class DiaryWriteService {
 
         nextWriter.updateLastViewableDiaryDate();
         currentWriter.updateLastViewableDiaryDate();
-        memberRepository.saveAll(Arrays.asList(currentWriter, nextWriter));
+        groupMemberRepository.saveAll(Arrays.asList(currentWriter, nextWriter));
     }
 }

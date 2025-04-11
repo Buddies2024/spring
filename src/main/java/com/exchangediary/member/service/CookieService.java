@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 @Service
 public class CookieService {
-    @Value("${cookie.max-age.millisecond}")
-    private int maxAgeInMilliseconds;
+    @Value("${cookie.max-age.second}")
+    private int maxAgeInSeconds;
 
     public void addCookie(String name, String value, HttpServletResponse response) {
         Cookie cookie = createCookie(name, value);
@@ -21,11 +21,11 @@ public class CookieService {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(maxAgeInMilliseconds / 1000);
+        cookie.setMaxAge(maxAgeInSeconds);
         return cookie;
     }
 
-    public String getValueFromCookies(Cookie[] cookies, String name) {
+    public String getValueFromCookies(Cookie[] cookies, String name) throws RuntimeException {
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
                 .findFirst()

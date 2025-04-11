@@ -1,10 +1,9 @@
 package com.exchangediary.diary.domain.entity;
 
 import com.exchangediary.comment.domain.entity.Comment;
-import com.exchangediary.diary.ui.dto.request.DiaryRequest;
 import com.exchangediary.global.domain.entity.BaseEntity;
 import com.exchangediary.group.domain.entity.Group;
-import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.group.domain.entity.GroupMember;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -40,8 +39,8 @@ public class Diary extends BaseEntity {
     private String imageFileName;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "diary_member_id_fkey"))
-    private final Member member;
+    @JoinColumn(name = "group_member_id", foreignKey = @ForeignKey(name = "diary_group_member_id_fkey"))
+    private final GroupMember groupMember;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", foreignKey = @ForeignKey(name = "diary_group_id_fkey"))
@@ -52,10 +51,10 @@ public class Diary extends BaseEntity {
     @OneToMany(mappedBy = "diary")
     private List<Comment> comments;
 
-    public static Diary of(DiaryRequest diaryRequest, Member member, Group group) {
+    public static Diary of(String todayMood, GroupMember groupMember, Group group) {
         return Diary.builder()
-                .todayMood(diaryRequest.todayMood())
-                .member(member)
+                .todayMood(todayMood)
+                .groupMember(groupMember)
                 .group(group)
                 .build();
     }

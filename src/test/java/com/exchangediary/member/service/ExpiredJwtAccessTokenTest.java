@@ -19,7 +19,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
         "security.jwt.access-token.expiration-time=1000",
 })
 @Sql(scripts = {"classpath:truncate.sql"}, executionPhase = BEFORE_TEST_METHOD)
-public class ReissueJwtTokenTest {
+public class ExpiredJwtAccessTokenTest {
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -27,18 +27,23 @@ public class ReissueJwtTokenTest {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @DisplayName("expire access token and valid refresh token")
     @Test
-    void 액세스_토큰_재발급_확인() throws InterruptedException {
-        Member member = Member.of(1L);
+    @DisplayName("만료된 access token을 검증 시 사용자의 refresh token의 유효하다면, access token을 재발급한다.")
+    void When_ExpiredJwtAccessTokenAndValidRefreshToken_Expect_ReissueAccessToken() throws InterruptedException {
+        // Given
+        Member member = Member.from(1L);
         memberRepository.save(member);
+
         String token = jwtService.generateAccessToken(member.getId());
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(),member);
         refreshTokenRepository.save(refreshToken);
 
         Thread.sleep(1000);
+
+        // When
         Optional<Long> memberId = jwtService.verifyAccessToken(token);
 
+        // Then
         assertThat(memberId.isPresent()).isTrue();
     }
 }
