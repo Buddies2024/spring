@@ -1,6 +1,7 @@
 package com.exchangediary.member.api;
 
 import com.exchangediary.ApiBaseTest;
+import com.exchangediary.member.domain.entity.Member;
 import com.exchangediary.member.ui.dto.response.MemberNotificationResponse;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.DisplayName;
@@ -24,5 +25,19 @@ public class OnNotificationApiTest extends ApiBaseTest {
                 .extract().as(MemberNotificationResponse.class);
 
         assertThat(body.onNotification()).isTrue();
+    }
+
+    @Test
+    @DisplayName("사용자의 알림 활성화를 끈다.")
+    void When_MembersOnNotificationIsTrue_Expect_ChangeOnNotificationIsFalse() {
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .when().patch(URI)
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        Member updatedMember = memberRepository.findById(member.getId()).get();
+        assertThat(updatedMember.getOnNotification()).isFalse();
     }
 }
