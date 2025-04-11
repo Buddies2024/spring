@@ -3,6 +3,9 @@ package com.exchangediary.group.service;
 import com.exchangediary.group.domain.GroupMemberRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.ui.dto.notification.GroupLeaderHandOverNotification;
+import com.exchangediary.group.ui.dto.notification.GroupLeaderKickOutNotification;
+import com.exchangediary.group.ui.dto.notification.GroupLeaderSkipDiaryNotification;
 import com.exchangediary.group.ui.dto.request.GroupKickOutRequest;
 import com.exchangediary.group.ui.dto.request.GroupLeaderHandOverRequest;
 import com.exchangediary.group.domain.enums.GroupRole;
@@ -20,33 +23,35 @@ public class GroupLeaderService {
     private final GroupValidationService groupValidationService;
     private final GroupMemberRepository groupMemberRepository;
 
-    public long handOverGroupLeader(String groupId, Long memberId, GroupLeaderHandOverRequest request) {
+    public GroupLeaderHandOverNotification handOverGroupLeader(String groupId, Long memberId, GroupLeaderHandOverRequest request) {
         Group group = groupQueryService.findGroup(groupId);
         GroupMember currentLeader = groupMemberFindService.findSelfInGroup(group, memberId);
         GroupMember newLeader = groupMemberFindService.findMemberByNickname(group, request.nickname());
 
         currentLeader.changeGroupRole(GroupRole.GROUP_MEMBER);
         newLeader.changeGroupRole(GroupRole.GROUP_LEADER);
-        return newLeader.getId();
+        return GroupLeaderHandOverNotification.of(currentLeader, newLeader);
     }
 
-    public long skipDiaryOrder(String groupId) {
+    public GroupLeaderSkipDiaryNotification skipDiaryOrder(String groupId) {
         Group group = groupQueryService.findGroup(groupId);
         groupValidationService.checkSkipOrderAuthority(group);
 
-        long skipDiaryMemberId = groupMemberFindService.findCurrentOrderMember(group).getId();
+        GroupMember skipMember = groupMemberFindService.findCurrentOrderMember(group);
+
         group.changeCurrentOrder(group.getCurrentOrder() + 1);
         group.updateLastSkipOrderDate();
         GroupMember currentWriter = groupMemberFindService.findCurrentOrderMember(group);
         currentWriter.updateLastViewableDiaryDate();
-        return skipDiaryMemberId;
+
+        return GroupLeaderSkipDiaryNotification.from(skipMember);
     }
 
-    public long kickOutMember(String groupId, GroupKickOutRequest request) {
+    public GroupLeaderKickOutNotification kickOutMember(String groupId, GroupKickOutRequest request) {
         Group group = groupQueryService.findGroup(groupId);
         GroupMember kickMember = groupMemberFindService.findMemberByNickname(group, request.nickname());
         groupLeaveService.leaveGroup(groupId, kickMember.getMember().getId());
-        return kickMember.getId();
+        return GroupLeaderKickOutNotification.from(kickMember);
     }
 
     public boolean isGroupLeader(Long memberId) {
