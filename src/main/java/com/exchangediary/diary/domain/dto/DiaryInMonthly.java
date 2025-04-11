@@ -2,7 +2,7 @@ package com.exchangediary.diary.domain.dto;
 
 import java.time.LocalDateTime;
 
-public record DiaryDay(
+public record DiaryInMonthly(
         Long id,
         LocalDateTime createdAt,
         String profileImage

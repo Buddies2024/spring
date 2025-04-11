@@ -25,7 +25,7 @@ public class CookieService {
         return cookie;
     }
 
-    public String getValueFromCookies(Cookie[] cookies, String name) {
+    public String getValueFromCookies(Cookie[] cookies, String name) throws RuntimeException {
         return Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals(name))
                 .findFirst()

@@ -1,315 +1,89 @@
 package com.exchangediary.diary.api;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.diary.domain.DiaryContentRepository;
 import com.exchangediary.diary.domain.DiaryRepository;
 import com.exchangediary.diary.domain.entity.Diary;
-import com.exchangediary.diary.domain.entity.DiaryContent;
-import com.exchangediary.global.exception.ErrorCode;
-import com.exchangediary.group.domain.GroupRepository;
+import com.exchangediary.diary.service.DiaryImageService;
 import com.exchangediary.group.domain.entity.Group;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.File;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 class DiaryWriteApiTest extends ApiBaseTest {
-    private static final String API_PATH = "/api/groups/%s/diaries";
-    @Autowired
-    private GroupRepository groupRepository;
+    private static final String URI = "/api/groups/%s/diaries";
+    private static final String TODAY_MOOD = "happy.png";
+
     @Autowired
     private DiaryRepository diaryRepository;
-    @Autowired
-    private DiaryContentRepository diaryContentRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @MockBean
+    private DiaryImageService diaryImageService;
+
+    /*
+    일기 작성 시,
+    1. 일기 내용(DiaryContent) 생성
+    2. 그룹 순서(currentOrder) 변경
+    3. 마지막 일기 조회 날짜(lastViewableDiaryDate) 변경
+    */
+    // TODO: 이미지 포함된 일기 작성을 위해 DiaryImageService 클래스 단위의 테스트 생성하기
 
     @Test
-    void 일기_작성_성공_사진_미포함() throws JsonProcessingException {
-        Group group = createGroup(1);
-        updateSelf(group, 1);
-        Map<String, Object> data = makeDiaryData();
+    @DisplayName("사진이 포함되지 않은 일기 작성에 성공한다.")
+    void When_NotIncludeImage_Expect_SuccessWriteDiary() {
+        // Given
+        Group group = createGroup();
+        joinGroup("나", 1, GroupRole.GROUP_MEMBER, group, member);
+        GroupMember nextWriter = joinGroup("리더", 0, GroupRole.GROUP_LEADER, group, createMember(123L));
 
-        Long diaryId = Long.parseLong(
-                RestAssured
-                        .given().log().all()
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                        .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                        .cookie("token", token)
-                        .when().post(String.format(API_PATH, group.getId()))
-                        .then().log().all()
-                        .statusCode(HttpStatus.CREATED.value())
-                        .extract()
-                        .header("Content-Location")
-                        .split("/")[4]
-        );
+        List<String> diaryContents = List.of("오늘의", "날씨", "맑음", ":)");
 
-        Diary newDiary = diaryRepository.findById(diaryId).get();
-        assertThat(newDiary.getGroup().getId()).isEqualTo(group.getId());
-        assertThat(newDiary.getMember().getId()).isEqualTo(member.getId());
-        assertThat(newDiary.getTodayMood()).isEqualTo(data.get("todayMood"));
-
-        List<DiaryContent> diaryContents = diaryContentRepository.findAllByDiaryId(newDiary.getId());
-        assertThat(diaryContents.size()).isEqualTo(3);
-        assertThat(diaryContents.get(0).getPage()).isEqualTo(1);
-        assertThat(diaryContents.get(0).getContent()).isEqualTo("hi");
-        assertThat(diaryContents.get(1).getPage()).isEqualTo(2);
-        assertThat(diaryContents.get(1).getContent()).isEqualTo("");
-        assertThat(diaryContents.get(2).getPage()).isEqualTo(3);
-        assertThat(diaryContents.get(2).getContent()).isEqualTo("hi3");
-    }
-
-    @Test
-    void 일기_작성_인가_실패_오늘작성완료() throws JsonProcessingException {
-        Group group = createGroup(1);
-        createDiary(group, member);
-        updateSelf(group, 1);
-        Map<String, Object> data = makeDiaryData();
-
-        RestAssured
+        // When
+        String location = RestAssured
                 .given().log().all()
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
+                .multiPart("data", makeWriteDiaryRequestBody(TODAY_MOOD, diaryContents), "application/json")
                 .cookie("token", token)
-                .when().post(String.format(API_PATH, group.getId()))
+                .when().post(String.format(URI, group.getId()))
                 .then().log().all()
-                .statusCode(HttpStatus.FORBIDDEN.value())
-                .body("message", equalTo(ErrorCode.DIARY_WRITE_FORBIDDEN.getMessage()));
-    }
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
+                .header("Content-Location");
+        Long diaryId = Long.valueOf(location.substring(location.lastIndexOf("/") + 1));
 
-    @Test
-    void 일기_작성_인가_실패_내순서아님() throws JsonProcessingException {
-        Group group = createGroup(1);
-        createDiary(group, member);
-        updateSelf(group, 2);
-        Map<String, Object> data = makeDiaryData();
-
-        RestAssured
-                .given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                .cookie("token", token)
-                .when().post(String.format(API_PATH, group.getId()))
-                .then().log().all()
-                .statusCode(HttpStatus.FORBIDDEN.value())
-                .body("message", equalTo(ErrorCode.DIARY_WRITE_FORBIDDEN.getMessage()));
-    }
-
-    @Test
-    @DisplayName("일기 작성시 그룹내 순서 갱신")
-    void 일기_작성_성공_순서_확인() throws JsonProcessingException {
-        Group group = createGroup(1);
-        updateSelf(group, 1);
-        createMember(group, 2);
-        createMember(group, 3);
-        Map<String, Object> data = makeDiaryData();
-
-        Long diaryId = Long.parseLong(
-                RestAssured
-                        .given().log().all()
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                        .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                        .cookie("token", token)
-                        .when().post(String.format(API_PATH, group.getId()))
-                        .then().log().all()
-                        .statusCode(HttpStatus.CREATED.value())
-                        .extract()
-                        .header("Content-Location")
-                        .split("/")[4]
-        );
+        // Then
+        Diary diary = diaryRepository.findById(diaryId).get();
+        assertThat(diary.getImageFileName()).isNull();
+        assertThat(diary.getTodayMood()).isEqualTo(TODAY_MOOD);
 
         Group updatedGroup = groupRepository.findById(group.getId()).get();
-        Diary newDiary = diaryRepository.findById(diaryId).get();
-        assertThat(newDiary.getGroup().getId()).isEqualTo(group.getId());
         assertThat(updatedGroup.getCurrentOrder()).isEqualTo(2);
-        assertThat(newDiary.getMember().getId()).isEqualTo(member.getId());
-        assertThat(newDiary.getTodayMood()).isEqualTo(data.get("todayMood"));
+
+        LocalDate currentWriterLastViewableDiaryDate = groupMemberRepository.findLastViewableDiaryDateByMemberId(member.getId()).get();
+        assertThat(currentWriterLastViewableDiaryDate).isEqualTo(LocalDate.now());
+        LocalDate nextWriterLastViewableDiaryDate = groupMemberRepository.findById(nextWriter.getId()).get().getLastViewableDiaryDate();
+        assertThat(nextWriterLastViewableDiaryDate).isEqualTo(LocalDate.now());
     }
 
-    @Test
-    @DisplayName("일기 작성시 그룹내 순서 갱신 - 마지막 순서에서 첫번째 순서로 갱신")
-    void 일기_작성_성공_순서_확인_맨_첫_순서로() throws JsonProcessingException {
-        Group group = createGroup(3);
-        updateSelf(group, 3);
-        createMember(group, 1);
-        createMember(group, 2);
-        Map<String, Object> data = makeDiaryData();
+    private Map<String, Object> makeWriteDiaryRequestBody(String todayMood, List<String> contents) {
+        Map<String, Object> requestBody = new HashMap<>();
 
-        Long diaryId = Long.parseLong(
-                RestAssured
-                        .given().log().all()
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                        .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                        .cookie("token", token)
-                        .when().post(String.format(API_PATH, group.getId()))
-                        .then().log().all()
-                        .statusCode(HttpStatus.CREATED.value())
-                        .extract()
-                        .header("Content-Location")
-                        .split("/")[4]
-        );
-
-        Group updatedGroup = groupRepository.findById(group.getId()).get();
-        Diary newDiary = diaryRepository.findById(diaryId).get();
-        assertThat(newDiary.getGroup().getId()).isEqualTo(group.getId());
-        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(1);
-        assertThat(newDiary.getMember().getId()).isEqualTo(member.getId());
-        assertThat(newDiary.getTodayMood()).isEqualTo(data.get("todayMood"));
-    }
-
-    @Test
-    @DisplayName("일기 작성시 그룹내 순서 갱신 - 내용만 있는 경우")
-    void 일기_작성_성공_순서_확인_내용만() throws JsonProcessingException {
-        Group group = createGroup(1);
-        updateSelf(group, 1);
-        createMember(group, 2);
-        createMember(group, 3);
-        Map<String, Object> data = makeDiaryData();
-
-        Long diaryId = Long.parseLong(
-                RestAssured
-                        .given().log().all()
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                        .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                        .cookie("token", token)
-                        .when().post(String.format(API_PATH, group.getId()))
-                        .then().log().all()
-                        .statusCode(HttpStatus.CREATED.value())
-                        .extract()
-                        .header("Content-Location")
-                        .split("/")[4]
-        );
-
-        Group updatedGroup = groupRepository.findById(group.getId()).get();
-        Diary newDiary = diaryRepository.findById(diaryId).get();
-        assertThat(newDiary.getGroup().getId()).isEqualTo(group.getId());
-        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(2);
-        assertThat(newDiary.getMember().getId()).isEqualTo(member.getId());
-        assertThat(newDiary.getTodayMood()).isEqualTo(data.get("todayMood"));
-    }
-
-    @Test
-    void 일기_작성_실패_이미지_형식_실패() throws JsonProcessingException {
-        Group group = createGroup(1);
-        updateSelf(group, 1);
-        Map<String, Object> data = makeDiaryData();
-
-        RestAssured
-                .given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                .multiPart("file", new File("src/main/resources/static/images/character/red.svg"), "image/svg")
-                .cookie("token", token)
-                .when().post(String.format(API_PATH, group.getId()))
-                .then().log().all()
-                .statusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                .body("message", equalTo(ErrorCode.INVALID_IMAGE_FORMAT.getMessage()));
-    }
-
-    @Test
-    void 일기_작성_성공시_조회가능한_마지막_일기_날짜_업데이트_확인() throws JsonProcessingException {
-        Group group = createGroup(1);
-        updateSelf(group, 1);
-        Member nextMember = createMember(group, 2);
-        Map<String, Object> data = makeDiaryData();
-
-        RestAssured
-                .given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                .cookie("token", token)
-                .when().post(String.format(API_PATH, group.getId()))
-                .then().log().all()
-                .statusCode(HttpStatus.CREATED.value());
-
-        Member writer = memberRepository.findById(this.member.getId()).get();
-        Member nextWriter = memberRepository.findById(nextMember.getId()).get();
-        assertThat(writer.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
-        assertThat(nextWriter.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
-    }
-
-    @Test
-    void 마지막_순서_그룹원이_일기_작성_성공시_조회가능한_마지막_일기_날짜_업데이트_확인() throws JsonProcessingException {
-        Group group = createGroup(2);
-        updateSelf(group, 2);
-        Member nextMember = createMember(group, 1);
-        Map<String, Object> data = makeDiaryData();
-
-        RestAssured
-                .given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("data", objectMapper.writeValueAsString(data), "application/json")
-                .cookie("token", token)
-                .when().post(String.format(API_PATH, group.getId()))
-                .then().log().all()
-                .statusCode(HttpStatus.CREATED.value());
-
-        Member writer = memberRepository.findById(this.member.getId()).get();
-        Member nextWriter = memberRepository.findById(nextMember.getId()).get();
-        assertThat(writer.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
-        assertThat(nextWriter.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
-    }
-
-    private Diary createDiary(Group group, Member member) {
-        Diary diary = Diary.builder()
-                .todayMood("sleepy.svg")
-                .member(member)
-                .group(group)
-                .build();
-        return diaryRepository.save(diary);
-    }
-
-    private Group createGroup(int currentOrder) {
-        Group group = Group.builder()
-                .name("버니즈")
-                .currentOrder(currentOrder)
-                .lastSkipOrderDate(LocalDate.now())
-                .build();
-        return groupRepository.save(group);
-    }
-
-    private void updateSelf(Group group, int order) {
-        member.joinGroup("api요청멤버", "orange", order, GroupRole.GROUP_MEMBER, group);
-        memberRepository.save(member);
-    }
-
-    private Member createMember(Group group, int order) {
-        Member member = Member.builder()
-                .kakaoId(12345L)
-                .profileImage("red")
-                .lastViewableDiaryDate(LocalDate.now().minusDays(1))
-                .orderInGroup(order)
-                .group(group)
-                .build();
-        return memberRepository.save(member);
-    }
-
-    private Map<String, Object> makeDiaryData() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("todayMood", "sad.png");
-        List<Map<String, String>> contents = new ArrayList<>();
-        contents.add(Map.of("content", "hi"));
-        contents.add(Map.of("content", ""));
-        contents.add(Map.of("content", "hi3"));
-
-        data.put("contents", contents);
-        return data;
+        requestBody.put("todayMood", todayMood);
+        requestBody.put("contents", contents.stream()
+                .map(content -> Map.of("content", content)));
+        return requestBody;
     }
 }

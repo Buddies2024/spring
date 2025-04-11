@@ -1,12 +1,8 @@
-CREATE SEQUENCE group_group_id_seq START 1;
-CREATE SEQUENCE member_member_id_seq START 1;
-CREATE SEQUENCE refresh_token_refresh_token_id_seq START 1;
-CREATE SEQUENCE diary_diary_id_seq START 1;
-CREATE SEQUENCE upload_image_upload_image_id_seq START 1;
-
 CREATE TABLE "group"
 (
     group_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     name VARCHAR(255) NOT NULL,
     code VARCHAR(255) NOT NULL,
     current_order INTEGER NOT NULL,
@@ -16,6 +12,8 @@ CREATE TABLE "group"
 CREATE TABLE member
 (
     member_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     kakao_id BIGINT NOT NULL,
     nickname VARCHAR(255),
     profile_image VARCHAR(255),
@@ -29,6 +27,8 @@ CREATE TABLE member
 CREATE TABLE refresh_token
 (
     refresh_token_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     token VARCHAR(255),
     member_id BIGINT UNIQUE,
     CONSTRAINT "uk_dnbbikqdsc2r2cee1afysqfk9" UNIQUE (member_id),
@@ -38,6 +38,8 @@ CREATE TABLE refresh_token
 CREATE TABLE diary
 (
     diary_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     content VARCHAR(32600) NOT NULL,
     mood_location VARCHAR(255) NOT NULL,
     member_id BIGINT,
@@ -49,6 +51,8 @@ CREATE TABLE diary
 CREATE TABLE upload_image
 (
     upload_image_id BIGSERIAL PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     image BYTEA NOT NULL,
     diary_id BIGINT UNIQUE,
     CONSTRAINT upload_image_diary_id_key UNIQUE (diary_id),

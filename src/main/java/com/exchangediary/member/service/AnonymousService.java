@@ -1,6 +1,7 @@
 package com.exchangediary.member.service;
 
 import com.exchangediary.global.exception.serviceexception.UnauthorizedException;
+import com.exchangediary.group.service.GroupMemberQueryService;
 import com.exchangediary.member.ui.dto.response.AnonymousInfoResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public class AnonymousService {
     private final CookieService cookieService;
     private final JwtService jwtService;
-    private final MemberQueryService memberQueryService;
+    private final GroupMemberQueryService groupMemberQueryService;
 
     public AnonymousInfoResponse viewAnonymousInfo(String token, HttpServletResponse response) {
         token = needLogin(token, response);
@@ -22,7 +23,7 @@ public class AnonymousService {
 
         if (!shouldLogin) {
             Long memberId = jwtService.extractMemberId(token);
-            groupId = memberQueryService.findGroupIdBelongTo(memberId).orElse(null);
+            groupId = groupMemberQueryService.findGroupIdBelongTo(memberId).orElse(null);
         }
 
         return AnonymousInfoResponse.of(shouldLogin, groupId);

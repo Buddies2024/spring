@@ -1,9 +1,8 @@
 package com.exchangediary.comment.domain.entity;
 
-import com.exchangediary.comment.ui.dto.request.CommentCreateRequest;
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.global.domain.entity.BaseEntity;
-import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.group.domain.entity.GroupMember;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -53,19 +52,26 @@ public class Comment extends BaseEntity {
     private final Diary diary;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", foreignKey = @ForeignKey(name = "comment_member_id_fkey"))
-    private final Member member;
+    @JoinColumn(name = "group_member_id", foreignKey = @ForeignKey(name = "comment_group_member_id_fkey"))
+    private final GroupMember groupMember;
     @OneToMany(mappedBy = "comment")
-    @OrderBy("created_at ASC")
+    @OrderBy("createdAt ASC")
     private List<Reply> replies;
 
-    public static Comment of(CommentCreateRequest commentRequest, Member member, Diary diary) {
+    public static Comment of(
+            double xCoordinate,
+            double yCoordinate,
+            int page,
+            String content,
+            GroupMember groupMember,
+            Diary diary
+    ) {
         return Comment.builder()
-                .xCoordinate(commentRequest.xCoordinate())
-                .yCoordinate(commentRequest.yCoordinate())
-                .page(commentRequest.page())
-                .content(commentRequest.content())
-                .member(member)
+                .xCoordinate(xCoordinate)
+                .yCoordinate(yCoordinate)
+                .page(page)
+                .content(content)
+                .groupMember(groupMember)
                 .diary(diary)
                 .build();
     }

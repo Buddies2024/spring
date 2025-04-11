@@ -1,62 +1,55 @@
 package com.exchangediary.group.api;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
+import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.group.domain.entity.Group;
-import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.group.domain.enums.GroupRole;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.Matchers.equalTo;
 
 class GroupNicknameApiTest extends ApiBaseTest {
-    private static final String GROUP_NAME = "버니즈";
-    private static final String API_PATH = "/api/groups/%s/nickname/verify";
-    @Autowired
-    private GroupRepository groupRepository;
+    private static final String URI = "/api/groups/%s/nickname/verify";
 
     @Test
-    void 닉네임_유효성_검사_성공() {
+    @DisplayName("그룹에 중복되는 닉네임이 없으면, 유효성 검사에 성공한다.")
+    void When_NoDuplicatedNicknameInGroup_Expect_Success() {
+        // Given
+        String nickname = "스프링";
+
         Group group = createGroup();
-        groupRepository.save(group);
+        joinGroup("리더", 0, GroupRole.GROUP_LEADER, group, createMember(1234L));
 
         RestAssured
                 .given().log().all()
-                .queryParam("nickname", "jisunggi")
                 .cookie("token", token)
-                .when().get(String.format(API_PATH, group.getId()))
+                .queryParam("nickname", nickname)
+                .when().get(String.format(URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .body("verification", equalTo(true));
     }
 
     @Test
-    void 닉네임_유효성_검사_중복() {
-        Group group = createGroup();
-        groupRepository.save(group);
-        Member member = createMember(group);
-        memberRepository.save(member);
+    @DisplayName("그룹에 중복되는 닉네임이 있으면, 400 예외를 반환한다.")
+    void When_NicknameDuplicateInGroup_Expect_Throw400Exception() {
+        // Given
+        String nickname = "스프링";
 
+        Group group = createGroup();
+        joinGroup(nickname, 0, GroupRole.GROUP_LEADER, group, createMember(1234L));
+
+        // When & Then
         RestAssured
                 .given().log().all()
-                .queryParam("nickname", "jisunggi")
                 .cookie("token", token)
-                .when().get(String.format(API_PATH, group.getId()))
+                .queryParam("nickname", nickname)
+                .when().get(String.format(URI, group.getId()))
                 .then().log().all()
-                .statusCode(HttpStatus.BAD_REQUEST.value());
-    }
-
-    private Group createGroup() {
-        return Group.from(GROUP_NAME);
-    }
-
-    private Member createMember(Group group) {
-        return Member.builder()
-                .nickname("jisunggi")
-                .kakaoId(12345L)
-                .group(group)
-                .build();
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo(ErrorCode.NICKNAME_DUPLICATED.getMessage()));
     }
 }

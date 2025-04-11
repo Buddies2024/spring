@@ -1,13 +1,11 @@
 package com.exchangediary.group.service;
 
-import com.exchangediary.global.exception.ErrorCode;
-import com.exchangediary.global.exception.serviceexception.ForbiddenException;
+import com.exchangediary.group.domain.GroupMemberRepository;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
 import com.exchangediary.group.ui.dto.request.GroupKickOutRequest;
 import com.exchangediary.group.ui.dto.request.GroupLeaderHandOverRequest;
-import com.exchangediary.member.domain.MemberRepository;
-import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
+import com.exchangediary.group.domain.enums.GroupRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class GroupLeaderService {
     private final GroupQueryService groupQueryService;
     private final GroupLeaveService groupLeaveService;
-    private final GroupMemberService groupMemberService;
+    private final GroupMemberFindService groupMemberFindService;
     private final GroupValidationService groupValidationService;
-    private final MemberRepository memberRepository;
+    private final GroupMemberRepository groupMemberRepository;
 
     public long handOverGroupLeader(String groupId, Long memberId, GroupLeaderHandOverRequest request) {
         Group group = groupQueryService.findGroup(groupId);
-        Member currentLeader = groupMemberService.findSelfInGroup(group, memberId);
-        Member newLeader = groupMemberService.findMemberByNickname(group, request.nickname());
+        GroupMember currentLeader = groupMemberFindService.findSelfInGroup(group, memberId);
+        GroupMember newLeader = groupMemberFindService.findMemberByNickname(group, request.nickname());
 
         currentLeader.changeGroupRole(GroupRole.GROUP_MEMBER);
         newLeader.changeGroupRole(GroupRole.GROUP_LEADER);
@@ -36,25 +34,22 @@ public class GroupLeaderService {
         Group group = groupQueryService.findGroup(groupId);
         groupValidationService.checkSkipOrderAuthority(group);
 
-        long skipDiaryMemberId = groupMemberService.findCurrentOrderMember(group).getId();
-        group.updateCurrentOrder(group.getCurrentOrder() + 1, group.getMembers().size());
+        long skipDiaryMemberId = groupMemberFindService.findCurrentOrderMember(group).getId();
+        group.changeCurrentOrder(group.getCurrentOrder() + 1);
         group.updateLastSkipOrderDate();
-        Member currentWriter = groupMemberService.findCurrentOrderMember(group);
+        GroupMember currentWriter = groupMemberFindService.findCurrentOrderMember(group);
         currentWriter.updateLastViewableDiaryDate();
         return skipDiaryMemberId;
     }
 
     public long kickOutMember(String groupId, GroupKickOutRequest request) {
         Group group = groupQueryService.findGroup(groupId);
-        Member kickMember = groupMemberService.findMemberByNickname(group, request.nickname());
-        groupLeaveService.leaveGroup(groupId, kickMember.getId());
+        GroupMember kickMember = groupMemberFindService.findMemberByNickname(group, request.nickname());
+        groupLeaveService.leaveGroup(groupId, kickMember.getMember().getId());
         return kickMember.getId();
     }
 
     public boolean isGroupLeader(Long memberId) {
-        if (!memberRepository.isGroupLeader(memberId)) {
-            throw new ForbiddenException(ErrorCode.GROUP_LEADER_FORBIDDEN, "", "");
-        }
-        return true;
+        return groupMemberRepository.isGroupLeaderByMemberId(memberId);
     }
 }

@@ -1,79 +1,123 @@
 package com.exchangediary.global.config.interceptor;
 
 import com.exchangediary.ApiBaseTest;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
-import com.exchangediary.member.domain.MemberRepository;
-import com.exchangediary.member.domain.enums.GroupRole;
+import com.exchangediary.group.domain.enums.GroupRole;
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
-    private final String URI = "/api/groups/%s/members";
-    @Autowired
-    private GroupRepository groupRepository;
-    @Autowired
-    private MemberRepository memberRepository;
-    private String groupId;
+import static org.assertj.core.api.Assertions.assertThat;
 
-    @BeforeEach
-    void joinGroup() {
-        Group group = createGroup();
-        updateSelf(group);
-        groupId = group.getId();
-    }
+public class GroupAuthorizationInterceptorTest extends ApiBaseTest {
+    private final String MONTHLY_URI = "/groups/%s";
+    private final String CREATE_GROUP_URI = "/groups";
+    private final String API_URI = "/api/groups/%s/members";
 
     @Test
-    void 본인이_가입한_그룹_API_요청() {
+    @DisplayName("사용자가 속한 그룹의 API 요청 시, 성공한다.")
+    void When_RequestGroupApiWhichMemberBelong_Then_Success() {
+        Group group = createGroup();
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .when().get(String.format(URI, groupId))
+                .when().get(String.format(API_URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
     }
 
     @Test
-    void 본인이_가입하지않은_그룹_API_요청 () {
+    @DisplayName("사용자가 속하지않은 그룹의 API 요청 시, 403 에러를 발생한다.")
+    void When_RequestGroupApiWhichMemberNotBelong_Then_Throw403Exception() {
         Group group = createGroup();
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+        Group otherGroup = createGroup();
 
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .when().get(String.format(URI, group.getId()))
+                .when().get(String.format(API_URI, otherGroup.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
-    void 그룹_가입하지않은_사용자의_API_요청 () {
+    @DisplayName("사용자가 어떤 그룹에도 속하지 않고 API 요청 시, 403 에러를 발생한다.")
+    void When_RequestApiAndMemberNotBelongAnyGroup_Then_Throw403Exception() {
         Group group = createGroup();
-        updateSelf(group);
 
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .redirects().follow(false)
-                .when().get(String.format(URI, groupId))
+                .when().get(String.format(API_URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
-    private Group createGroup() {
-        return groupRepository.save(Group.from("group-name"));
+    @Test
+    @DisplayName("사용자가 속한 그룹 페이지에 접근 시, 성공한다.")
+    void When_RequestGroupPageWhichMemberBelong_Then_Success() {
+        Group group = createGroup();
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .when().get(String.format(MONTHLY_URI, group.getId()))
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
     }
 
-    private void updateSelf(Group group) {
-        this.member.joinGroup(
-                "me",
-                "red",
-                1,
-                GroupRole.GROUP_LEADER,
-                group
-        );
-        memberRepository.save(this.member);
+    @Test
+    @DisplayName("사용자가 속하지 않은 그룹 페이지에 접근 시, 403 페이지를 보여준다.")
+    void When_RequestGroupPageWhichMemberNotBelong_Then_Redirect403Exception() {
+        Group group = createGroup();
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+        Group otherGroup = createGroup();
+
+        String contentType = RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .redirects().follow(false)
+                .when().get(String.format(MONTHLY_URI, otherGroup.getId()))
+                .then().log().all()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .extract()
+                .header("Content-Type");
+
+        assertThat(contentType.substring(0, contentType.indexOf(";"))).isEqualTo("text/html");
+    }
+
+    @Test
+    @DisplayName("사용자가 그룹에 가입되어있고 그룹 생성 페이지에 접근 시, 시작 페이지로 리다이렉트한다.")
+    void When_RequestGroupCreatePageWhichMemberBelong_Then_Success() {
+        Group group = createGroup();
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+
+        String location = RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .redirects().follow(false)
+                .when().get(CREATE_GROUP_URI)
+                .then().log().all()
+                .statusCode(HttpStatus.FOUND.value())
+                .extract()
+                .header("Location");
+
+        assertThat(location.substring(location.lastIndexOf("/"))).isEqualTo("/");
+    }
+
+    @Test
+    @DisplayName("사용자가 어떤 그룹에도 속하지 않고 그룹 생성 페이지에 접근 시, 성공한다.")
+    void When_RequestGroupCreatePageWhichMemberNotBelong_Then_Success() {
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .when().get(CREATE_GROUP_URI)
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
     }
 }

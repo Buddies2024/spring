@@ -1,6 +1,6 @@
 package com.exchangediary.group.ui.dto.response;
 
-import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.group.domain.entity.GroupMember;
 import lombok.Builder;
 
 import java.util.List;
@@ -13,16 +13,16 @@ public record GroupMembersResponse(
         int currentWriterIndex
 ) {
     public static GroupMembersResponse of(
-            List<Member> members,
+            List<GroupMember> groupMembers,
             int selfIndex,
             int leaderIndex,
             int currentWriterIndex
     ) {
-        List<GroupMemberResponse> response = members.stream()
+        List<GroupMemberResponse> groupMemberResponses = groupMembers.stream()
                 .map(GroupMemberResponse::from)
                 .toList();
         return GroupMembersResponse.builder()
-                .members(response)
+                .members(groupMemberResponses)
                 .selfIndex(selfIndex)
                 .leaderIndex(leaderIndex)
                 .currentWriterIndex(currentWriterIndex)
@@ -34,10 +34,10 @@ public record GroupMembersResponse(
             String nickname,
             String profileImage
     ) {
-        public static GroupMemberResponse from(Member member) {
+        public static GroupMemberResponse from(GroupMember groupMember) {
             return GroupMemberResponse.builder()
-                    .nickname(member.getNickname())
-                    .profileImage(member.getProfileImage())
+                    .nickname(groupMember.getNickname())
+                    .profileImage(groupMember.getProfileImage())
                     .build();
         }
     }

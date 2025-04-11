@@ -22,7 +22,7 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TE
         "security.jwt.refresh-token.expiration-time=1000"
 })
 @Sql(scripts = {"classpath:truncate.sql"}, executionPhase = BEFORE_TEST_METHOD)
-public class ExpiredJwtTest {
+public class ExpiredJwtRefreshTokenTest {
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -30,33 +30,41 @@ public class ExpiredJwtTest {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @DisplayName("expire access token and non-existnet refresh token")
     @Test
-    void 리프레쉬_토큰_없음() throws InterruptedException {
-        Member member = Member.of(1L);
+    @DisplayName("만료된 access token을 검증 시 사용자가 refresh token을 갖고 있지 않다면, 예외를 던진다")
+    void When_ExpiredJwtAccessTokenAndNoHasRefreshToken_Expect_ThrowException() throws InterruptedException {
+        // Given
+        Member member = Member.from(1L);
         memberRepository.save(member);
         String token = jwtService.generateAccessToken(member.getId());
 
         Thread.sleep(1000);
+
+        // When & Then
         assertThrows(UnauthorizedException.class, () ->
                 jwtService.verifyAccessToken(token)
         );
     }
 
-    @DisplayName("expire access token and refresh token")
     @Test
-    void 만료된_리프레쉬_토큰_검증() throws InterruptedException {
-        Member member = Member.of(1L);
+    @DisplayName("만료된 access token을 검증 시 사용자의 refresh token도 만료됐다면, 예외를 던진다")
+    void When_ExpiredJwtAccessTokenAndExpiredRefreshToken_Expect_ThrowException() throws InterruptedException {
+        // Given
+        Member member = Member.from(1L);
         memberRepository.save(member);
+
         String token = jwtService.generateAccessToken(member.getId());
         RefreshToken refreshToken = RefreshToken.of(jwtService.generateRefreshToken(), member);
         refreshTokenRepository.save(refreshToken);
 
         Thread.sleep(1000);
+
+        // When
         assertThrows(UnauthorizedException.class, () ->
                 jwtService.verifyAccessToken(token)
         );
 
+        // Then
         Optional<RefreshToken> result = refreshTokenRepository.findByMemberId(member.getId());
         assertThat(result.isEmpty()).isTrue();
     }

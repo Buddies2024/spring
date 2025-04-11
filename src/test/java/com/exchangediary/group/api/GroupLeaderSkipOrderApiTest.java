@@ -2,13 +2,13 @@ package com.exchangediary.group.api;
 
 import com.exchangediary.ApiBaseTest;
 import com.exchangediary.global.exception.ErrorCode;
-import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
+import com.exchangediary.group.domain.entity.GroupMember;
+import com.exchangediary.group.domain.enums.GroupRole;
 import com.exchangediary.member.domain.entity.Member;
-import com.exchangediary.member.domain.enums.GroupRole;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
@@ -17,81 +17,137 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class GroupLeaderSkipOrderApiTest extends ApiBaseTest {
-    @Autowired
-    private GroupRepository groupRepository;
+    private static final String URI = "/api/groups/%s/leader/skip-order";
 
     @Test
-    void 일기_건너뛰기_성공() {
-        Group group = createGroup(1);
-        updateSelf(group, 1, GroupRole.GROUP_LEADER);
-        Member member = createMember(group, 2, GroupRole.GROUP_MEMBER);
+    @DisplayName("현재 일기 작성 순서자가 2번이면, 일기 건너뛰기 권한 실행 시 3번째 사람이 일기 작성자가 된다.")
+    void When_CurrentWriterOrderIs2_Expect_NextWriterOrderIs3() {
+        // Given
+        Group group = createGroup();
 
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("현재작성자", 1, GroupRole.GROUP_MEMBER, LocalDate.now().minusDays(1), group, createMember(2L));
+        GroupMember nextWriter = joinGroup("다음작성자", 2, GroupRole.GROUP_MEMBER, LocalDate.now().minusDays(2), group, createMember(3L));
+
+        group.changeCurrentOrder(2);
+        groupRepository.save(group);
+
+        // When
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .when().patch(String.format("/api/groups/%s/leader/skip-order", group.getId()))
+                .when().patch(String.format(URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
+        // Then
         Group updatedGroup = groupRepository.findById(group.getId()).get();
-        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(2);
+
+        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(3);
         assertThat(updatedGroup.getLastSkipOrderDate()).isEqualTo(LocalDate.now());
-        Member currentWriter = memberRepository.findById(member.getId()).get();
-        assertThat(currentWriter.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
+
+        GroupMember updatedNextWriter = groupMemberRepository.findById(nextWriter.getId()).get();
+
+        assertThat(updatedNextWriter.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
     }
 
     @Test
-    void 일기_건너뛰기_실패_오늘_이미_실행() {
-        Group group = createGroup(2);
-        updateSelf(group, 1, GroupRole.GROUP_LEADER);
-        createMember(group, 2, GroupRole.GROUP_MEMBER);
+    @DisplayName("현재 일기 작성 순서자가 그룹 내 마지막 순서이면, 일기 건너뛰기 권한 실행 시 첫번째 사람이 일기 작성자가 된다.")
+    void When_CurrentWriterOrderIsLast_Expect_NextWriterOrderIs1() {
+        // Given
+        Group group = createGroup();
+
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, LocalDate.now().minusDays(2), group, this.member);
+        joinGroup("그룹원", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+        joinGroup("현재작성자", 2, GroupRole.GROUP_MEMBER, LocalDate.now().minusDays(1), group, createMember(3L));
+
+        group.changeCurrentOrder(3);
+        groupRepository.save(group);
+
+        // When
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .when().patch(String.format(URI, group.getId()))
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        // Then
+        Group updatedGroup = groupRepository.findById(group.getId()).get();
+
+        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(1);
+        assertThat(updatedGroup.getLastSkipOrderDate()).isEqualTo(LocalDate.now());
+
+        GroupMember updatedNextWriter = groupMemberRepository.findByMemberId(this.member.getId()).get();
+
+        assertThat(updatedNextWriter.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
+    }
+
+
+    @Test
+    @DisplayName("그룹원이 한 명이면, 일기 건너뛰기 권한 실행 시 또 내가 일기 작성자가 된다.")
+    void When_GroupHasOnly1Member_Expect_NextWriterIsMe() {
+        // Given
+        Group group = createGroup();
+
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, LocalDate.now().minusDays(2), group, this.member);
+
+        // When
+        RestAssured
+                .given().log().all()
+                .cookie("token", token)
+                .when().patch(String.format(URI, group.getId()))
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        // Then
+        Group updatedGroup = groupRepository.findById(group.getId()).get();
+
+        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(1);
+        assertThat(updatedGroup.getLastSkipOrderDate()).isEqualTo(LocalDate.now());
+
+        GroupMember updatedNextWriter = groupMemberRepository.findByMemberId(this.member.getId()).get();
+
+        assertThat(updatedNextWriter.getLastViewableDiaryDate()).isEqualTo(LocalDate.now());
+    }
+
+    @Test
+    @DisplayName("일기 건너뛰기 권한은 하루에 한 번만 실행 가능하다.")
+    void When_AlreadyDoSkipOrder_Expect_Throw409Exception() {
+        // Given
+        Group group = createGroup();
+
+        joinGroup("스프링", 0, GroupRole.GROUP_LEADER, group, this.member);
+        joinGroup("그룹원", 1, GroupRole.GROUP_MEMBER, group, createMember(2L));
+        joinGroup("현재작성자", 2, GroupRole.GROUP_MEMBER, group, createMember(3L));
 
         RestAssured
-                .given().log().all()
+                .given()
                 .cookie("token", token)
-                .when().patch(String.format("/api/groups/%s/leader/skip-order", group.getId()))
-                .then().log().all();
+                .when().patch(String.format(URI, group.getId()));
+
+        // When & Then
         RestAssured
                 .given().log().all()
                 .cookie("token", token)
-                .when().patch(String.format("/api/groups/%s/leader/skip-order", group.getId()))
+                .when().patch(String.format(URI, group.getId()))
                 .then().log().all()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .body("message", equalTo(ErrorCode.ALREADY_SKIP_ORDER_TODAY.getMessage()));
-        ;
-
-        Group updatedGroup = groupRepository.findById(group.getId()).get();
-        assertThat(updatedGroup.getCurrentOrder()).isEqualTo(1);
-        assertThat(updatedGroup.getLastSkipOrderDate()).isEqualTo(LocalDate.now());
     }
 
-    private Group createGroup(int order) {
-        Group group = Group.from("group-name");
-        group.updateCurrentOrder(order, 2);
-        return groupRepository.save(group);
-    }
-
-    private void updateSelf(Group group, int order, GroupRole role) {
-        this.member.joinGroup(
-                "me",
-                "red",
-                order,
-                role,
-                group
-        );
-        memberRepository.save(this.member);
-    }
-
-    private Member createMember(Group group, int order, GroupRole role) {
-        return memberRepository.save(Member.builder()
-                .kakaoId(1L)
-                .nickname("group-member")
-                .profileImage("orange")
-                .orderInGroup(order)
-                .lastViewableDiaryDate(LocalDate.now().minusMonths(1))
+    private GroupMember joinGroup(String nickname, int profileImageIndex, GroupRole groupRole, LocalDate lastViewableDiaryDate, Group group, Member member) {
+        group.joinMember();
+        groupRepository.save(group);
+        GroupMember groupMember = GroupMember.builder()
+                .nickname(nickname)
+                .profileImage(PROFILE_IMAGES[profileImageIndex])
+                .orderInGroup(group.getMemberCount())
+                .groupRole(groupRole)
+                .lastViewableDiaryDate(lastViewableDiaryDate)
                 .group(group)
-                .groupRole(role)
-                .build()
-        );
+                .member(member)
+                .build();
+        return groupMemberRepository.save(groupMember);
     }
 }
