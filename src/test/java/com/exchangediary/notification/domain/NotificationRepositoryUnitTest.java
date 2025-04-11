@@ -30,16 +30,62 @@ public class NotificationRepositoryUnitTest {
     private NotificationRepository notificationRepository;
 
     @Test
-    @DisplayName("그룹 안에서 member id를 제외한 모든 그룹원 토큰 가져오기")
+    @DisplayName("사용자 id로 토큰을 가져온다.")
+    void Test_findTokensByMemberId() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
+        entityManager.persist(group);
+
+        Member self = setUpMember(1, group);
+        createNotification("self-token", self);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByMemberId(self.getId());
+
+        // Then
+        assertThat(tokens).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("알림 활성화되어있지 않으면, 토큰을 가져오지 않는다.")
+    void When_OffNotification_Expect_GetEmptyList() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
+        entityManager.persist(group);
+
+        Member self = setUpMember(1, group);
+        createNotification("self-token", self);
+        self.toggleNotification();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByMemberId(self.getId());
+
+        // Then
+        assertThat(tokens).hasSize(0);
+    }
+
+    @Test
+    @DisplayName("""
+    그룹 안에서 member id를 제외한 모든 그룹원 토큰 가져온다.
+    이때, 알림 활성화가 꺼져있는 사용자의 토큰은 가져오지 않는다.
+    """)
     void Test_findTokensByGroupIdAndExcludeMemberId() {
         // Given
         Group group = Group.from(GROUP_NAME);
         entityManager.persist(group);
 
         Member self = setUpMember(1, group);
-        for (int idx = 2; idx <= 4; idx++) {
-            setUpMember(idx, group);
-        }
+        setUpMember(2, group);
+        setUpMember(3, group);
+        Member offMember = setUpMember(4, group);
+        offMember.toggleNotification();
+
         entityManager.flush();
         entityManager.clear();
 
@@ -47,7 +93,8 @@ public class NotificationRepositoryUnitTest {
         List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberId(group.getId(), self.getId());
 
         // Then
-        assertThat(tokens).hasSize(3);
+        assertThat(tokens).hasSize(2);
+        assertThat(tokens.contains(offMember.toString())).isFalse();
     }
 
     @Test
@@ -58,32 +105,10 @@ public class NotificationRepositoryUnitTest {
         entityManager.persist(group);
 
         Member self = setUpMember(1, group);
-        for (int idx = 2; idx <= 4; idx++) {
-            setUpMember(idx, group);
-        }
-
-        entityManager.flush();
-        entityManager.clear();
-
-        // When
-        List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(group.getId(), self.getId());
-
-        // Then
-        assertThat(tokens).hasSize(3);
-    }
-
-    @Test
-    @DisplayName("사용자가 리더가 아닌 경우, 그룹 안에서 member id와 리더를 제외한 모든 그룹원 토큰 가져오기")
-    void Test_findTokensByGroupIdAndExcludeMemberIdAndLeader_When_SelfIsNotLeader() {
-        // Given
-        Group group = Group.from(GROUP_NAME);
-        entityManager.persist(group);
-
-        Member Leader = setUpMember(1, group);
-        Member self = setUpMember(2, group);
-        for (int idx = 3; idx <= 4; idx++) {
-            setUpMember(idx, group);
-        }
+        setUpMember(2, group);
+        setUpMember(3, group);
+        Member offMember = setUpMember(4, group);
+        offMember.toggleNotification();
 
         entityManager.flush();
         entityManager.clear();
@@ -93,6 +118,31 @@ public class NotificationRepositoryUnitTest {
 
         // Then
         assertThat(tokens).hasSize(2);
+        assertThat(tokens.contains(offMember.toString())).isFalse();
+    }
+
+    @Test
+    @DisplayName("사용자가 리더가 아닌 경우, 그룹 안에서 member id와 리더를 제외한 모든 그룹원 토큰 가져오기")
+    void Test_findTokensByGroupIdAndExcludeMemberIdAndLeader_When_SelfIsNotLeader() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
+        entityManager.persist(group);
+
+        setUpMember(1, group);
+        Member self = setUpMember(2, group);
+        Member onMember = setUpMember(3, group);
+        Member offMember = setUpMember(4, group);
+        offMember.toggleNotification();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(group.getId(), self.getId());
+
+        // Then
+        assertThat(tokens).hasSize(1);
+        assertThat(tokens.get(0)).isEqualTo(onMember.toString());
     }
 
     @Test
@@ -103,9 +153,10 @@ public class NotificationRepositoryUnitTest {
         entityManager.persist(group);
 
         Member member = setUpMember(1, group);
-        for (int idx = 2; idx <= 4; idx++) {
-            setUpMember(idx, group);
-        }
+        setUpMember(2, group);
+        setUpMember(3, group);
+        Member offMember = setUpMember(4, group);
+        offMember.toggleNotification();
 
         entityManager.flush();
         entityManager.clear();
@@ -116,6 +167,30 @@ public class NotificationRepositoryUnitTest {
         // Then
         assertThat(tokens).hasSize(1);
         assertThat(tokens.get(0)).isEqualTo(member.toString());
+    }
+
+    @Test
+    @DisplayName("현재 일기 작성 차례인 사용자가 알림이 비활성화되어있으면 토큰 가져오지 않는다.")
+    void When_OffNotification_Test_findTokensByGroupIdAndCurrentOrder() {
+        // Given
+        Group group = Group.from(GROUP_NAME);
+        entityManager.persist(group);
+
+        Member member = setUpMember(1, group);
+        member.toggleNotification();
+        setUpMember(2, group);
+        setUpMember(3, group);
+        Member offMember = setUpMember(4, group);
+        offMember.toggleNotification();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByGroupIdAndCurrentOrder(group.getId());
+
+        // Then
+        assertThat(tokens).hasSize(0);
     }
 
     @Test
@@ -134,6 +209,39 @@ public class NotificationRepositoryUnitTest {
 
             if (idx == 0) {
                 createDiary(groupMember, group);
+            }
+            groupMembers.add(groupMember);
+        }
+
+        entityManager.flush();
+        entityManager.clear();
+
+        // When
+        List<String> tokens = notificationRepository.findTokensByMembersWithoutDiaryToday();
+
+        // Then
+        assertThat(tokens).hasSize(2);
+        assertThat(tokens.contains(groupMembers.get(0).toString())).isFalse();
+        assertThat(tokens.contains(groupMembers.get(1).toString())).isTrue();
+        assertThat(tokens.contains(groupMembers.get(2).toString())).isTrue();
+    }
+
+    @Test
+    @DisplayName("오늘 일기 작성하지 않은 그룹 내 모든 사용자 토큰 가져오기")
+    void Test_findTokensByMembersWithoutDiaryToday_When_AllMemberNotWriteDiaryAndOffNotificationGroup1() {
+        // Given
+        List<GroupMember> groupMembers = new ArrayList<>();
+
+        for (int idx = 0; idx < 3; idx++) {
+            Group group = Group.from(GROUP_NAME + idx);
+            entityManager.persist(group);
+
+            Member member = createMember(idx + 1);
+            GroupMember groupMember = createGroupMember(1, group, member);
+            createNotification(groupMember.toString(), member);
+
+            if (idx == 0) {
+                member.toggleNotification();
             }
             groupMembers.add(groupMember);
         }
