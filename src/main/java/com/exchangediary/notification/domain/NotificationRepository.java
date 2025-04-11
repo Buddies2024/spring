@@ -14,7 +14,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("""
         SELECT n.token
         FROM Notification n
-        WHERE n.member.onNotification = true
+        WHERE n.member.id = :memberId
+            AND n.member.onNotification = true
     """)
     List<String> findTokensByMemberId(Long memberId);
 

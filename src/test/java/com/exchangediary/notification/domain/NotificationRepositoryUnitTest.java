@@ -38,6 +38,7 @@ public class NotificationRepositoryUnitTest {
 
         Member self = setUpMember(1, group);
         createNotification("self-token", self);
+        setUpMember(2, group);
 
         entityManager.flush();
         entityManager.clear();
@@ -59,6 +60,7 @@ public class NotificationRepositoryUnitTest {
         Member self = setUpMember(1, group);
         createNotification("self-token", self);
         self.toggleNotification();
+        setUpMember(2, group);
 
         entityManager.flush();
         entityManager.clear();
