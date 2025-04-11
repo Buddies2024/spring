@@ -8,6 +8,7 @@ import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.domain.entity.GroupMember;
 import com.exchangediary.group.domain.enums.GroupRole;
+import com.exchangediary.group.ui.dto.notification.GroupLeaveNotification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,7 @@ public class GroupLeaveService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
 
-    public void leaveGroup(String groupId, Long memberId) {
+    public GroupLeaveNotification leaveGroup(String groupId, Long memberId) {
         Group group = groupQueryService.findGroup(groupId);
         GroupMember leaveMember = groupMemberQueryService.findGroupMemberByMemberId(memberId);
 
@@ -33,6 +34,7 @@ public class GroupLeaveService {
         groupMemberRepository.flush();
 
         updateGroupAfterMemberLeave(group, leaveMember.getOrderInGroup());
+        return GroupLeaveNotification.from(leaveMember);
     }
 
     private void forbidGroupLeaderLeave(GroupMember groupMember, int memberCount) {
