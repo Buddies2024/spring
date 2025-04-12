@@ -2,7 +2,6 @@ package com.exchangediary.notification.api;
 
 import com.exchangediary.ApiBaseTest;
 import com.exchangediary.notification.domain.NotificationRepository;
-import com.exchangediary.notification.domain.entity.Notification;
 import com.exchangediary.notification.ui.dto.request.NotificationTokenRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -34,9 +33,9 @@ public class NotificationApiTest extends ApiBaseTest {
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
-        List<Notification> notifications = notificationRepository.findAllByMemberId(member.getId());
+        List<String> notifications = notificationRepository.findTokensByMemberId(member.getId());
         assertThat(notifications).hasSize(1);
-        assertThat(notifications.get(0).getToken()).isEqualTo(fcmToken);
+        assertThat(notifications.get(0)).isEqualTo(fcmToken);
     }
 
     @Test
@@ -62,9 +61,9 @@ public class NotificationApiTest extends ApiBaseTest {
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
-        List<Notification> notifications = notificationRepository.findAllByMemberId(member.getId());
+        List<String> notifications = notificationRepository.findTokensByMemberId(member.getId());
         assertThat(notifications).hasSize(1);
-        assertThat(notifications.get(0).getToken()).isEqualTo("token");
+        assertThat(notifications.get(0)).isEqualTo("token");
     }
 
     @Test
@@ -91,9 +90,10 @@ public class NotificationApiTest extends ApiBaseTest {
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value());
 
-        List<Notification> notifications = notificationRepository.findAllByMemberId(member.getId());
+
+        List<String> notifications = notificationRepository.findTokensByMemberId(member.getId());
         assertThat(notifications).hasSize(2);
-        assertThat(notifications.get(0).getToken()).isEqualTo(fcmToken1);
-        assertThat(notifications.get(1).getToken()).isEqualTo(fcmToken2);
+        assertThat(notifications.get(0)).isEqualTo(fcmToken1);
+        assertThat(notifications.get(1)).isEqualTo(fcmToken2);
     }
 }

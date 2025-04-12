@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,30 +20,20 @@ public class NotificationTokenService {
     private final MemberQueryService memberQueryService;
 
     public List<String> findTokensByMember(Long memberId) {
-        List<Notification> notifications = notificationRepository.findAllByMemberId(memberId);
-
-        if (notifications.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return notifications.stream()
-                .map(Notification::getToken)
-                .toList();
+        return notificationRepository.findTokensByMemberId(memberId);
     }
 
     public List<String> findTokensByCurrentOrderInGroup(String groupId) {
         return notificationRepository.findTokensByGroupIdAndCurrentOrder(groupId);
     }
 
-
     public List<String> findTokensByGroupAndExcludeMember(String groupId, Long memberId) {
         return notificationRepository.findTokensByGroupIdAndExcludeMemberId(groupId, memberId);
     }
 
-
     public List<String> findTokensByGroupAndExcludeMemberAndLeader(String groupId, Long memberId) {
         return notificationRepository.findTokensByGroupIdAndExcludeMemberIdAndLeader(groupId, memberId);
     }
-
 
     public List<String> findTokensWithoutDiaryToday() {
         return notificationRepository.findTokensByMembersWithoutDiaryToday();

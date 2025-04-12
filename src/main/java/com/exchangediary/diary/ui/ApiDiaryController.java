@@ -2,6 +2,7 @@ package com.exchangediary.diary.ui;
 
 import com.exchangediary.diary.service.DiaryWriteService;
 import com.exchangediary.diary.service.DiaryQueryService;
+import com.exchangediary.diary.ui.dto.notification.DiaryWriteNotification;
 import com.exchangediary.diary.ui.dto.request.DiaryRequest;
 import com.exchangediary.diary.ui.dto.response.DiaryResponse;
 import com.exchangediary.diary.ui.dto.response.TodayDiaryStatusResponse;
@@ -36,12 +37,18 @@ public class ApiDiaryController {
             @PathVariable String groupId,
             @RequestAttribute Long memberId
     ) {
-        Long diaryId = diaryWriteService.writeDiary(diaryRequest, file, groupId, memberId);
-        notificationService.pushToAllGroupMembersExceptMember(groupId, memberId, "친구가 일기를 작성했어요!");
+        DiaryWriteNotification diary = diaryWriteService.writeDiary(diaryRequest, file, groupId, memberId);
+
+        notificationService.pushToAllGroupMembersExceptMember(
+                groupId,
+                memberId,
+                String.format("%s(이)가 일기를 작성했어요.", diary.writerNickname())
+        );
         notificationService.pushDiaryOrderNotification(groupId);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .header("Content-Location", "/groups/" + groupId + "/diaries/" + diaryId)
+                .header("Content-Location", "/groups/" + groupId + "/diaries/" + diary.diaryId())
                 .build();
     }
 

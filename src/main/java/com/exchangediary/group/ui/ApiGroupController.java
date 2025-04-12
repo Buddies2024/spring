@@ -4,6 +4,8 @@ import com.exchangediary.group.service.GroupLeaveService;
 import com.exchangediary.group.service.GroupMemberQueryService;
 import com.exchangediary.group.service.GroupQueryService;
 import com.exchangediary.group.service.GroupCreateJoinService;
+import com.exchangediary.group.ui.dto.notification.GroupJoinNotification;
+import com.exchangediary.group.ui.dto.notification.GroupLeaveNotification;
 import com.exchangediary.group.ui.dto.request.GroupCodeRequest;
 import com.exchangediary.group.ui.dto.request.GroupJoinRequest;
 import com.exchangediary.group.ui.dto.request.GroupCreateRequest;
@@ -88,8 +90,12 @@ public class ApiGroupController {
             @RequestAttribute Long memberId,
             @RequestBody @Valid GroupJoinRequest request
             ) {
-        groupCreateJoinService.joinGroup(groupId, memberId, request);
-        notificationService.pushToAllGroupMembersExceptMember(groupId, memberId, "새로운 친구가 들어왔어요!");
+        GroupJoinNotification notification = groupCreateJoinService.joinGroup(groupId, memberId, request);
+        notificationService.pushToAllGroupMembersExceptMember(
+                groupId,
+                memberId,
+                String.format("새로운 친구 %s(이)가 들어왔어요.", notification.joinMemberNickname())
+        );
         return ResponseEntity
                 .ok()
                 .build();
@@ -111,8 +117,12 @@ public class ApiGroupController {
             @PathVariable String groupId,
             @RequestAttribute Long memberId
     ) {
-        groupLeaveService.leaveGroup(groupId, memberId);
-        notificationService.pushToAllGroupMembersExceptMember(groupId, memberId, "친구가 그룹에서 나갔어요!");
+        GroupLeaveNotification notification = groupLeaveService.leaveGroup(groupId, memberId);
+        notificationService.pushToAllGroupMembersExceptMember(
+                groupId,
+                memberId,
+                String.format("%s(이)가 그룹에서 나갔어요.", notification.leaveMemberNickname())
+        );
         return ResponseEntity
                 .ok()
                 .build();

@@ -1,0 +1,1 @@
+ALTER TABLE member ADD COLUMN on_notification BOOLEAN NOT NULL DEFAULT true

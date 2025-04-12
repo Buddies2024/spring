@@ -2,6 +2,7 @@ package com.exchangediary.diary.service;
 
 import com.exchangediary.diary.domain.DiaryContentRepository;
 import com.exchangediary.diary.domain.DiaryRepository;
+import com.exchangediary.diary.ui.dto.notification.DiaryWriteNotification;
 import com.exchangediary.diary.ui.dto.request.DiaryContentRequest;
 import com.exchangediary.diary.domain.entity.Diary;
 import com.exchangediary.diary.domain.entity.DiaryContent;
@@ -38,7 +39,7 @@ public class DiaryWriteService {
     private final GroupRepository groupRepository;
     private final GroupMemberRepository groupMemberRepository;
 
-    public Long writeDiary(DiaryRequest diaryRequest, MultipartFile file, String groupId, Long memberId) {
+    public DiaryWriteNotification writeDiary(DiaryRequest diaryRequest, MultipartFile file, String groupId, Long memberId) {
         GroupMember writer = groupMemberQueryService.findGroupMemberByMemberId(memberId);
         Group group = groupQueryService.findGroup(groupId);
 
@@ -53,7 +54,7 @@ public class DiaryWriteService {
             updateGroupCurrentOrder(group);
             updateViewableDiaryDate(writer, group);
 
-            return savedDiary.getId();
+            return DiaryWriteNotification.from(savedDiary);
         } catch (IOException e) {
             throw new FailedImageUploadException(ErrorCode.FAILED_UPLOAD_IMAGE, "", file.getOriginalFilename());
         }
