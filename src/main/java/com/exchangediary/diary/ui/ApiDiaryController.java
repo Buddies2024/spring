@@ -42,7 +42,7 @@ public class ApiDiaryController {
         notificationService.pushToAllGroupMembersExceptMember(
                 groupId,
                 memberId,
-                String.format("%s(이)가 %s 일기를 작성했어요.", diary.writerNickname(), diary.createdAt())
+                String.format("%s(이)가 일기를 작성했어요.", diary.writerNickname())
         );
         notificationService.pushDiaryOrderNotification(groupId);
 
