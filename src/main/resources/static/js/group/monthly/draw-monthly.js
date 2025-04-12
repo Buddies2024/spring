@@ -221,4 +221,8 @@ function getCalendarBottomHtml(status) {
             </div>`;
 }
 
+function reloadPage() {
+    calendar.reload();
+}
+
 init();

@@ -3,6 +3,7 @@ const leaderBtns = circleCenter.querySelector(".leader-btns");
 const skipBtn = leaderBtns.querySelector(".skip-btn");
 const exitBtn = leaderBtns.querySelector(".exit-btn");
 const delegationBtn = leaderBtns.querySelector(".delegation-btn");
+const groupMenu = document.querySelector(".group-menu");
 var selectedMember = null;
 
 skipBtn.addEventListener("click", clickSkipBtn);
