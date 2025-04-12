@@ -1,5 +1,12 @@
 import { setFCMToken } from "/js/fcm/setup-fcm.js"
 
+const BELL_ICONS = [
+    "/images/group/menu/notification.svg",
+    "/images/group/menu/notification-mute.svg"
+];
+
+preLoadImgage(BELL_ICONS);
+
 const menuBtn = document.querySelector(".menu-btn");
 const groupMenu = document.querySelector(".group-menu");
 const menu = groupMenu.querySelector(".menu");
@@ -192,7 +199,15 @@ async function drawNotificationBtn() {
 }
 
 function showNotificationSetting() {
-    openNotificationModal("error", ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"], 2147483647);
+    const mobileOS = getMobileOS();
+    var messages = [];
+    if (mobileOS === "iOS") {
+        messages = ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"];
+    }
+    if (mobileOS === "Android") {
+        messages = ["알림 권한이 꺼져 있어요.", "'크롬->설정->알림->앱 알림 상세설정' 에서", "차단된 알림 권한을 허용 해주세요..!"];
+    }
+    openNotificationModal("error", messages, 2147483647);
 }
 
 async function drawNotificationToggleBtn(notificationBtn) {
