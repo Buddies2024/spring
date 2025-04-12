@@ -5,6 +5,7 @@ import com.exchangediary.group.domain.GroupRepository;
 import com.exchangediary.group.domain.entity.Group;
 import com.exchangediary.group.domain.entity.GroupMember;
 import com.exchangediary.group.domain.enums.GroupRole;
+import com.exchangediary.group.ui.dto.notification.GroupJoinNotification;
 import com.exchangediary.group.ui.dto.request.GroupCreateRequest;
 import com.exchangediary.group.ui.dto.request.GroupJoinRequest;
 import com.exchangediary.group.ui.dto.response.GroupCreateResponse;
@@ -33,7 +34,7 @@ public class GroupCreateJoinService {
         return GroupCreateResponse.from(savedGroup);
     }
 
-    public void joinGroup(String groupId, Long memberId, GroupJoinRequest request) {
+    public GroupJoinNotification joinGroup(String groupId, Long memberId, GroupJoinRequest request) {
         Group group = groupQueryService.findGroup(groupId);
         Member member = memberQueryService.findMember(memberId);
 
@@ -41,10 +42,11 @@ public class GroupCreateJoinService {
         groupValidationService.checkNicknameDuplicate(group.getGroupMembers(), request.nickname());
         groupValidationService.checkProfileDuplicate(group.getGroupMembers(), request.profileImage());
 
-        createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_MEMBER, group, member);
+        GroupMember joinMember = createGroupMember(request.nickname(), request.profileImage(), GroupRole.GROUP_MEMBER, group, member);
+        return GroupJoinNotification.from(joinMember);
     }
 
-    private void createGroupMember(String nickname, String profileImage, GroupRole groupRole, Group group, Member member) {
+    private GroupMember createGroupMember(String nickname, String profileImage, GroupRole groupRole, Group group, Member member) {
         GroupMember groupMember = GroupMember.of(
                 nickname,
                 profileImage,
@@ -53,7 +55,7 @@ public class GroupCreateJoinService {
                 group,
                 member
         );
-        groupMemberRepository.save(groupMember);
         group.joinMember();
+        return groupMemberRepository.save(groupMember);
     }
 }

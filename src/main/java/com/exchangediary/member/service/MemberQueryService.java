@@ -4,6 +4,7 @@ import com.exchangediary.global.exception.ErrorCode;
 import com.exchangediary.global.exception.serviceexception.NotFoundException;
 import com.exchangediary.member.domain.MemberRepository;
 import com.exchangediary.member.domain.entity.Member;
+import com.exchangediary.member.ui.dto.response.MemberNotificationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,5 +26,15 @@ public class MemberQueryService {
 
     public boolean existMember(Long memberId) {
         return memberRepository.existsById(memberId);
+    }
+
+    public MemberNotificationResponse getOnNotification(Long memberId) {
+        boolean onNotification = memberRepository.findOnNotificationById(memberId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorCode.MEMBER_NOT_FOUND,
+                        "",
+                        String.valueOf(memberId)
+                ));
+        return new MemberNotificationResponse(onNotification);
     }
 }

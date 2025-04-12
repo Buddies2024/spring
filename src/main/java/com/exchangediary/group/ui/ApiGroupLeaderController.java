@@ -1,6 +1,9 @@
 package com.exchangediary.group.ui;
 
 import com.exchangediary.group.service.GroupLeaderService;
+import com.exchangediary.group.ui.dto.notification.GroupLeaderHandOverNotification;
+import com.exchangediary.group.ui.dto.notification.GroupLeaderKickOutNotification;
+import com.exchangediary.group.ui.dto.notification.GroupLeaderSkipDiaryNotification;
 import com.exchangediary.group.ui.dto.request.GroupKickOutRequest;
 import com.exchangediary.group.ui.dto.request.GroupLeaderHandOverRequest;
 import com.exchangediary.notification.service.NotificationService;
@@ -26,9 +29,15 @@ public class ApiGroupLeaderController {
             @RequestAttribute Long memberId,
             @RequestBody GroupLeaderHandOverRequest request
     ) {
-        long newLeaderId = groupLeaderService.handOverGroupLeader(groupId, memberId, request);
-        notificationService.pushToAllGroupMembersExceptMemberAndLeader(groupId, newLeaderId, "방장이 다른 친구에게 방장 역할을 넘겨줬어요!");
-        notificationService.pushNotification(newLeaderId, "방장이 나에게 방장 역할을 넘겨줬어요!");
+        GroupLeaderHandOverNotification notification = groupLeaderService.handOverGroupLeader(groupId, memberId, request);
+
+        notificationService.pushToAllGroupMembersExceptMemberAndLeader(
+                groupId,
+                notification.oldLeaderId(),
+                String.format("%s(이)가 새로운 방장이 되었습니다.", notification.newLeaderNickname())
+        );
+        notificationService.pushNotification(notification.newLeaderId(), "방장이 되었습니다. 방장 권한을 실행해보세요!");
+
         return ResponseEntity
                 .ok()
                 .build();
@@ -36,9 +45,11 @@ public class ApiGroupLeaderController {
 
     @PatchMapping("/skip-order")
     public ResponseEntity<Void> skipDiaryOrder(@PathVariable String groupId) {
-        long skipDiaryMemberId = groupLeaderService.skipDiaryOrder(groupId);
-        notificationService.pushNotification(skipDiaryMemberId, "방장이 일기 순서를 건너뛰었어요.\n다음 순서를 기다려주세요!");
+        GroupLeaderSkipDiaryNotification notification = groupLeaderService.skipDiaryOrder(groupId);
+
+        notificationService.pushNotification(notification.skipDiaryMemberId(), "방장이 일기 순서를 건너뛰었어요.\n다음 순서를 기다려주세요!");
         notificationService.pushDiaryOrderNotification(groupId);
+
         return ResponseEntity
                 .ok()
                 .build();
@@ -49,9 +60,15 @@ public class ApiGroupLeaderController {
             @PathVariable String groupId,
             @RequestBody GroupKickOutRequest request
     ) {
-        long kickOutMemberId = groupLeaderService.kickOutMember(groupId, request);
-        notificationService.pushToAllGroupMembersExceptMemberAndLeader(groupId, kickOutMemberId, "방장이 친구를 그룹에서 내보냈어요!");
-        notificationService.pushNotification(kickOutMemberId, "앗, 그룹에서 내보내졌어요.\n다른 스프링에서 일기 쓰기를 시작해요!");
+        GroupLeaderKickOutNotification notification = groupLeaderService.kickOutMember(groupId, request);
+
+        notificationService.pushToAllGroupMembersExceptMemberAndLeader(
+                groupId,
+                notification.kickOutMemberId(),
+                String.format("방장이 %s(이)를 그룹에서 내보냈어요!", notification.kickOutMemberNickname())
+        );
+        notificationService.pushNotification(notification.kickOutMemberId(), "앗, 그룹에서 내보내졌어요.\n다시 스프링을 시작해볼까요?");
+
         return ResponseEntity
                 .ok()
                 .build();
