@@ -175,24 +175,19 @@ function reloadNotificationBtn() {
 }
 
 async function drawNotificationBtn() {
+    const permission = Notification.permission;
     const classList = notificationBtn.classList;
     notificationBtn.removeEventListener("click", showNotificationSetting);
     notificationBtn.removeEventListener("click", changeNotificationState);
 
-    try {
-        const permission = await Notification.requestPermission();
-
-        if (permission === 'granted') {
-            notificationBtn.innerHTML = "알림 활성화 중";
-            await setFCMToken();
-            drawNotificationToggleBtn(notificationBtn);
-        } else {
-            classList.replace(classList[2], "denied");
-            notificationBtn.innerHTML = "알림 권한 활성화";
-            notificationBtn.addEventListener("click", showNotificationSetting);
-        }
-    } catch (err) {
-        console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
+    if (permission === 'granted') {
+        notificationBtn.innerHTML = "알림 활성화 중";
+        await setFCMToken();
+        drawNotificationToggleBtn(notificationBtn);
+    } else {
+        classList.replace(classList[2], "denied");
+        notificationBtn.innerHTML = "알림 권한 활성화";
+        notificationBtn.addEventListener("click", showNotificationSetting);
     }
 }
 
