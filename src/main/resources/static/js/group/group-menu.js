@@ -179,13 +179,13 @@ async function drawNotificationBtn() {
     const classList = notificationBtn.classList;
     notificationBtn.removeEventListener("click", showNotificationSetting);
     notificationBtn.removeEventListener("click", changeNotificationState);
+    classList.replace(classList[2], "denied");
 
-    if (permission === 'granted') {
+    if (permission === "granted") {
         notificationBtn.innerHTML = "알림 활성화 중";
         await setFCMToken();
         drawNotificationToggleBtn(notificationBtn);
     } else {
-        classList.replace(classList[2], "denied");
         notificationBtn.innerHTML = "알림 권한 활성화";
         notificationBtn.addEventListener("click", showNotificationSetting);
     }
