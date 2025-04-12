@@ -1,7 +1,13 @@
 function addEventTextareasByIos() {
     Array.from(textareas).forEach(textarea => {
-        textarea.addEventListener("focus", () => { isActive = false });
-        textarea.addEventListener("focusout", () => { isActive = true });
+        textarea.addEventListener("focus", (event) => {
+            event.target.classList.add("focus");
+            isActive = false;
+        });
+        textarea.addEventListener("focusout", (event) => { 
+            event.target.classList.remove("focus");
+            isActive = true;
+        });
         textarea.addEventListener("click", closeModal);
         textarea.addEventListener("keydown", checkKeydownEvent);
         textarea.addEventListener("input", checkNextPage);

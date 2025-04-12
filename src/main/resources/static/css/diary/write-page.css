@@ -102,6 +102,10 @@ textarea.diary-content {
     box-sizing: border-box; */
 }
 
+textarea.diary-content.focus {
+    touch-action: auto;
+}
+
 .bottom {
     width: 100%;
     height: 10px;
