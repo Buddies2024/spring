@@ -3,6 +3,8 @@
 html, body {
     margin: 0px;
     overflow: hidden;
+    position: fixed;
+    width: 100%;
 }
 
 .drag-prevent{
@@ -11,6 +13,14 @@ html, body {
     -webkit-user-select: none;
     -khtml-user-select: none;
     user-select: none;
+}
+
+.drag {
+    -ms-user-select: text;
+    -moz-user-select: text;
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    user-select: text;
 }
 
 .full-screen {

@@ -11,7 +11,6 @@ backgroundImage.addEventListener("load", () => modal.style.backgroundImage = `ur
 backgroundImage.src = "/images/diary/write-page/modal/background.svg";
 
 moodBtn.addEventListener("click", (event) => {
-    event.preventDefault();
     clickModalBtn(event);
 });
 
@@ -46,7 +45,6 @@ function openModal() {
 }
 
 function changeMood(event) {
-    event.preventDefault();
     const moodBtn = document.querySelector(".mood-btn");
     moodBtn.children[0].src = event.target.src;
     moodBtn.children[0].classList.add("mood-icon");

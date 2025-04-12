@@ -33,14 +33,15 @@ const groupData = {
 }
 
 var currentStep = 1;
+var isMoving = false;
 
 confirm_btn.addEventListener("click", confirmStep);
 drawStep(currentStep, "stop");
 
 function nextStep() {
+    isMoving = true;
     addStepIcon();
-    removeStep(-1);
-    drawStep(currentStep, "next");
+    removeStep(-1, () => drawStep(currentStep, "next"));
 }
 
 function addStepIcon() {
@@ -49,20 +50,28 @@ function addStepIcon() {
     stepIcon.classList.add("fill");
 }
 
-function removeStep(direction) {
+function removeStep(direction, callback) {
     const step_content = note_body.children[0];
     step_content.style.transform = `translateX(${100 * direction}%)`;
-    setTimeout(() => step_content.remove(), 300);
+
+    step_content.addEventListener("transitionend", () => { 
+        step_content.remove();
+        if (callback) callback();
+    });
 }
 
 function drawStep(stepNumber, direction) {
-    setTimeout(() => steps[stepNumber].draw(direction), 350);
+    steps[stepNumber].draw(direction);
+    isMoving = false;
 }
 
 function prevStep() {
-    deleteStepIcon();
-    removeStep(1);
-    drawStep(currentStep, "prev");
+    if (currentStep > 1) {
+        isMoving = true;
+        deleteStepIcon();
+        removeStep(1, () => drawStep(currentStep, "prev"));
+    }
+    
 }
 
 function deleteStepIcon() {
@@ -72,7 +81,7 @@ function deleteStepIcon() {
 }
 
 async function confirmStep() {
-    if (await steps[currentStep].confirm()) {
+    if (!isMoving && await steps[currentStep].confirm()) {
         nextStep();
     }
 }
@@ -91,10 +100,10 @@ function addBackBtn() {
         const backBtn = document.createElement("div");
 
         backBtn.classList.add("bar-back");
-        backBtn.innerHTML = `<a href="#" class="back-btn"><img class="back-icon" src="/images/common/back_icon.svg"/></a>`;
+        backBtn.innerHTML = `<a href="javascript:void(0);" class="back-btn"><img class="back-icon" src="/images/common/back_icon.svg"/></a>`;
         topBar.appendChild(backBtn);
 
-        backBtn.addEventListener("click", () => prevStep());
+        backBtn.addEventListener("click", () => !isMoving && prevStep());
     }
 }
 

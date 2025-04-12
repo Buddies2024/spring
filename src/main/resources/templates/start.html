@@ -7,20 +7,19 @@
 </th:block>
 
 <th:block layout:fragment="content">
-  <div class="background" style="background-image: url('/images/start-page/background.png'); background-size: 100dvw 100dvh;">
+  <div class="background" style="background-image: url('/images/start-page/background.svg'); background-position: center center;">
     <img class="logo"/>
     <div class="title-box">
       <span class="text spring" >스프링</span>
+    </div>
+    <div class="bottom">
+      <span class="start-prompt">클릭하여 시작하기</span>
     </div>
   </div>
 </th:block>
 
 <th:block layout:fragment="script">
-  <script src="/js/start-page/start.js"></script>
-  <script type="module">
-    import { registerServiceWorker } from "/js/fcm/setup-fcm.js"
-    registerServiceWorker();
-  </script>
+  <script type="module" src="/js/start-page/start.js"></script>
 </th:block>
 
 </html>

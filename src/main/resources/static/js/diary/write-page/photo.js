@@ -8,8 +8,7 @@ function addUploadPhotoEvent() {
     photoInput.addEventListener("change", uploadImage);
 }
 
-function clickPhotoInput(event) {
-    event.preventDefault();
+function clickPhotoInput() {
     photoInput.click();
 }
 

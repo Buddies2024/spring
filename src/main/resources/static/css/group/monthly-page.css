@@ -76,7 +76,7 @@ th,td {
     letter-spacing: 0.44px;
 }
 
-.days {
+.week {
     color: #767676;
     text-align: center;
     font-variant-numeric: lining-nums proportional-nums;
@@ -89,20 +89,21 @@ th,td {
     letter-spacing: 0.24px;
 }
 
-.day {
+.weekday {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.date {
-    width: 34px;
-    height: 34px;
+.day {
+    width: 35px;
+    height: 35px;
     border: 1px solid;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
 
     color: #767676;
     text-align: center;
@@ -115,35 +116,38 @@ th,td {
     letter-spacing: 0.14px;
 }
 
-.arrow {
+.today .day{
+    color: rgba(0, 0, 0, 1);
+    border-width: 2px;
+}
+
+.arrow-area {
+    width: 24px;
+    height: 24px;
+
     position: absolute;
+    top: 24px;
+}
+
+.arrow-area.left-arrow {
+    content: url("/images/monthly-page/left-arrow.svg");
+    left: 18px;
+}
+
+.arrow-area.right-arrow {
+    content: url("/images/monthly-page/right-arrow.svg");
+    right: 18px;
+}
+
+.arrow {
+    position: relative;
+    top: 4px;
+    left: 1px;
     content: '';
     width: 12px;
     height: 12px;
     border-top: 3px solid #767676;
     border-right: 3px solid #767676;
-}
-
-.arrow.left-arrow {
-    top: 30px;
-    left: 20px;
-    transform: rotate(225deg);
-}
-
-.arrow.right-arrow {
-    top: 30px;
-    right: 20px;
-    transform: rotate(45deg);
-}
-
-.today {
-    color: rgba(0, 0, 0, 1);
-    border-width: 2px;
-}
-
-.highlight {
-    width: 36px;
-    height: 36px;
 }
 
 .calendar-top {

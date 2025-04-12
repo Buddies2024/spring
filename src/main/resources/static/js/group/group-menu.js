@@ -1,3 +1,5 @@
+import { setFCMToken } from "/js/fcm/setup-fcm.js"
+
 const menuBtn = document.querySelector(".menu-btn");
 const groupMenu = document.querySelector(".group-menu");
 const menu = groupMenu.querySelector(".menu");
@@ -5,6 +7,7 @@ const groupMembers = menu.querySelector(".group-members");
 const groupSize = menu.querySelector(".group-size .size");
 const groupLeaveBtn = menu.querySelector(".group-leave");
 const groupCodeBtn = menu.querySelector(".group-code");
+const notificationBtn = menu.querySelector(".notification");
 var isLeader = false;
 
 menuBtn.addEventListener("click", openMenu);
@@ -13,7 +16,7 @@ groupLeaveBtn.addEventListener("click", leaveGroup);
 groupCodeBtn.addEventListener("click", () => {
     try {
         navigator.clipboard.writeText(groupCodeBtn.getAttribute("data-code"))
-        openNotificationModal("success", ["코드 복사에 성공했습니다."], 500);
+        openNotificationModal("success", ["복사 성공!", "친구들을 초대해 보아요."], 1000);
     } catch {
         openNotificationModal("error", ["오류가 발생했습니다."], 2000);
     }
@@ -26,6 +29,8 @@ function openMenu() {
     groupMenu.style.display = "block";
     groupMenu.classList.add("blur");
     setTimeout(() => menu.style.transform = "translateX(0)", 10);
+    drawNotificationBtn();
+    document.addEventListener("visibilitychange", reloadNotificationBtn);
 }
 
 function closeMenu(event) {
@@ -34,6 +39,7 @@ function closeMenu(event) {
         groupMenu.classList.remove("blur");
         setTimeout(() => groupMenu.style.display = "none", 300);
         removeMembers();
+        document.removeEventListener("visibilitychange", reloadNotificationBtn);
     }
 }
 
@@ -53,11 +59,9 @@ function drawMenu(data) {
     }
 
     if (data.members.length === 1) {
-        groupLeaveBtn.innerText = "그룹 삭제";
         groupLeaveBtn.removeEventListener("click", leaveGroup);
         groupLeaveBtn.addEventListener("click", deleteGroup);
     } else {
-        groupLeaveBtn.innerText = "탈퇴하기";
         groupLeaveBtn.removeEventListener("click", deleteGroup);
         groupLeaveBtn.addEventListener("click", leaveGroup);
     }
@@ -95,7 +99,7 @@ function getAngle(number, memberSize) {
 }
 
 function makeMemberHtml(characterName, memberName) {
-    return `<a class="profile-image" href="#">
+    return `<a class="profile-image" href="javascript:void(0);">
                 <img class="${characterName} character-icon" />
             </a>
             <span class="profile-nickname">${memberName}</span>`
@@ -162,4 +166,84 @@ async function deleteGroup(event) {
             }
         })
     }
+}
+
+function reloadNotificationBtn() {
+    if (document.visibilityState === "visible" && !/^\/groups\/[A-Za-z0-9]{8}\/diaries$/.test(location.pathname)) {
+        drawNotificationBtn();
+    }
+}
+
+async function drawNotificationBtn() {
+    const classList = notificationBtn.classList;
+    notificationBtn.removeEventListener("click", showNotificationSetting);
+    notificationBtn.removeEventListener("click", changeNotificationState);
+
+    try {
+        const permission = await Notification.requestPermission();
+
+        if (permission === 'granted') {
+            notificationBtn.innerHTML = "알림 활성화 중";
+            await setFCMToken();
+            drawNotificationToggleBtn(notificationBtn);
+        } else {
+            classList.replace(classList[2], "denied");
+            notificationBtn.innerHTML = "알림 권한 활성화";
+            notificationBtn.addEventListener("click", showNotificationSetting);
+        }
+    } catch (err) {
+        console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
+    }
+}
+
+function showNotificationSetting() {
+    openNotificationModal("error", ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"], 2147483647);
+}
+
+async function drawNotificationToggleBtn(notificationBtn) {
+    const classList = notificationBtn.classList;
+    fetch("/api/member/notification")
+    .then(response => {
+        if (response.status === 200) {
+            return response.json();
+        }
+        openNotificationModal("error", ["오류가 발생했습니다."], 2000);
+    })
+    .then(data => {
+        if (data.onNotification) {
+            classList.replace(classList[2], "on");
+            notificationBtn.innerHTML = "<img />알림 ON";
+        } else {
+            classList.replace(classList[2], "off");
+            notificationBtn.innerHTML = "<img />알림 OFF";
+        }
+        notificationBtn.addEventListener("click", changeNotificationState);
+    });
+}
+
+function changeNotificationState(event) {
+    const notificationBtn = event.target.closest("a.notification");
+
+    if (notificationBtn.classList.contains("on")) {
+        notificationBtn.classList.replace("on", "off");
+        notificationBtn.innerHTML = "<img />알림 OFF";
+    } else {
+        notificationBtn.classList.replace("off", "on");
+        notificationBtn.innerHTML = "<img />알림 ON";
+    }
+    notificationBtn.removeEventListener("click", changeNotificationState);
+    requestToggleNotification(notificationBtn);
+}
+
+function requestToggleNotification(notificationBtn) {
+    const url = "/api/member/notification"
+    fetch(url, {
+        method: "PATCH"
+    })
+    .then(response => {
+        if (response.status !== 200) {
+            openNotificationModal("error", ["오류가 발생했습니다."], 2000);
+        }
+        notificationBtn.addEventListener("click", changeNotificationState);
+    })
 }

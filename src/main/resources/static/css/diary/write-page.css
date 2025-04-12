@@ -86,18 +86,24 @@
     height: 500px;
     position: absolute;
     transition: transform 0.3s ease-out;
+    will-change: transform;
 }
 
 .diary-content-area {
     position: relative;
-    top: 24px;
+    top: 12px;
 }
 
 textarea.diary-content {
     resize: none;
+    touch-action: none;
     /* 마지막 줄 나타내는 테두리 */
     /* border-bottom: 1px solid #000;
     box-sizing: border-box; */
+}
+
+textarea.diary-content.focus {
+    touch-action: auto;
 }
 
 .bottom {
@@ -134,7 +140,7 @@ textarea.diary-content {
 
 .tooltip-box {
     position: relative;
-    top: 18px;
+    bottom: 18px;
     width: 310px;
     height: 115px;
 }

@@ -28,30 +28,32 @@
     content: url("/images/character/purple.svg")
 }
 
-.red.gray {
-    content: url("/images/character/gray-red.svg")
-}
-
-.orange.gray {
-    content: url("/images/character/gray-orange.svg")
-}
-
-.yellow.gray {
-    content: url("/images/character/gray-yellow.svg")
-}
-
-.green.gray {
-    content: url("/images/character/gray-green.svg")
-}
-
-.blue.gray {
-    content: url("/images/character/gray-blue.svg")
-}
-
-.navy.gray {
-    content: url("/images/character/gray-navy.svg")
-}
-
-.purple.gray {
-    content: url("/images/character/gray-purple.svg")
+.gray {
+    .red {
+        content: url("/images/character/gray-red.svg")
+    }
+    
+    .orange {
+        content: url("/images/character/gray-orange.svg")
+    }
+    
+    .yellow {
+        content: url("/images/character/gray-yellow.svg")
+    }
+    
+    .green {
+        content: url("/images/character/gray-green.svg")
+    }
+    
+    .blue {
+        content: url("/images/character/gray-blue.svg")
+    }
+    
+    .navy {
+        content: url("/images/character/gray-navy.svg")
+    }
+    
+    .purple {
+        content: url("/images/character/gray-purple.svg")
+    }
 }

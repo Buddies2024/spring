@@ -90,7 +90,6 @@ async function viewSelectableCharacter() {
         const profileImage = document.querySelector(`.${image.profileImage}`);
 
         profileImage.parentElement.classList.add("gray");
-        profileImage.classList.add("gray");
     });
 
     if (selectedImages.length === 7) {

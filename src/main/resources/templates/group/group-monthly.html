@@ -31,7 +31,9 @@
             <div>
                 <table frame="void">
                     <tr>
-                        <td class="on-table"><a class="arrow left-arrow" href="#"></a></td>
+                        <td class="on-table">
+                            <a class="arrow-area left-arrow" href="javascript:void(0);"></a>
+                        </td>
                         <td></td>
                         <td></td>
                         <td class="on-table">
@@ -39,7 +41,9 @@
                         </td>
                         <td></td>
                         <td></td>
-                        <td class="on-table"><a class="arrow right-arrow" href="#"></a></td>
+                        <td class="on-table">
+                            <a class="arrow-area right-arrow" href="javascript:void(0);"></a>
+                        </td>
                     </tr>
                     <tr>
                         <td></td>
@@ -52,14 +56,14 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr class="days">
-                        <td><span class="day">S</span></td>
-                        <td><span class="day">M</span></td>
-                        <td><span class="day">T</span></td>
-                        <td><span class="day">W</span></td>
-                        <td><span class="day">T</span></td>
-                        <td><span class="day">F</span></td>
-                        <td><span class="day">S</span></td>
+                    <tr class="week">
+                        <td><span class="weekday">S</span></td>
+                        <td><span class="weekday">M</span></td>
+                        <td><span class="weekday">T</span></td>
+                        <td><span class="weekday">W</span></td>
+                        <td><span class="weekday">T</span></td>
+                        <td><span class="weekday">F</span></td>
+                        <td><span class="weekday">S</span></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -129,8 +133,6 @@
 
 <th:block layout:fragment="script">
     <script src="/js/group/monthly/draw-monthly.js"></script>
-    <script src="/js/group/monthly/draw-bottom.js"></script>
-    <script src="/js/group/monthly/change-month.js"></script>
 </th:block>
 
 </html>

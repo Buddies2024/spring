@@ -10,14 +10,13 @@ const TEXTLIST = [
     "스프링을 채울 준비가 되었나요➿?\ntip! 꼭 길게 쓰지 않아도 괜찮아요.",
     "밥 한 끼 같이 먹듯, 스프링에 마음을 나눠요➿\ntip! 오늘 먹었던 음식처럼,\n사소한 이야기도 좋아요."
 ];
-
 init();
 
 function init() {
     drawTodayDate();
     addEventToWriteBtn();
     makePages();
-    addEventSlide();
+    addEventPages();
     getRandomText();
 }
 
@@ -68,7 +67,7 @@ function writeDiary() {
             return response.headers.get("content-location");
         })
         .then(contentLocation => {
-            openNotificationModal("success", ["일기가 작성되었어요!"], 2000, () => redirect(contentLocation));
+            openNotificationModal("success", ["일기가 작성되었어요!"], 2000, () => replace(contentLocation));
         })
         .catch(async response => {
             if (response.status === 400 || response.status === 500) {
@@ -117,16 +116,17 @@ function makePages() {
     nextPage = pages[1];
 }
 
-function addEventSlide() {
+function addEventPages() {
     pages.forEach(page => {
         addSlideEventByNoteContent(page.noteContent);
-        page.noteContent.addEventListener("touchstart", () => page.diaryContent.blur());
     });
-    content.addEventListener("transitionend", (event) => {
-        if (event.target === currentPage.noteContent) {
-            currentPage.diaryContent.focus();
-        }
-    });
+    content.addEventListener("transitionend", foucsCurrentTextarea);
+}
+
+function foucsCurrentTextarea(event) {
+    if (!canTyping && event.target === currentPage.noteContent) {
+        canTyping = true;
+    }
 }
 
 function changePage(targetPage) {
