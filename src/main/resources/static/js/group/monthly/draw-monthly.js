@@ -113,6 +113,7 @@ class Calendar {
     }
 
     reload() {
+        this.today = new Date();
         this.draw(this.year, this.month);
         drawWrittenDays();
         drawBottom();
