@@ -102,6 +102,10 @@ textarea.diary-content {
     box-sizing: border-box; */
 }
 
+textarea.diary-content.only-text {
+    margin-top: 0px;
+}
+
 textarea.diary-content.focus {
     touch-action: auto;
 }

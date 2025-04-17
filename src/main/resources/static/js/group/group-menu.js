@@ -1,5 +1,12 @@
 import { setFCMToken } from "/js/fcm/setup-fcm.js"
 
+const BELL_ICONS = [
+    "/images/group/menu/notification.svg",
+    "/images/group/menu/notification-mute.svg"
+];
+
+preLoadImgage(BELL_ICONS);
+
 const menuBtn = document.querySelector(".menu-btn");
 const groupMenu = document.querySelector(".group-menu");
 const menu = groupMenu.querySelector(".menu");
@@ -175,29 +182,32 @@ function reloadNotificationBtn() {
 }
 
 async function drawNotificationBtn() {
+    const permission = Notification.permission;
     const classList = notificationBtn.classList;
     notificationBtn.removeEventListener("click", showNotificationSetting);
     notificationBtn.removeEventListener("click", changeNotificationState);
+    classList.replace(classList[2], "denied");
 
-    try {
-        const permission = await Notification.requestPermission();
-
-        if (permission === 'granted') {
-            notificationBtn.innerHTML = "알림 활성화 중";
-            await setFCMToken();
-            drawNotificationToggleBtn(notificationBtn);
-        } else {
-            classList.replace(classList[2], "denied");
-            notificationBtn.innerHTML = "알림 권한 활성화";
-            notificationBtn.addEventListener("click", showNotificationSetting);
-        }
-    } catch (err) {
-        console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
+    if (permission === "granted") {
+        notificationBtn.innerHTML = "알림 활성화 중";
+        await setFCMToken();
+        drawNotificationToggleBtn(notificationBtn);
+    } else {
+        notificationBtn.innerHTML = "알림 권한 활성화";
+        notificationBtn.addEventListener("click", showNotificationSetting);
     }
 }
 
 function showNotificationSetting() {
-    openNotificationModal("error", ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"], 2147483647);
+    const mobileOS = getMobileOS();
+    var messages = [];
+    if (mobileOS === "iOS") {
+        messages = ["알림 권한이 꺼져 있어요.", "'설정 -> 앱 -> 스프링 -> 알림' 에서", "알림 권한을 허용 해주세요..!"];
+    }
+    if (mobileOS === "Android") {
+        messages = ["알림 권한이 꺼져 있어요.", "'크롬->설정->알림->앱 알림 상세설정' 에서", "차단된 알림 권한을 허용 해주세요..!"];
+    }
+    openNotificationModal("error", messages, 2147483647);
 }
 
 async function drawNotificationToggleBtn(notificationBtn) {
