@@ -4,8 +4,8 @@
             <pattern>${FILE_SQL_LOG_PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>./log/sql/buddies-spring-sql-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxFileSize>50MB</maxFileSize>
+            <fileNamePattern>./log/%d{yyyyMMdd}/sql-%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
             <maxHistory>10</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
