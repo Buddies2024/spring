@@ -56,11 +56,13 @@ function writeDiary() {
     formData.append("file", getUploadImage());
 
     closeModal();
+    playLoadingAnimation();
     fetch(`/api/groups/${groupId}/diaries`, {
         method: "post",
         body: formData
     })
         .then(response => {
+            stopLoadingAnimation();
             if (response.status !== 201) {
                 throw response;
             }

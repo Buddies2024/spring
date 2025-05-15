@@ -38,7 +38,9 @@ async function requestNotificationPermission() {
 
         if (permission === 'granted') {
             console.log('알림 권한이 허용되어 있습니다.');
+            playLoadingAnimation();
             await setFCMToken();
+            stopLoadingAnimation();
         } else {
             console.log('알림 권한이 차단되어 있습니다.');
         }
