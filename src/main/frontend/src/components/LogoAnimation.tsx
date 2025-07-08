@@ -1,4 +1,3 @@
-import React from "react";
 import logo from '../assets/images/logos/logo.gif';
 
 type Props = {

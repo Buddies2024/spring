@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
     isEnd: Boolean;
@@ -8,7 +8,7 @@ function StartPrompt(props: Props) {
     const [animation, setAnimation] = useState("");
 
     useEffect(() => {
-        let timer: number;
+        let timer: NodeJS.Timeout;
 
         if (props.isEnd) {
             setAnimation('typing');
