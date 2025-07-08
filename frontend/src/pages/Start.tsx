@@ -5,6 +5,11 @@ import LogoAnimation from "../components/LogoAnimation";
 import StartPrompt from "../components/StartPrompt";
 import axios from 'axios';
 
+type AnonymousInfo = {
+    groupId: String,
+    shouldLogin: Boolean
+}
+
 const Start = () => {
     const [isEnd, setEnd] = useState(false);
     const navigate = useNavigate();
@@ -21,8 +26,7 @@ const Start = () => {
 
     const handleClick = () => {
         if (isEnd) {
-            startSpring()
-            // navigate("/login");
+            startSpring();
         } else {
             setEnd(true);
         }
@@ -31,22 +35,17 @@ const Start = () => {
     function startSpring() {
         axios.get('/api/anonymous/info')
             .then((response) => {
-                console.log(response.data);
-            })
+                navigate(getUrl(response.data));
+            });
     }
     
-    function getUrl(anonymousInfo: any) {
-        window.localStorage.removeItem("groupId");
-    
+    function getUrl(anonymousInfo: AnonymousInfo) {
         if (anonymousInfo.shouldLogin) {
             return "/login"
         }
-    
         if (anonymousInfo.groupId === null) {
             return "/groups"
         }
-    
-        window.localStorage.setItem("groupId", anonymousInfo.groupId);
         return `/groups/${anonymousInfo.groupId}`
     }
 

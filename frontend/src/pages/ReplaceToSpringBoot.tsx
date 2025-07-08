@@ -3,13 +3,12 @@ import { useEffect } from 'react';
 
 const ReplaceToSpringBoot = () => {
     const location = useLocation();
+    const hostname = window.location.hostname;
     const BASE_URL =
         process.env.NODE_ENV === "development"
-            ? "http://localhost:8080"
+            ? `http://${hostname}:8080`
             : "https://buddies-spring.site";
 
-
-    console.log(process.env.NODE_ENV);
     useEffect(() => {
         const path = location.pathname + location.search;
         const springBootUrl = `${BASE_URL}${path}`;
