@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import '../styles/Start.css';
+import { useNavigate } from "react-router-dom";
 import LogoAnimation from "../components/LogoAnimation.tsx";
 import StartPrompt from "../components/StartPrompt.tsx";
+import '../styles/Start.css';
 
 const Start = () => {
     const [isEnd, setEnd] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -18,7 +20,7 @@ const Start = () => {
 
     const handleClick = () => {
         if (isEnd) {
-            alert("애니메이션 끝남");
+            navigate("/react/login");
         } else {
             setEnd(true);
         }
