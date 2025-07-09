@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import LogoAnimation from "../components/LogoAnimation";
 import StartPrompt from "../components/StartPrompt";
 import axios from 'axios';
+import { setFCMToken } from '../setup-fcm';
 
 type AnonymousInfo = {
     groupId: String,
@@ -26,16 +27,36 @@ const Start = () => {
 
     const handleClick = () => {
         if (isEnd) {
-            startSpring();
+            requestNotificationPermission();
         } else {
             setEnd(true);
         }
     }
 
+    async function requestNotificationPermission() {
+        try {
+            const permission = await Notification.requestPermission();
+    
+            if (permission === 'granted') {
+                console.log('알림 권한이 허용되어 있습니다.');
+                await setFCMToken();
+            } else {
+                console.log('알림 권한이 차단되어 있습니다.');
+            }
+        } catch (err) {
+            console.log('알림 권한을 조회하던 도중 에러가 발생했습니다.', err);
+        }
+    
+        startSpring();
+    }
+
     function startSpring() {
         axios.get('/api/anonymous/info')
-            .then((response) => {
+            .then(response => {
                 navigate(getUrl(response.data));
+            })
+            .catch(error => {
+                console.error(error.message);
             });
     }
     
